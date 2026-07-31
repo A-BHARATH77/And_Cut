@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinematic Preloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f0f0f;
+      overflow: hidden; /* Prevent scrolling during preloader */
+    }
+    
+    .font-playfair { font-family: 'Playfair Display', serif; }
+    .font-inter { font-family: 'Inter', sans-serif; }
+    
+    /* Preloader Overlay */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #050505;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform;
+    }
+    
+    .preloader-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    /* Dummy Hero */
+    #hero {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image: linear-gradient(to bottom, #111, #0a0a0a);
+      color: #fff;
+      opacity: 0; /* Hidden initially, revealed by GSAP */
+      transform: scale(1.05); /* Scaled up initially */
+      will-change: transform, opacity;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cinematic Preloader -->
+  <div id="preloader">
+    <!-- Phase 1: Quote -->
+    <div id="quote" class="preloader-content px-6 text-center">
+      <p class="font-inter text-[#E5E5E5] text-lg md:text-2xl font-normal tracking-wide">
+        Ads are dead. Your customers are the new billboards.
+      </p>
+    </div>
+    
+    <!-- Phase 2: Studio Name -->
+    <div id="studio-name" class="preloader-content">
+      <h1 class="font-playfair text-[#F5F5F5] text-5xl md:text-7xl tracking-[0.2em] uppercase">
+        AND CUT
+      </h1>
+    </div>
+  </div>
+
+  <!-- Dummy Hero Section -->
+  <section id="hero">
+    <div class="text-center">
+      <h2 class="font-playfair text-6xl md:text-8xl mb-6">Welcome to the New Era</h2>
+      <p class="font-inter text-gray-400 text-xl max-w-2xl mx-auto">
+        This is the dummy hero section. The preloader has gracefully exited, revealing the immersive experience underneath.
+      </p>
+    </div>
+  </section>
+
+  <!-- GSAP Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Create master timeline with absolute precision
+      const masterTl = gsap.timeline({
+        onComplete: () => {
+          // Completely remove preloader from DOM to prevent memory leaks/interaction blocking
+          const preloader = document.getElementById('preloader');
+          if (preloader) {
+            preloader.remove();
+          }
+          // Restore scrolling
+          document.body.style.overflow = 'auto';
+        }
+      });
+
+      // Phase 1 (0.0s - 2.0s): Quote fade in/out
+      masterTl
+        .to("#quote", {
+          opacity: 1,
+          duration: 0.6,
+          ease: "power2.out"
+        }, 0) // Start at 0.0s
+        .to("#quote", {
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.inOut"
+        }, 1.5); // Start fade out at 1.5s, ends at 2.0s
+
+      // Phase 2 (2.0s - 3.5s): Studio Name subtle scale & fade in/out
+      masterTl
+        .fromTo("#studio-name", 
+          { opacity: 0, scale: 0.95 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" },
+          2.0 // Start exactly at 2.0s
+        )
+        .to("#studio-name", {
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.inOut"
+        }, 3.0); // Start fade out at 3.0s, ends at 3.5s
+
+      // Phase 3 (3.5s - 5.0s): Overlay slide up + Hero scale down reveal
+      masterTl
+        .to("#preloader", {
+          yPercent: -100,
+          duration: 1.5,
+          ease: "expo.inOut"
+        }, 3.5) // Start at 3.5s, ends at 5.0s
+        .to("#hero", {
+          opacity: 1,
+          scale: 1,
+          duration: 1.5,
+          ease: "expo.inOut"
+        }, 3.5); // Simultaneously trigger Hero reveal
+    });
+  </script>
+</body>
+</html>
