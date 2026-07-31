@@ -19,7 +19,7 @@ export default function Footer() {
             
             {/* Brand & Description */}
             <div className="md:col-span-5 flex flex-col items-start">
-              <img src="/and_cut_logo.png" alt="ANDCUT Studios" className="h-12 md:h-20 w-auto object-contain" />
+              <img src="/and_cut_logo.webp" alt="ANDCUT Studios" className="h-12 md:h-20 w-auto object-contain" />
               <p className="mt-5 md:mt-8 text-white/60 text-base md:text-lg max-w-sm text-balance font-light leading-relaxed">
                 Stop blending in. We deliver native, high-energy UGC content built specifically to dominate TikTok, Reels, and Shorts.
               </p>

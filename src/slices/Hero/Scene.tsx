@@ -17,9 +17,9 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const ALL_GIFS = Array.from({ length: 14 }, (_, i) => {
-  if (i === 3) return `/ANDCUT_GIFs/8.mp4`; // Swap top right
-  if (i === 7) return `/ANDCUT_GIFs/4.mp4`; // Swap to prevent duplicate
-  return `/ANDCUT_GIFs/${i + 1}.mp4`;
+  if (i === 3) return `/ANDCUT_GIFs/8.webm`; // Swap top right
+  if (i === 7) return `/ANDCUT_GIFs/4.webm`; // Swap to prevent duplicate
+  return `/ANDCUT_GIFs/${i + 1}.webm`;
 });
 const NUM_CARDS = 14;
 const CARD_SPACING = 1.25;
@@ -244,7 +244,7 @@ export default function Scene() {
                 opacity: 0.9,
               }}>
                 <video
-                  src="/ANDCUT_VDS/4_comp.mp4"
+                  src="/ANDCUT_VDS/4_comp.webm"
                   autoPlay
                   muted
                   loop

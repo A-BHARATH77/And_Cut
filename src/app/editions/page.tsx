@@ -72,7 +72,7 @@ export default function EditionsPage() {
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                 </div>
              </div>
-             <img src="https://cdn.shopify.com/s/files/1/0951/3130/4218/files/preview_images/620a0d8735da4d97b040b1cd98693898.thumbnail.0000000000.jpg" alt="Video preview" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+             <img src="https://cdn.shopify.com/s/files/1/0951/3130/4218/files/preview_images/620a0d8735da4d97b040b1cd98693898.thumbnail.0000000000.webp" alt="Video preview" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
           </div>
           <div className="md:col-span-4 flex flex-col gap-6">
             <div className="flex-1 bg-[#1A1A24] rounded-2xl p-8 border border-white/10 flex flex-col justify-between hover:bg-[#20202A] transition-colors">

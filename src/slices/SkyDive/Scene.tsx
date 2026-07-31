@@ -170,7 +170,7 @@ export default function Scene({ sentence, flavor }: SkyDiveProps) {
           <mesh ref={logoRef} position={[0, 0, 0]} scale={isDesktop ? [1.8, 1.8, 1] : [1.3, 1.3, 1]} renderOrder={1}>
             <planeGeometry args={[1, 1]} />
             <meshBasicMaterial 
-              map={useTexture("/and_cut_logo.png")} 
+              map={useTexture("/and_cut_logo.webp")} 
               transparent={true} 
               depthWrite={false}
               depthTest={false}
@@ -199,7 +199,7 @@ export default function Scene({ sentence, flavor }: SkyDiveProps) {
   );
 }
 
-useTexture.preload("/and_cut_logo.png");
+useTexture.preload("/and_cut_logo.webp");
 
 function ThreeText({
   sentence,
@@ -213,11 +213,11 @@ function ThreeText({
   const isDesktop = useMediaQuery("(min-width: 950px)", true);
 
   const GIFS = [
-    "/ANDCUT_GIFs/1.mp4",
-    "/ANDCUT_GIFs/2.mp4",
-    "/ANDCUT_GIFs/3.mp4",
-    "/ANDCUT_GIFs/6.mp4",
-    "/ANDCUT_GIFs/5.mp4"
+    "/ANDCUT_GIFs/1.webm",
+    "/ANDCUT_GIFs/2.webm",
+    "/ANDCUT_GIFs/3.webm",
+    "/ANDCUT_GIFs/6.webm",
+    "/ANDCUT_GIFs/5.webm"
   ];
 
   return words.map((word: string, wordIndex: number) => {

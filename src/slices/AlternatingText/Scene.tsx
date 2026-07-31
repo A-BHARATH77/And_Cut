@@ -77,7 +77,7 @@ export default function Scene({}: Props) {
       <FloatingObject>
         <Html transform distanceFactor={2.5}>
           <div style={{ width: '180px', height: '320px', borderRadius: '15px', overflow: 'hidden', pointerEvents: 'none', boxShadow: '0px 10px 30px rgba(0,0,0,0.5)' }}>
-            <video src="/ANDCUT_GIFs/11.mp4" autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <video src="/ANDCUT_GIFs/11.webm" autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </Html>
       </FloatingObject>

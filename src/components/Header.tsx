@@ -11,6 +11,14 @@ export default function Header({}: Props) {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      e.preventDefault();
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -36,7 +44,7 @@ export default function Header({}: Props) {
         <div className="z-30 w-auto md:w-[300px] flex-shrink-0 pointer-events-auto -mt-2 md:-mt-6">
           <Link href="/" className="inline-block">
             <img 
-              src="/and_cut_logo.png" 
+              src="/and_cut_logo.webp" 
               alt="Andcut Logo" 
               className="header-logo-img h-14 sm:h-16 md:h-32 w-auto object-contain object-left-top cursor-pointer transition-transform duration-300 hover:scale-105" 
             />
@@ -60,6 +68,7 @@ export default function Header({}: Props) {
                 <Link 
                   key={item.name} 
                   href={`/#${item.id}`} 
+                  onClick={(e) => handleSmoothScroll(e, item.id)}
                   className="text-white/90 text-sm font-medium px-4 py-1.5 rounded-full hover:text-white hover:bg-white/10 transition-all duration-300"
                 >
                   {item.name}
@@ -105,7 +114,10 @@ export default function Header({}: Props) {
             <Link 
               key={item.name} 
               href={`/#${item.id}`} 
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={(e) => {
+                setIsMobileMenuOpen(false);
+                handleSmoothScroll(e, item.id);
+              }}
               className="text-white text-4xl font-black uppercase tracking-widest hover:text-[#0066FF] transition-colors duration-300"
             >
               {item.name}

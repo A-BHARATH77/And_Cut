@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 export default function CircularGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
-  const [previewSrc, setPreviewSrc] = useState("/gallery/img1.jpg");
+  const [previewSrc, setPreviewSrc] = useState("/gallery/img1.webp");
   
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -95,7 +95,7 @@ export default function CircularGallery() {
       >
         {Array.from({ length: 150 }).map((_, i) => {
           const imgIndex = (i % 15) + 1;
-          const imgSrc = `/gallery/img${imgIndex}.jpg`;
+          const imgSrc = `/gallery/img${imgIndex}.webp`;
 
           return (
             <div

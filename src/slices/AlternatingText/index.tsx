@@ -11,7 +11,7 @@ const PRICING_PLANS = [
   {
     title: "PLAN 1: UGC ESSENTIAL",
     price: "75,000/-",
-    videos: ["/ANDCUT_GIFs/1.mp4", "/ANDCUT_GIFs/2.mp4", "/ANDCUT_GIFs/3.mp4"],
+    videos: ["/ANDCUT_GIFs/1.webm", "/ANDCUT_GIFs/2.webm", "/ANDCUT_GIFs/3.webm"],
     gradient: "from-pink-500 to-rose-500",
     glow: "hover:shadow-pink-500/30",
     accent: "bg-pink-400/50",
@@ -21,7 +21,7 @@ const PRICING_PLANS = [
   {
     title: "PLAN 2: PERFORMANCE",
     price: "1,50,000/-",
-    videos: ["/ANDCUT_GIFs/5.mp4", "/ANDCUT_GIFs/6.mp4", "/ANDCUT_GIFs/7.mp4"],
+    videos: ["/ANDCUT_GIFs/5.webm", "/ANDCUT_GIFs/6.webm", "/ANDCUT_GIFs/7.webm"],
     gradient: "from-cyan-400 to-blue-500",
     glow: "hover:shadow-cyan-500/30",
     accent: "bg-cyan-400/50",
@@ -31,7 +31,7 @@ const PRICING_PLANS = [
   {
     title: "PLAN 3: CREATIVE LED",
     price: "2,25,000/-",
-    videos: ["/ANDCUT_GIFs/9.mp4", "/ANDCUT_GIFs/10.mp4", "/ANDCUT_GIFs/11.mp4"],
+    videos: ["/ANDCUT_GIFs/9.webm", "/ANDCUT_GIFs/10.webm", "/ANDCUT_GIFs/11.webm"],
     gradient: "from-orange-400 to-amber-500",
     glow: "hover:shadow-orange-500/30",
     accent: "bg-orange-400/50",

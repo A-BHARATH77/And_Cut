@@ -194,7 +194,7 @@ export default function Preloader() {
 
       {/* The Animated Logo that travels to the Header */}
       <img 
-        src="/and_cut_logo.png" 
+        src="/and_cut_logo.webp" 
         alt="AndCut Logo" 
         className="animated-logo fixed z-[110] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 md:w-64 h-auto object-contain" 
       />
@@ -202,15 +202,15 @@ export default function Preloader() {
       {/* Hero Images Area */}
       <section className="relative w-full h-[100svh] overflow-hidden">
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
-          <img src="/preloader1.png" alt="" className="w-full h-full object-cover" />
+          <img src="/preloader1.webp" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
-          <img src="/preloader2.png" alt="" className="w-full h-full object-cover" />
+          <img src="/preloader2.webp" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="intro-img hero-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform bg-black">
           <video
-            src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.mp4"
-            poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.jpg"
+            src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm"
+            poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp"
             autoPlay
             loop
             muted
@@ -220,10 +220,10 @@ export default function Preloader() {
           />
         </div>
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
-          <img src="/preloader3.png" alt="" className="w-full h-full object-cover" />
+          <img src="/preloader3.webp" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
-          <img src="/preloader4.png" alt="" className="w-full h-full object-cover" />
+          <img src="/preloader4.webp" alt="" className="w-full h-full object-cover" />
         </div>
 
         {/* Exact same Typography as the actual Hero section so the transition is seamless */}

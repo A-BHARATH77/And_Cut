@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ANDCUT Studios — The UGC Video Agency",
     description: "Authentic, high-energy videos built for TikTok & Reels.",
-    images: ["/gallery/and_cut_logo.png"], 
+    images: ["/gallery/and_cut_logo.webp"], 
   },
 };
 
