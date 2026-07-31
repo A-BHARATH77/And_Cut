@@ -8,7 +8,7 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
   UGC: [
     { title: "Blue Tea", videoPath: "/UGC/BT 1.webm" },
     { title: "Seven Ring", videoPath: "/UGC/Seven Ring.webm" },
-    { title: "Soul Flower", videoPath: "/UGC/Soul Flower.webm" },
+    { title: "Soul Flower", videoPath: "/UGC/Soul Flower 2.webm" },
     { title: "Blue Tea 2", videoPath: "/UGC/BT 2.webm" },
   ],
   DVC: [
