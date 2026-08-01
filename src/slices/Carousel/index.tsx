@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
+import { useLazyVideo } from "../../hooks/useLazyVideo";
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
@@ -175,39 +176,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
         <div className="w-full max-w-[1400px] px-3 sm:px-6 md:px-12 lg:px-20 relative z-10 flex flex-col gap-4 md:gap-8">
           {FORMATS_DATA["Horizontal"].map((video, idx) => (
             <div key={`horizontal-${idx}`} className="w-full relative group">
-              <div
-                className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 relative cursor-pointer group-hover:border-white/20 transition-all duration-500"
-                onClick={() => setModalData({ section: "Horizontal", idx })}
-              >
-                <video
-                  src={video.videoPath}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Tap to unmute hint on mobile */}
-                <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 opacity-0 group-hover:opacity-100 transition-all">
-                    <svg className="w-5 h-5 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.907L5.586 15z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                    </svg>
-                  </div>
-                </div>
-                {/* Text Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-                  <div>
-                    <div className="inline-block px-2 py-0.5 mb-2 text-[9px] md:text-[10px] font-bold tracking-wider uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
-                      Horizontal Format
-                    </div>
-                    <h3 className="text-white text-lg sm:text-2xl md:text-4xl font-bold tracking-wide capitalize">
-                      {video.title}
-                    </h3>
-                  </div>
-                </div>
-              </div>
+              <HorizontalVideoCard video={video} onClick={() => setModalData({ section: "Horizontal", idx })} />
             </div>
           ))}
         </div>
@@ -246,7 +215,15 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                       )}
                     >
                        {isVideo(video.videoPath) ? (
-                         <video src={video.videoPath} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" muted playsInline />
+                         <video 
+                           src={video.videoPath} 
+                           poster={video.videoPath.replace(/\.webm$/i, ".webp")} 
+                           preload="none" 
+                           style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                           className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" 
+                           muted 
+                           playsInline 
+                         />
                        ) : (
                          <img src={video.videoPath} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />
                        )}
@@ -260,10 +237,12 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                 {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
                   <video 
                     src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
+                    poster={FORMATS_DATA[modalData.section][modalData.idx].videoPath.replace(/\.webm$/i, ".webp")}
                     autoPlay 
                     loop 
                     controls
                     playsInline
+                    style={{ backgroundImage: `url('${FORMATS_DATA[modalData.section][modalData.idx].videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                     className="w-full h-full object-contain"
                   />
                 ) : (
@@ -293,7 +272,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 export default Carousel;
 
 function VideoCard({ video }: { video: VideoData }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useLazyVideo();
 
   if (!video) return null;
 
@@ -308,10 +287,11 @@ function VideoCard({ video }: { video: VideoData }) {
         <video
           ref={videoRef}
           src={video.videoPath}
-          autoPlay
+          poster={video.videoPath.replace(/\.webm$/i, ".webp")}
           loop
           muted
           playsInline
+          style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       ) : (
@@ -330,6 +310,47 @@ function VideoCard({ video }: { video: VideoData }) {
         <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">
           {video.title}
         </h3>
+      </div>
+    </div>
+  );
+}
+
+function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: () => void }) {
+  const videoRef = useLazyVideo();
+  return (
+    <div
+      className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 relative cursor-pointer group-hover:border-white/20 transition-all duration-500"
+      onClick={onClick}
+    >
+      <video
+        ref={videoRef}
+        src={video.videoPath}
+        poster={video.videoPath.replace(/\.webm$/i, ".webp")}
+        loop
+        muted
+        playsInline
+        style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      {/* Tap to unmute hint on mobile */}
+      <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
+        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 opacity-0 group-hover:opacity-100 transition-all">
+          <svg className="w-5 h-5 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.907L5.586 15z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </div>
+      </div>
+      {/* Text Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <div className="inline-block px-2 py-0.5 mb-2 text-[9px] md:text-[10px] font-bold tracking-wider uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+            Horizontal Format
+          </div>
+          <h3 className="text-white text-lg sm:text-2xl md:text-4xl font-bold tracking-wide capitalize">
+            {video.title}
+          </h3>
+        </div>
       </div>
     </div>
   );

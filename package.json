@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "concurrently \"npm:next:dev\" \"npm:slicemachine\" --names \"next,slicemachine\" --prefix-colors blue,magenta",
     "next:dev": "cross-env NODE_OPTIONS='--max-http-header-size=81920 --dns-result-order=ipv4first' next dev",
-    "build": "git lfs pull && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "slicemachine": "start-slicemachine",

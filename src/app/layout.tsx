@@ -36,6 +36,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", alpino.variable)}>
+      <head>
+        <link rel="preload" href="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm" as="video" type="video/webm" />
+        <link rel="preload" href="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp" as="image" />
+      </head>
       <body className="overflow-x-hidden bg-[#0A0A0F]">
         <LenisProvider>
           <div id="app-root">

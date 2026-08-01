@@ -1,18 +1,72 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
+import { FORMATS_DATA } from "@/data/services";
 
 export default function Preloader() {
   const [isDone, setIsDone] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
   const pathname = usePathname();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const hasLoaded = sessionStorage.getItem("hasLoaded-steel");
+    if (hasLoaded && process.env.NODE_ENV !== "development") {
+      setAssetsLoaded(true);
+      return;
+    }
+
+    const carouselPosters = Object.values(FORMATS_DATA)
+      .flat()
+      .map(video => video.videoPath.replace(/\.webm$/i, ".webp"));
+
+    const assetsToLoad = [
+      "/preloader1.webp",
+      "/preloader2.webp",
+      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
+      "/preloader3.webp",
+      "/preloader4.webp",
+      "/and_cut_logo.webp",
+      ...carouselPosters
+    ];
+
+    let loadedCount = 0;
+    
+    const checkReady = () => {
+       if (loadedCount >= assetsToLoad.length) {
+          setAssetsLoaded(true);
+       }
+    };
+
+    assetsToLoad.forEach(src => {
+      const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        checkReady();
+      };
+      img.onerror = () => {
+        loadedCount++; 
+        checkReady();
+      };
+      img.src = src;
+    });
+
+    // Fallback: If it takes too long, just start anyway after 5 seconds to prevent getting stuck
+    const timeout = setTimeout(() => {
+      setAssetsLoaded(true);
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   useGSAP(() => {
+    if (!assetsLoaded) return;
+
     const hasLoaded = sessionStorage.getItem("hasLoaded-steel");
     if (hasLoaded && process.env.NODE_ENV !== "development") {
       setIsDone(true);
@@ -182,7 +236,7 @@ export default function Preloader() {
       ease: "power2.inOut",
       onComplete: () => setIsDone(true)
     }, ">+0.3"); // Wait a tiny bit after the text finishes before fading out
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [assetsLoaded] });
 
   if (isDone) return null;
 
@@ -190,7 +244,14 @@ export default function Preloader() {
     <div ref={containerRef} className="fixed inset-0 z-[99999] bg-[#050508] font-sans w-full h-[100svh] overflow-hidden text-white">
       
       {/* FOUC Overlay (solid black to prevent flash) */}
-      <div className="fouc-overlay absolute inset-0 z-[100] bg-[#050508]" />
+      <div className="fouc-overlay absolute inset-0 z-[100] bg-[#050508] flex items-center justify-center">
+        {!assetsLoaded && (
+           <div className="flex flex-col items-center gap-4 transition-opacity duration-300">
+             <div className="w-8 h-8 border-2 border-white/20 border-t-[#6EE7FF] rounded-full animate-spin" />
+             <p className="text-white/60 text-[10px] tracking-widest uppercase font-bold animate-pulse">Loading Experience</p>
+           </div>
+        )}
+      </div>
 
       {/* The Animated Logo that travels to the Header */}
       <img 
