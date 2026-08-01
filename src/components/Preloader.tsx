@@ -240,9 +240,20 @@ export default function Preloader() {
       {/* FOUC Overlay (solid black to prevent flash) */}
       <div className="fouc-overlay absolute inset-0 z-[100] bg-[#050508] flex items-center justify-center">
         {!assetsLoaded && (
-           <div className="flex flex-col items-center gap-4 transition-opacity duration-300">
-             <div className="w-8 h-8 border-2 border-white/20 border-t-[#6EE7FF] rounded-full animate-spin" />
-             <p className="text-white/60 text-[10px] tracking-widest uppercase font-bold animate-pulse">Loading Experience</p>
+           <div className="flex flex-col items-center gap-4 transition-opacity duration-300 mt-32 md:mt-40">
+             <style>{`
+               @keyframes loading-slide {
+                 0% { transform: translateX(-150%); }
+                 100% { transform: translateX(250%); }
+               }
+             `}</style>
+             <div className="w-24 h-[2px] bg-white/10 rounded-full overflow-hidden relative">
+               <div 
+                 className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#6EE7FF] rounded-full"
+                 style={{ animation: "loading-slide 1.5s infinite ease-in-out" }}
+               />
+             </div>
+             <p className="text-white/40 text-[9px] tracking-widest uppercase font-bold animate-pulse">Loading Experience</p>
            </div>
         )}
       </div>
