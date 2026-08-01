@@ -16,6 +16,16 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState<string>("UGC");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [modalData, setModalData] = useState<{ section: string; idx: number } | null>(null);
+
+  useEffect(() => {
+    if (modalData) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [modalData]);
 
   const activeVideos = FORMATS_DATA[activeTab];
 
@@ -123,9 +133,9 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                           : "w-[48vw] sm:w-[40vw] md:w-[280px] lg:w-[320px]"
                       )}
                     >
-                      <Link href={`/services/${serviceSlug}?videoIdx=${idx}`}>
+                      <div className="cursor-pointer" onClick={() => setModalData({ section: activeTab, idx })}>
                         <VideoCard video={video} />
-                      </Link>
+                      </div>
                     </motion.div>
                   );
                 })}
@@ -167,10 +177,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
             <div key={`horizontal-${idx}`} className="w-full relative group">
               <div
                 className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 relative cursor-pointer group-hover:border-white/20 transition-all duration-500"
-                onClick={(e) => {
-                  const vid = e.currentTarget.querySelector("video");
-                  if (vid) vid.muted = !vid.muted;
-                }}
+                onClick={() => setModalData({ section: "Horizontal", idx })}
               >
                 <video
                   src={video.videoPath}
@@ -205,6 +212,80 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
           ))}
         </div>
       </section>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {modalData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4 md:p-10"
+          >
+            <button 
+              onClick={() => setModalData(null)}
+              className="absolute top-4 right-4 md:top-10 md:right-10 z-[110] text-white/60 hover:text-white transition-all hover:scale-110 p-2"
+            >
+              <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="w-full max-w-[1600px] h-full flex flex-col md:flex-row gap-6 relative pt-12 md:pt-0">
+              {/* Left side thumbnails */}
+              <div className="md:w-[140px] shrink-0 flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar order-2 md:order-1 pb-4 md:pb-0">
+                {FORMATS_DATA[modalData.section].map((video, idx) => {
+                  if (idx === modalData.idx) return null;
+                  return (
+                    <motion.div
+                      key={`modal-thumb-${idx}`}
+                      onClick={() => setModalData({ section: modalData.section, idx })}
+                      className={clsx(
+                        "shrink-0 cursor-pointer rounded-xl overflow-hidden border border-white/20 transition-all hover:scale-105 hover:border-white/50 bg-black",
+                        video.isHorizontal ? "w-[120px] aspect-video" : "w-[80px] md:w-full aspect-[9/16]"
+                      )}
+                    >
+                       {isVideo(video.videoPath) ? (
+                         <video src={video.videoPath} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" muted playsInline />
+                       ) : (
+                         <img src={video.videoPath} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />
+                       )}
+                    </motion.div>
+                  )
+                })}
+              </div>
+
+              {/* Main Viewport */}
+              <div className="flex-1 w-full h-full flex items-center justify-center order-1 md:order-2 bg-black/40 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl">
+                {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
+                  <video 
+                    src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
+                    autoPlay 
+                    loop 
+                    controls
+                    playsInline
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <img 
+                    src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
+                    alt={FORMATS_DATA[modalData.section][modalData.idx].title}
+                    className="w-full h-full object-contain"
+                  />
+                )}
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none">
+                  <div className="inline-block px-3 py-1 mb-2 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    {modalData.section} Format
+                  </div>
+                  <h3 className="text-white text-2xl md:text-4xl font-black capitalize tracking-tight">
+                    {FORMATS_DATA[modalData.section][modalData.idx].title}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
