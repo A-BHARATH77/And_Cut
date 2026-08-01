@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
-import { FORMATS_DATA } from "@/data/services";
 
 export default function Preloader() {
   const [isDone, setIsDone] = useState(false);
@@ -21,18 +20,13 @@ export default function Preloader() {
       return;
     }
 
-    const carouselPosters = Object.values(FORMATS_DATA)
-      .flat()
-      .map(video => video.videoPath.replace(/\.webm$/i, ".webp"));
-
     const assetsToLoad = [
       "/preloader1.webp",
       "/preloader2.webp",
       "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
       "/preloader3.webp",
       "/preloader4.webp",
-      "/and_cut_logo.webp",
-      ...carouselPosters
+      "/and_cut_logo.webp"
     ];
 
     let loadedCount = 0;

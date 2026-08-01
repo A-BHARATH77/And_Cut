@@ -217,9 +217,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                        {isVideo(video.videoPath) ? (
                          <video 
                            src={video.videoPath} 
-                           poster={video.videoPath.replace(/\.webm$/i, ".webp")} 
                            preload="none" 
-                           style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                            className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" 
                            muted 
                            playsInline 
@@ -237,12 +235,10 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                 {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
                   <video 
                     src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
-                    poster={FORMATS_DATA[modalData.section][modalData.idx].videoPath.replace(/\.webm$/i, ".webp")}
                     autoPlay 
                     loop 
                     controls
                     playsInline
-                    style={{ backgroundImage: `url('${FORMATS_DATA[modalData.section][modalData.idx].videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                     className="w-full h-full object-contain"
                   />
                 ) : (
@@ -287,11 +283,9 @@ function VideoCard({ video }: { video: VideoData }) {
         <video
           ref={videoRef}
           src={video.videoPath}
-          poster={video.videoPath.replace(/\.webm$/i, ".webp")}
           loop
           muted
           playsInline
-          style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       ) : (
@@ -325,11 +319,9 @@ function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: ()
       <video
         ref={videoRef}
         src={video.videoPath}
-        poster={video.videoPath.replace(/\.webm$/i, ".webp")}
         loop
         muted
         playsInline
-        style={{ backgroundImage: `url('${video.videoPath.replace(/\.webm$/i, ".webp")}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       {/* Tap to unmute hint on mobile */}
