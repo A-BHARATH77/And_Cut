@@ -84,7 +84,7 @@ export default function CircularGallery() {
   return (
     <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-[#050508] [perspective:1500px]">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[200px] md:w-[600px] md:h-[400px] overflow-hidden z-0 rounded-2xl shadow-2xl">
-        <img src={previewSrc} alt="Preview" className="w-full h-full object-cover transition-opacity duration-300" />
+        <img src={previewSrc} alt="Preview" loading="lazy" className="w-full h-full object-cover transition-opacity duration-300" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050508]/80 to-transparent pointer-events-none" />
       </div>
 
@@ -127,7 +127,7 @@ export default function CircularGallery() {
                 });
               }}
             >
-              <img src={imgSrc} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
+              <img src={imgSrc} alt={`Gallery ${i}`} loading="lazy" className="w-full h-full object-cover" />
             </div>
           );
         })}

@@ -223,7 +223,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                            playsInline 
                          />
                        ) : (
-                         <img src={video.videoPath} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />
+                         <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />
                        )}
                     </motion.div>
                   )
@@ -245,6 +245,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                   <img 
                     src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
                     alt={FORMATS_DATA[modalData.section][modalData.idx].title}
+                    loading="lazy"
                     className="w-full h-full object-contain"
                   />
                 )}
@@ -292,6 +293,7 @@ function VideoCard({ video }: { video: VideoData }) {
         <img
           src={video.videoPath}
           alt={video.title}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       )}
