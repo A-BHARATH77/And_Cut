@@ -30,7 +30,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Background Video */}
+        {/* Background Video - Desktop */}
         <video
           src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm"
           poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp"
@@ -39,7 +39,18 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover hidden md:block"
+        />
+
+        {/* Background Video - Mobile */}
+        <video
+          src="/ANDCUT_VDS/MobileHero.webm"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover block md:hidden"
         />
 
         {/* Bottom gradient for text readability */}
