@@ -117,16 +117,16 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               className="flex overflow-x-auto hide-scrollbar gap-3 sm:gap-4 md:gap-6 pb-4 w-full px-4"
               style={{ scrollBehavior: "auto" }}
             >
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {activeVideos.map((video, idx) => {
                   const serviceSlug = encodeURIComponent(activeTab.toLowerCase());
                   return (
                     <motion.div
                       key={`${activeTab}-${idx}`}
-                      layoutId={`video-card-${activeTab}-${idx}`}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.5 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.3 }}
                       className={clsx(
                         "shrink-0",
                         video.isHorizontal
@@ -209,18 +209,17 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                     <motion.div
                       key={`modal-thumb-${idx}`}
                       onClick={() => setModalData({ section: modalData.section, idx })}
-                      className={clsx(
-                        "shrink-0 cursor-pointer rounded-xl overflow-hidden border border-white/20 transition-all hover:scale-105 hover:border-white/50 bg-black",
-                        video.isHorizontal ? "w-[120px] aspect-video" : "w-[80px] md:w-full aspect-[9/16]"
-                      )}
+                      className="shrink-0 cursor-pointer rounded-xl overflow-hidden border border-white/20 transition-all hover:scale-105 hover:border-white/50 bg-black w-[80px] h-[80px] md:w-[100px] md:h-[100px] aspect-square"
                     >
                        {isVideo(video.videoPath) ? (
                          <video 
                            src={video.videoPath} 
-                           preload="none" 
-                           className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" 
+                           autoPlay
+                           loop 
                            muted 
                            playsInline 
+                           preload="auto"
+                           className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" 
                          />
                        ) : (
                          <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />

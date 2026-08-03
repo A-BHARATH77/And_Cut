@@ -30,27 +30,15 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Background Video - Desktop */}
+        {/* Background Video */}
         <video
-          src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm"
-          poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp"
+          src="/ANDCUT_VDS/Header.webm"
           autoPlay
           loop
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover hidden md:block"
-        />
-
-        {/* Background Video - Mobile */}
-        <video
-          src="/ANDCUT_VDS/MobileHero.webm"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover block md:hidden"
+          className="absolute inset-0 w-full h-full object-cover"
         />
 
         {/* Bottom gradient for text readability */}
