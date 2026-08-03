@@ -25,12 +25,12 @@ export function useLazyVideo() {
           }
         });
       },
-      { threshold: 0.1 } // Start playing when 10% visible
+      { threshold: 0.1 }
     );
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [ref.current?.src]);
 
   return ref;
 }
