@@ -272,15 +272,15 @@ function ModalContent({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4 md:p-10"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-3 sm:p-6 md:p-10 overflow-y-auto"
     >
-      <div className="w-full max-w-[1600px] h-[85vh] flex flex-col md:flex-row items-center gap-6 relative pt-12 md:pt-0">
-        {/* Left side thumbnails */}
+      <div className="w-full max-w-[1600px] h-full md:h-[85vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0">
+        {/* Left side thumbnails - Hidden on mobile screen */}
         <div 
           ref={sidebarRef}
           onMouseEnter={() => setIsSidebarHovered(true)}
           onMouseLeave={() => setIsSidebarHovered(false)}
-          className="w-full md:w-[140px] shrink-0 flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar order-2 md:order-1 pb-2 md:pb-0 h-auto md:h-full justify-start"
+          className="hidden md:flex w-[140px] shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar order-1 h-full justify-start"
         >
           {FORMATS_DATA[modalData.section].map((video, idx) => {
             const isSelected = idx === modalData.idx;
@@ -289,7 +289,7 @@ function ModalContent({
                 key={`modal-thumb-${idx}`}
                 onClick={() => setModalData({ section: modalData.section, idx })}
                 className={clsx(
-                  "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[80px] h-[80px] md:w-[120px] md:h-[120px] aspect-square relative",
+                  "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[120px] h-[120px] aspect-square relative",
                   isSelected ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105" : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
                 )}
               >
@@ -315,7 +315,7 @@ function ModalContent({
         </div>
 
         {/* Center Active Playing Video */}
-        <div className="flex-1 w-full h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl">
+        <div className="flex-1 w-full h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0">
           {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
             <video 
               key={`modal-active-vid-${modalData.idx}`}
@@ -337,13 +337,13 @@ function ModalContent({
         </div>
 
         {/* Right Side Text Component */}
-        <div className="w-full md:w-[320px] lg:w-[360px] shrink-0 order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-6 md:p-8 relative overflow-hidden h-auto md:h-full">
+        <div className="w-full md:w-[320px] lg:w-[360px] shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-8 relative overflow-hidden h-auto md:h-full">
           <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
           
-          {/* Close button positioned neatly at top-right inside text card header */}
+          {/* Close button positioned top right */}
           <button 
             onClick={() => setModalData(null)}
-            className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-all hover:scale-110 p-2 rounded-full hover:bg-white/10"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 text-white/50 hover:text-white transition-all hover:scale-110 p-2 rounded-full hover:bg-white/10"
             aria-label="Close modal"
           >
             <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -351,12 +351,12 @@ function ModalContent({
             </svg>
           </button>
 
-          <div className="relative z-10 flex flex-col gap-6 my-auto pt-4 md:pt-0">
+          <div className="relative z-10 flex flex-col gap-4 sm:gap-6 my-auto pt-2 md:pt-0">
             <div>
-              <div className="inline-block px-3 py-1.5 mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+              <div className="inline-block px-3 py-1 mb-2 sm:mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                 {modalData.section} Format
               </div>
-              <h3 className="text-2xl md:text-3xl font-black text-white capitalize mb-3 pr-8">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white capitalize mb-2 sm:mb-3 pr-8">
                 {FORMATS_DATA[modalData.section][modalData.idx].title}
               </h3>
               <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
@@ -369,7 +369,7 @@ function ModalContent({
                 <div className="h-px bg-gradient-to-r from-white/20 to-transparent" />
                 <div>
                   <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Starting At</div>
-                  <div className="text-3xl font-black text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-white">
                     {FORMAT_PRICES[modalData.section]}/-
                   </div>
                 </div>
@@ -380,7 +380,7 @@ function ModalContent({
               href="https://tally.so/r/EkNRrX"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3.5 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-2"
+              className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-1"
             >
               Connect With Us
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -402,7 +402,7 @@ function VideoCard({ video }: { video: VideoData }) {
   return (
     <div
       className={clsx(
-        "relative rounded-xl md:rounded-[2rem] overflow-hidden group border border-white/5 w-full",
+        "relative rounded-xl md:rounded-[2rem] overflow-hidden group border border-white/5 w-full bg-neutral-900",
         video.isHorizontal ? "aspect-video" : "aspect-[9/16]"
       )}
     >
@@ -413,13 +413,13 @@ function VideoCard({ video }: { video: VideoData }) {
           loop
           muted
           playsInline
+          preload="auto"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       ) : (
         <img
           src={video.videoPath}
           alt={video.title}
-          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       )}

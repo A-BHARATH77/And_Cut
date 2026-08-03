@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
+import { FORMATS_DATA } from "@/data/services";
 
 export default function Preloader() {
   const [isDone, setIsDone] = useState(false);
@@ -26,13 +27,40 @@ export default function Preloader() {
       "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
       "/preloader3.webp",
       "/preloader4.webp",
-      "/and_cut_logo.webp"
+      "/and_cut_logo.webp",
+      "/Photoshoot/Bed sheet 1.webp",
+      "/Photoshoot/Bed sheet 2.webp",
+      "/Photoshoot/bedsheet 3.webp",
+      "/Photoshoot/Bedsheet 4 .webp",
+      "/Photoshoot/Bedsheet 5.webp",
+      "/Photoshoot/Bedsheet 6.webp",
+      "/Photoshoot/Bedsheet 7.webp",
+      "/Photoshoot/Bedsheet 8.webp",
+      "/Photoshoot/Towel 1.webp",
+      "/Photoshoot/Towel 2.webp",
+      "/Photoshoot/Towel 3.webp",
+      "/Photoshoot/Towel 4.webp",
+      "/Photoshoot/Towel 5 .webp",
+      "/Photoshoot/Towel 6.webp",
+      "/Photoshoot/Towel 7.webp",
+      "/Photoshoot/Towel 8.webp",
+      "/Photoshoot/Towel 9.webp"
     ];
 
+    // Collect ALL videos from FORMATS_DATA to ensure 100% preloaded before preloader dismisses
+    const allServicesVideos: string[] = Object.values(FORMATS_DATA)
+      .flat()
+      .map((item) => item.videoPath)
+      .filter((path) => /\.(webm|mp4|mov)$/i.test(path));
+
+    // Remove duplicates
+    const uniqueVideosToPreload = Array.from(new Set(allServicesVideos));
+
     let loadedCount = 0;
+    const totalToLoad = assetsToLoad.length + uniqueVideosToPreload.length;
     
     const checkReady = () => {
-       if (loadedCount >= assetsToLoad.length) {
+       if (loadedCount >= totalToLoad) {
           setAssetsLoaded(true);
        }
     };
@@ -50,10 +78,24 @@ export default function Preloader() {
       img.src = src;
     });
 
-    // Fallback: If it takes too long, just start anyway after 5 seconds to prevent getting stuck
+    uniqueVideosToPreload.forEach(src => {
+      const vid = document.createElement("video");
+      vid.oncanplaythrough = () => {
+        loadedCount++;
+        checkReady();
+      };
+      vid.onerror = () => {
+        loadedCount++;
+        checkReady();
+      };
+      vid.src = src;
+      vid.load();
+    });
+
+    // Fallback timer
     const timeout = setTimeout(() => {
       setAssetsLoaded(true);
-    }, 5000);
+    }, 10000);
 
     return () => clearTimeout(timeout);
   }, []);
