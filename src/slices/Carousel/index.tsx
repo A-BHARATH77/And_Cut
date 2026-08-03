@@ -30,14 +30,17 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
   const activeVideos = FORMATS_DATA[activeTab];
 
-  // Auto-scroll
+  // Auto-scroll (Infinite loop)
   useEffect(() => {
     let animId: number;
     const scroll = () => {
       if (scrollContainerRef.current && !isHovered) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-        if (scrollLeft >= scrollWidth - clientWidth - 1) return;
-        scrollContainerRef.current.scrollLeft += 0.6;
+        if (scrollLeft >= scrollWidth - clientWidth - 2) {
+          scrollContainerRef.current.scrollLeft = 0;
+        } else {
+          scrollContainerRef.current.scrollLeft += 0.6;
+        }
       }
       animId = requestAnimationFrame(scroll);
     };
@@ -104,13 +107,43 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
           {/* Cards Scroll Area */}
           <div
-            className="w-full relative"
+            className="w-full relative group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
             {/* Fade masks */}
             <div className="absolute top-0 left-0 bottom-0 w-6 md:w-16 bg-gradient-to-r from-[#050508] to-transparent z-20 pointer-events-none" />
             <div className="absolute top-0 right-0 bottom-0 w-6 md:w-16 bg-gradient-to-l from-[#050508] to-transparent z-20 pointer-events-none" />
+
+            {/* Left Arrow Button */}
+            <button
+              onClick={() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+                }
+              }}
+              className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+              aria-label="Scroll Left"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Right Arrow Button */}
+            <button
+              onClick={() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+                }
+              }}
+              className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+              aria-label="Scroll Right"
+            >
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
 
             <div
               ref={scrollContainerRef}
@@ -185,80 +218,10 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
       {/* Modal */}
       <AnimatePresence>
         {modalData && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4 md:p-10"
-          >
-            <button 
-              onClick={() => setModalData(null)}
-              className="absolute top-4 right-4 md:top-10 md:right-10 z-[110] text-white/60 hover:text-white transition-all hover:scale-110 p-2"
-            >
-              <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div className="w-full max-w-[1600px] h-full flex flex-col md:flex-row gap-6 relative pt-12 md:pt-0">
-              {/* Left side thumbnails */}
-              <div className="md:w-[140px] shrink-0 flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar order-2 md:order-1 pb-4 md:pb-0">
-                {FORMATS_DATA[modalData.section].map((video, idx) => {
-                  if (idx === modalData.idx) return null;
-                  return (
-                    <motion.div
-                      key={`modal-thumb-${idx}`}
-                      onClick={() => setModalData({ section: modalData.section, idx })}
-                      className="shrink-0 cursor-pointer rounded-xl overflow-hidden border border-white/20 transition-all hover:scale-105 hover:border-white/50 bg-black w-[80px] h-[80px] md:w-[100px] md:h-[100px] aspect-square"
-                    >
-                       {isVideo(video.videoPath) ? (
-                         <video 
-                           src={video.videoPath} 
-                           autoPlay
-                           loop 
-                           muted 
-                           playsInline 
-                           preload="auto"
-                           className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" 
-                         />
-                       ) : (
-                         <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt={video.title} />
-                       )}
-                    </motion.div>
-                  )
-                })}
-              </div>
-
-              {/* Main Viewport */}
-              <div className="flex-1 w-full h-full flex items-center justify-center order-1 md:order-2 bg-black/40 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl">
-                {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
-                  <video 
-                    src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
-                    autoPlay 
-                    loop 
-                    controls
-                    playsInline
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <img 
-                    src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
-                    alt={FORMATS_DATA[modalData.section][modalData.idx].title}
-                    loading="lazy"
-                    className="w-full h-full object-contain"
-                  />
-                )}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none">
-                  <div className="inline-block px-3 py-1 mb-2 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
-                    {modalData.section} Format
-                  </div>
-                  <h3 className="text-white text-2xl md:text-4xl font-black capitalize tracking-tight">
-                    {FORMATS_DATA[modalData.section][modalData.idx].title}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          <ModalContent 
+            modalData={modalData} 
+            setModalData={setModalData} 
+          />
         )}
       </AnimatePresence>
     </>
@@ -266,6 +229,170 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 };
 
 export default Carousel;
+
+function ModalContent({
+  modalData,
+  setModalData
+}: {
+  modalData: { section: string; idx: number };
+  setModalData: (data: { section: string; idx: number } | null) => void;
+}) {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+
+  useEffect(() => {
+    let animId: number;
+    const scroll = () => {
+      if (sidebarRef.current && !isSidebarHovered) {
+        const isDesktop = window.innerWidth >= 768;
+        if (isDesktop) {
+          const { scrollTop, scrollHeight, clientHeight } = sidebarRef.current;
+          if (scrollTop >= scrollHeight - clientHeight - 2) {
+            sidebarRef.current.scrollTop = 0;
+          } else {
+            sidebarRef.current.scrollTop += 0.5;
+          }
+        } else {
+          const { scrollLeft, scrollWidth, clientWidth } = sidebarRef.current;
+          if (scrollLeft >= scrollWidth - clientWidth - 2) {
+            sidebarRef.current.scrollLeft = 0;
+          } else {
+            sidebarRef.current.scrollLeft += 0.5;
+          }
+        }
+      }
+      animId = requestAnimationFrame(scroll);
+    };
+    animId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animId);
+  }, [isSidebarHovered, modalData.section]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4 md:p-10"
+    >
+      <div className="w-full max-w-[1600px] h-[85vh] flex flex-col md:flex-row items-center gap-6 relative pt-12 md:pt-0">
+        {/* Left side thumbnails */}
+        <div 
+          ref={sidebarRef}
+          onMouseEnter={() => setIsSidebarHovered(true)}
+          onMouseLeave={() => setIsSidebarHovered(false)}
+          className="w-full md:w-[140px] shrink-0 flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar order-2 md:order-1 pb-2 md:pb-0 h-auto md:h-full justify-start"
+        >
+          {FORMATS_DATA[modalData.section].map((video, idx) => {
+            const isSelected = idx === modalData.idx;
+            return (
+              <motion.div
+                key={`modal-thumb-${idx}`}
+                onClick={() => setModalData({ section: modalData.section, idx })}
+                className={clsx(
+                  "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[80px] h-[80px] md:w-[120px] md:h-[120px] aspect-square relative",
+                  isSelected ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105" : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
+                )}
+              >
+                {isVideo(video.videoPath) ? (
+                  <video 
+                    src={video.videoPath} 
+                    autoPlay
+                    loop 
+                    muted 
+                    playsInline 
+                    preload="auto"
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover" alt={video.title} />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                  <span className="text-[10px] text-white font-medium truncate">{video.title}</span>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Center Active Playing Video */}
+        <div className="flex-1 w-full h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl">
+          {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
+            <video 
+              key={`modal-active-vid-${modalData.idx}`}
+              src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
+              autoPlay 
+              loop 
+              controls
+              playsInline
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <img 
+              src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
+              alt={FORMATS_DATA[modalData.section][modalData.idx].title}
+              loading="lazy"
+              className="w-full h-full object-contain"
+            />
+          )}
+        </div>
+
+        {/* Right Side Text Component */}
+        <div className="w-full md:w-[320px] lg:w-[360px] shrink-0 order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-6 md:p-8 relative overflow-hidden h-auto md:h-full">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
+          
+          {/* Close button positioned neatly at top-right inside text card header */}
+          <button 
+            onClick={() => setModalData(null)}
+            className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-all hover:scale-110 p-2 rounded-full hover:bg-white/10"
+            aria-label="Close modal"
+          >
+            <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="relative z-10 flex flex-col gap-6 my-auto pt-4 md:pt-0">
+            <div>
+              <div className="inline-block px-3 py-1.5 mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                {modalData.section} Format
+              </div>
+              <h3 className="text-2xl md:text-3xl font-black text-white capitalize mb-3 pr-8">
+                {FORMATS_DATA[modalData.section][modalData.idx].title}
+              </h3>
+              <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
+                Premium, high-converting visual storytelling designed specifically for {modalData.section} placement to drive maximum engagement.
+              </p>
+            </div>
+
+            {FORMAT_PRICES[modalData.section] && (
+              <>
+                <div className="h-px bg-gradient-to-r from-white/20 to-transparent" />
+                <div>
+                  <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Starting At</div>
+                  <div className="text-3xl font-black text-white">
+                    {FORMAT_PRICES[modalData.section]}/-
+                  </div>
+                </div>
+              </>
+            )}
+
+            <a
+              href="https://tally.so/r/EkNRrX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-3.5 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-2"
+            >
+              Connect With Us
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function VideoCard({ video }: { video: VideoData }) {
   const videoRef = useLazyVideo();
