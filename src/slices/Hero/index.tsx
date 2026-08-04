@@ -30,7 +30,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Background Video */}
+        {/* Desktop Background Video */}
         <video
           src="/ANDCUT_VDS/Header.webm"
           autoPlay
@@ -38,7 +38,18 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="hidden md:block absolute inset-0 w-full h-full object-cover"
+        />
+
+        {/* Mobile Background Video */}
+        <video
+          src="/ANDCUT_VDS/MobileHero.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="block md:hidden absolute inset-0 w-full h-full object-cover"
         />
 
         {/* Bottom gradient for text readability */}

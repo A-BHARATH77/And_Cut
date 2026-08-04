@@ -21,43 +21,42 @@ export default function Preloader() {
       return;
     }
 
-    const assetsToLoad = [
-      "/preloader1.webp",
-      "/preloader2.webp",
-      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
-      "/preloader3.webp",
-      "/preloader4.webp",
-      "/and_cut_logo.webp",
-      "/Photoshoot/Bed sheet 1.webp",
-      "/Photoshoot/Bed sheet 2.webp",
-      "/Photoshoot/bedsheet 3.webp",
-      "/Photoshoot/Bedsheet 4 .webp",
-      "/Photoshoot/Bedsheet 5.webp",
-      "/Photoshoot/Bedsheet 6.webp",
-      "/Photoshoot/Bedsheet 7.webp",
-      "/Photoshoot/Bedsheet 8.webp",
-      "/Photoshoot/Towel 1.webp",
-      "/Photoshoot/Towel 2.webp",
-      "/Photoshoot/Towel 3.webp",
-      "/Photoshoot/Towel 4.webp",
-      "/Photoshoot/Towel 5 .webp",
-      "/Photoshoot/Towel 6.webp",
-      "/Photoshoot/Towel 7.webp",
-      "/Photoshoot/Towel 8.webp",
-      "/Photoshoot/Towel 9.webp"
-    ];
-
-    // Collect ALL videos from FORMATS_DATA to ensure 100% preloaded before preloader dismisses
+    // Collect all videos from FORMATS_DATA
     const allServicesVideos: string[] = Object.values(FORMATS_DATA)
       .flat()
       .map((item) => item.videoPath)
       .filter((path) => /\.(webm|mp4|mov)$/i.test(path));
 
-    // Remove duplicates
-    const uniqueVideosToPreload = Array.from(new Set(allServicesVideos));
+    // Collect all images from FORMATS_DATA
+    const allServicesImages: string[] = Object.values(FORMATS_DATA)
+      .flat()
+      .map((item) => item.videoPath)
+      .filter((path) => /\.(webp|jpg|jpeg|png)$/i.test(path));
+
+    const coreAssets = [
+      "/preloader1.webp",
+      "/preloader2.webp",
+      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
+      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
+      "/preloader3.webp",
+      "/preloader4.webp",
+      "/and_cut_logo.webp",
+      "/ANDCUT_VDS/Header.webm",
+      "/ANDCUT_VDS/MobileHero.mp4",
+      "/companies_worked_with/7rings.webp",
+      "/companies_worked_with/archish.webp",
+      "/companies_worked_with/bluetea.webp",
+      "/companies_worked_with/cdd.webp",
+      "/companies_worked_with/cnbc.webp",
+      "/companies_worked_with/hula.webp",
+      "/companies_worked_with/sanfe.webp",
+    ];
+
+    const uniqueImages = Array.from(new Set([...allServicesImages, ...coreAssets.filter(p => /\.(webp|jpg|jpeg|png)$/i.test(p))]));
+    const uniqueVideos = Array.from(new Set([...allServicesVideos, ...coreAssets.filter(p => /\.(webm|mp4|mov)$/i.test(p))]));
 
     let loadedCount = 0;
-    const totalToLoad = assetsToLoad.length + uniqueVideosToPreload.length;
+    const totalToLoad = uniqueImages.length + uniqueVideos.length;
     
     const checkReady = () => {
        if (loadedCount >= totalToLoad) {
@@ -65,7 +64,7 @@ export default function Preloader() {
        }
     };
 
-    assetsToLoad.forEach(src => {
+    uniqueImages.forEach(src => {
       const img = new Image();
       img.onload = () => {
         loadedCount++;
@@ -78,7 +77,7 @@ export default function Preloader() {
       img.src = src;
     });
 
-    uniqueVideosToPreload.forEach(src => {
+    uniqueVideos.forEach(src => {
       const vid = document.createElement("video");
       vid.oncanplaythrough = () => {
         loadedCount++;
@@ -92,10 +91,10 @@ export default function Preloader() {
       vid.load();
     });
 
-    // Fallback timer
+    // Fallback timer - generous 30s to ensure everything loads on slow connections
     const timeout = setTimeout(() => {
       setAssetsLoaded(true);
-    }, 10000);
+    }, 30000);
 
     return () => clearTimeout(timeout);
   }, []);

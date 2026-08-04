@@ -33,9 +33,9 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "Micro Drama 1", videoPath: "/micro_drama/0730(2).mp4" },
     { title: "Micro Drama 2", videoPath: "/micro_drama/0730(3).mp4" },
     { title: "Micro Drama 3", videoPath: "/micro_drama/0730(4).mp4" },
-    { title: "Hula Hoop 2 EP 1", videoPath: "/micro_drama/Hula Hoop 2 EP 1.mp4" },
-    { title: "Micro Drama 4", videoPath: "/micro_drama/Hula Hoop 2 EP 2.mp4" },
-    { title: "Micro Drama 5", videoPath: "/micro_drama/Hula Hoop 2 EP 3.mp4" },
+    { title: "Hula Hoop 2 EP 1", videoPath: "/micro_drama/Hula Hoop 2  EP 1.mp4" },
+    { title: "Micro Drama 4", videoPath: "/micro_drama/Hula Hoop 2  EP 2.mp4" },
+    { title: "Micro Drama 5", videoPath: "/micro_drama/Hula Hoop 2  EP 3.mp4" },
   ],
   Photoshoot: [
     { title: "Product Shoot", videoPath: "/Photoshoot/Bed sheet 1.webp", isHorizontal: true },
