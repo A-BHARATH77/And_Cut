@@ -12,6 +12,7 @@ const nextConfig = {
   // Add proper HTTP headers for video streaming and caching
   async headers() {
     return [
+      // ── Hero / showreel videos ───────────────────────────────────────────
       {
         source: "/ANDCUT_VDS/:file*",
         headers: [
@@ -26,6 +27,43 @@ const nextConfig = {
           { key: "Accept-Ranges", value: "bytes" },
         ],
       },
+      // ── Service section videos ───────────────────────────────────────────
+      {
+        source: "/UGC/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      {
+        source: "/DVC/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      {
+        source: "/micro_drama/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      {
+        source: "/ad_films/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      {
+        source: "/Photoshoot/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      // ── Static assets ────────────────────────────────────────────────────
       {
         source: "/fonts/:file*",
         headers: [
@@ -49,4 +87,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
