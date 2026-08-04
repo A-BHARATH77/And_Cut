@@ -3,100 +3,125 @@
 import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
-import { FORMATS_DATA } from "@/data/services";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CRITICAL ASSETS ONLY
+// These are the assets that MUST be ready before the intro animation plays.
+// Service-section videos (UGC, DVC, etc.) are intentionally excluded — they
+// are large, numerous, and load lazily via IntersectionObserver.
+// ─────────────────────────────────────────────────────────────────────────────
+const CRITICAL_IMAGES = [
+  "/preloader1.webp",
+  "/preloader2.webp",
+  "/preloader3.webp",
+  "/preloader4.webp",
+  "/and_cut_logo.webp",
+  // Companies marquee logos
+  "/companies_worked_with/7rings.webp",
+  "/companies_worked_with/archish.webp",
+  "/companies_worked_with/bluetea.webp",
+  "/companies_worked_with/cdd.webp",
+  "/companies_worked_with/cnbc.webp",
+  "/companies_worked_with/hula.webp",
+  "/companies_worked_with/sanfe.webp",
+];
+
+const CRITICAL_VIDEOS = [
+  // Showreel (centre card in preloader animation)
+  "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
+  // Hero background videos
+  "/ANDCUT_VDS/Header.webm",
+  "/ANDCUT_VDS/MobileHero.mp4",
+];
+
+// Per-asset timeout (ms). If an asset hasn't loaded within this time we skip
+// it and carry on — this prevents a single slow/blocked asset from freezing
+// the whole experience on production.
+const ASSET_TIMEOUT_MS = 8000;
+// Hard ceiling: even if nothing loads, we unblock after this many ms.
+const HARD_TIMEOUT_MS = 15000;
+
+/**
+ * Loads a single image. Resolves (never rejects) once loaded or timed-out.
+ */
+function loadImage(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ASSET_TIMEOUT_MS);
+    const img = new Image();
+    img.onload = () => { clearTimeout(timer); resolve(); };
+    img.onerror = () => { clearTimeout(timer); resolve(); };
+    img.src = src;
+  });
+}
+
+/**
+ * Loads a single video. We listen for 'canplay' (not 'canplaythrough') which
+ * fires as soon as the browser has enough data to start playing — this works
+ * reliably even over CDN / streaming delivery where canplaythrough may never
+ * fire. Also handles the case where readyState is already sufficient.
+ */
+function loadVideo(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ASSET_TIMEOUT_MS);
+
+    const vid = document.createElement("video");
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = "auto";
+
+    const done = () => { clearTimeout(timer); resolve(); };
+
+    // Already buffered enough (e.g. from browser cache)
+    if (vid.readyState >= 3) { done(); return; }
+
+    vid.addEventListener("canplay", done, { once: true });
+    vid.addEventListener("error", done, { once: true });
+
+    // Setting src AFTER attaching listeners is critical
+    vid.src = src;
+    vid.load();
+  });
+}
 
 export default function Preloader() {
   const [isDone, setIsDone] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const pathname = usePathname();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Skip the full preloader animation on repeat visits within the same
+    // browser session — just mark done immediately.
     const hasLoaded = sessionStorage.getItem("hasLoaded-steel");
     if (hasLoaded && process.env.NODE_ENV !== "development") {
       setAssetsLoaded(true);
       return;
     }
 
-    // Collect all videos from FORMATS_DATA
-    const allServicesVideos: string[] = Object.values(FORMATS_DATA)
-      .flat()
-      .map((item) => item.videoPath)
-      .filter((path) => /\.(webm|mp4|mov)$/i.test(path));
+    let cancelled = false;
 
-    // Collect all images from FORMATS_DATA
-    const allServicesImages: string[] = Object.values(FORMATS_DATA)
-      .flat()
-      .map((item) => item.videoPath)
-      .filter((path) => /\.(webp|jpg|jpeg|png)$/i.test(path));
+    // Hard ceiling — always unblock after HARD_TIMEOUT_MS regardless of what
+    // happened. This is the last-resort safety net for production.
+    const hardTimer = setTimeout(() => {
+      if (!cancelled) setAssetsLoaded(true);
+    }, HARD_TIMEOUT_MS);
 
-    const coreAssets = [
-      "/preloader1.webp",
-      "/preloader2.webp",
-      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp",
-      "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
-      "/preloader3.webp",
-      "/preloader4.webp",
-      "/and_cut_logo.webp",
-      "/ANDCUT_VDS/Header.webm",
-      "/ANDCUT_VDS/MobileHero.mp4",
-      "/companies_worked_with/7rings.webp",
-      "/companies_worked_with/archish.webp",
-      "/companies_worked_with/bluetea.webp",
-      "/companies_worked_with/cdd.webp",
-      "/companies_worked_with/cnbc.webp",
-      "/companies_worked_with/hula.webp",
-      "/companies_worked_with/sanfe.webp",
-    ];
+    // Load all critical assets concurrently with per-asset timeouts.
+    Promise.all([
+      ...CRITICAL_IMAGES.map(loadImage),
+      ...CRITICAL_VIDEOS.map(loadVideo),
+    ]).then(() => {
+      if (!cancelled) {
+        clearTimeout(hardTimer);
+        setAssetsLoaded(true);
+      }
+    });
 
-    const uniqueImages = Array.from(new Set([...allServicesImages, ...coreAssets.filter(p => /\.(webp|jpg|jpeg|png)$/i.test(p))]));
-    const uniqueVideos = Array.from(new Set([...allServicesVideos, ...coreAssets.filter(p => /\.(webm|mp4|mov)$/i.test(p))]));
-
-    let loadedCount = 0;
-    const totalToLoad = uniqueImages.length + uniqueVideos.length;
-    
-    const checkReady = () => {
-       if (loadedCount >= totalToLoad) {
-          setAssetsLoaded(true);
-       }
+    return () => {
+      cancelled = true;
+      clearTimeout(hardTimer);
     };
-
-    uniqueImages.forEach(src => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        checkReady();
-      };
-      img.onerror = () => {
-        loadedCount++; 
-        checkReady();
-      };
-      img.src = src;
-    });
-
-    uniqueVideos.forEach(src => {
-      const vid = document.createElement("video");
-      vid.oncanplaythrough = () => {
-        loadedCount++;
-        checkReady();
-      };
-      vid.onerror = () => {
-        loadedCount++;
-        checkReady();
-      };
-      vid.src = src;
-      vid.load();
-    });
-
-    // Fallback timer - generous 30s to ensure everything loads on slow connections
-    const timeout = setTimeout(() => {
-      setAssetsLoaded(true);
-    }, 30000);
-
-    return () => clearTimeout(timeout);
   }, []);
 
   useGSAP(() => {
@@ -158,16 +183,16 @@ export default function Preloader() {
     // Get the exact final destination of the logo from the Header
     const targetLogo = document.querySelector(".header-logo-img") as HTMLElement;
     const animatedLogo = document.querySelector(".animated-logo") as HTMLElement;
-    
+
     if (targetLogo && animatedLogo) {
       const targetRect = targetLogo.getBoundingClientRect();
       const startRect = animatedLogo.getBoundingClientRect();
-      
+
       // Calculate exactly how much to scale down
       const scaleTo = targetRect.width / startRect.width;
 
       // Because the animated logo uses `top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`,
-      // its "y: 0" corresponds to the center of the screen. 
+      // its "y: 0" corresponds to the center of the screen.
       // The distance it needs to travel is the difference between their centers:
       const yDistance = (targetRect.top + targetRect.height / 2) - (startRect.top + startRect.height / 2);
       const xDistance = (targetRect.left + targetRect.width / 2) - (startRect.left + startRect.width / 2);
@@ -178,7 +203,7 @@ export default function Preloader() {
         {
           y: yDistance,
           scale: scaleTo,
-          duration: 0.95, // Goldilocks speed
+          duration: 0.95,
           ease: "power4.inOut"
         },
         0 // Starts exactly when the images start fanning out
@@ -189,7 +214,7 @@ export default function Preloader() {
         animatedLogo,
         {
           x: xDistance,
-          duration: 0.95, // Goldilocks speed
+          duration: 0.95,
           ease: "power4.inOut"
         },
         "spread" // Starts exactly when the center video starts scaling up
@@ -206,7 +231,7 @@ export default function Preloader() {
         img,
         {
           x: parseFloat(img.dataset.centeredX || "0"),
-          duration: 0.95, // Goldilocks speed
+          duration: 0.95,
           ease: "power4.inOut",
         },
         0 // All start at the beginning of the timeline
@@ -221,7 +246,7 @@ export default function Preloader() {
         duration: 0.5,
         ease: "power3.out",
       },
-      0.4 
+      0.4
     );
 
     // Immediately trigger the center image scale up as soon as they finish placing
@@ -246,7 +271,7 @@ export default function Preloader() {
         x: 0,
         rotation: 0,
         borderRadius: 0,
-        duration: 0.95, // Goldilocks speed
+        duration: 0.95,
         ease: "power4.inOut",
       },
       "spread"
@@ -258,8 +283,8 @@ export default function Preloader() {
       {
         opacity: 1,
         y: 0,
-        duration: 1.1, // Goldilocks speed
-        stagger: 0.15, // Goldilocks speed
+        duration: 1.1,
+        stagger: 0.15,
         ease: "power4.out",
       },
       "spread+=0.5" // Starts halfway through the video scaling up
@@ -277,7 +302,7 @@ export default function Preloader() {
 
   return (
     <div ref={containerRef} className="fixed inset-0 z-[99999] bg-[#050508] font-sans w-full h-[100svh] overflow-hidden text-white">
-      
+
       {/* FOUC Overlay (solid black to prevent flash) */}
       <div className="fouc-overlay absolute inset-0 z-[100] bg-[#050508] flex items-center justify-center">
         {!assetsLoaded && (
@@ -289,7 +314,7 @@ export default function Preloader() {
                }
              `}</style>
              <div className="w-24 h-[2px] bg-white/10 rounded-full overflow-hidden relative">
-               <div 
+               <div
                  className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#6EE7FF] rounded-full"
                  style={{ animation: "loading-slide 1.5s infinite ease-in-out" }}
                />
@@ -300,10 +325,10 @@ export default function Preloader() {
       </div>
 
       {/* The Animated Logo that travels to the Header */}
-      <img 
-        src="/and_cut_logo.webp" 
-        alt="AndCut Logo" 
-        className="animated-logo fixed z-[110] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 md:w-64 h-auto object-contain" 
+      <img
+        src="/and_cut_logo.webp"
+        alt="AndCut Logo"
+        className="animated-logo fixed z-[110] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 md:w-64 h-auto object-contain"
       />
 
       {/* Hero Images Area */}
