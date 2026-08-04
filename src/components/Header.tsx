@@ -62,8 +62,8 @@ export default function Header({}: Props) {
             
             <nav className="hidden md:flex items-center gap-1 pl-4 md:pl-6">
               {[
-                { name: "Work", id: "works" },
                 { name: "Service", id: "format" },
+                { name: "Work", id: "works" },
               ].map((item) => (
                 <Link 
                   key={item.name} 
@@ -108,8 +108,8 @@ export default function Header({}: Props) {
       >
         <nav className="flex flex-col items-center gap-8">
           {[
-            { name: "Work", id: "works" },
             { name: "Service", id: "format" },
+            { name: "Work", id: "works" },
           ].map((item) => (
             <Link 
               key={item.name} 

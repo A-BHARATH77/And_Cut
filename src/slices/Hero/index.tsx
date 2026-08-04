@@ -46,10 +46,12 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
 
         {/* Content Container */}
         <div className="absolute inset-0 z-20 w-full flex flex-col justify-end items-start pb-6 md:pb-10 pointer-events-none">
+          {/*
           <h1 className="hero-text-line w-full text-left pl-5 sm:pl-8 md:pl-12 text-[16vw] sm:text-[13vw] md:text-[8.2vw] font-black tracking-tight leading-[0.85] select-none">
             <span className="text-white block">ANDCUT</span>
             <span className="text-white block md:inline md:ml-4">STUDIOS</span>
           </h1>
+          */}
         </div>
       </section>
 

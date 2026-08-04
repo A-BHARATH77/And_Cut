@@ -39,6 +39,20 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
   const [activeVideoIdx, setActiveVideoIdx] = useState<number>(
     isNaN(initialIdx) || initialIdx < 0 || initialIdx >= activeVideos.length ? 0 : initialIdx
   );
+  
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const scrollUp = () => {
+    if (sidebarRef.current) {
+      sidebarRef.current.scrollBy({ top: -200, behavior: "smooth" });
+    }
+  };
+
+  const scrollDown = () => {
+    if (sidebarRef.current) {
+      sidebarRef.current.scrollBy({ top: 200, behavior: "smooth" });
+    }
+  };
 
   if (!formatName || formatName === "Loading" || !activeVideos || activeVideos.length === 0) {
     return (
@@ -110,7 +124,9 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
                 <div className="inline-block px-3 py-1 mb-2 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                   {formatName} Format
                 </div>
-                <h3 className="text-xl font-black text-white capitalize mb-1">{activeVideo?.title}</h3>
+                {formatName !== "UGC" && (
+                  <h3 className="text-xl font-black text-white capitalize mb-1">{activeVideo?.title}</h3>
+                )}
                 <p className="text-neutral-400 text-xs leading-relaxed">
                   High-quality, native content built for maximum engagement and performance.
                 </p>
@@ -140,7 +156,10 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
           {/* Thumbnails — horizontal scroll */}
           <div>
             <p className="text-white/30 text-[10px] uppercase tracking-widest mb-2">More in this series</p>
-            <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+            <div 
+              className="flex gap-3 overflow-x-auto hide-scrollbar overscroll-contain pb-2" 
+              data-lenis-prevent="true"
+            >
               {activeVideos.map((video, idx) => {
                 if (idx === activeVideoIdx) return null;
                 return (
@@ -166,8 +185,36 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
           "hidden lg:flex gap-8 xl:gap-12 h-[80vh]",
           activeVideo?.isHorizontal ? "flex-row" : "flex-row"
         )}>
-          {/* Thumbnails sidebar */}
-          <div className="w-[120px] xl:w-[140px] shrink-0 flex flex-col gap-4 overflow-y-auto hide-scrollbar">
+          {/* Arrows and Thumbnails sidebar container */}
+          <div className="flex items-center gap-2 xl:gap-4 h-full min-h-0">
+            {/* Scroll Arrows */}
+            <div className="flex flex-col gap-4">
+              <button 
+                onClick={scrollUp}
+                className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+                aria-label="Scroll Up"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button 
+                onClick={scrollDown}
+                className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+                aria-label="Scroll Down"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Thumbnails sidebar */}
+            <div 
+              ref={sidebarRef}
+              className="w-[120px] xl:w-[140px] shrink-0 flex flex-col gap-4 overflow-y-auto hide-scrollbar overscroll-contain h-full min-h-0 pb-10 pointer-events-auto scroll-smooth" 
+              data-lenis-prevent="true"
+            >
             {activeVideos.map((video, idx) => {
               if (idx === activeVideoIdx) return null;
               return (
@@ -182,6 +229,7 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
                 </motion.div>
               );
             })}
+            </div>
           </div>
 
           {/* Main video */}
@@ -212,7 +260,9 @@ function ServiceGallery({ formatName }: { formatName: string | undefined }) {
                 <div className="inline-block px-3 py-1.5 mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                   {formatName} Format
                 </div>
-                <h3 className="text-2xl xl:text-3xl font-black text-white capitalize mb-2">{activeVideo?.title}</h3>
+                {formatName !== "UGC" && (
+                  <h3 className="text-2xl xl:text-3xl font-black text-white capitalize mb-2">{activeVideo?.title}</h3>
+                )}
                 <p className="text-neutral-400 text-xs leading-relaxed">
                   High-quality, native content built for maximum engagement and performance.
                 </p>
@@ -260,6 +310,7 @@ function VideoCard({ video, isThumbnail = false, isActive = false }: {
     if (isThumbnail && videoRef.current) {
       videoRef.current.muted = true;
       setIsMuted(true);
+      videoRef.current.pause();
     }
   }, [isThumbnail]);
 
@@ -297,7 +348,6 @@ function VideoCard({ video, isThumbnail = false, isActive = false }: {
         <video
           ref={videoRef}
           src={video.videoPath}
-          autoPlay
           loop
           muted={isMuted}
           playsInline
@@ -345,7 +395,7 @@ function VideoCard({ video, isThumbnail = false, isActive = false }: {
       )}
 
       {/* Title for non-thumbnail cards */}
-      {!isThumbnail && (
+      {!isThumbnail && !video.videoPath.includes('/UGC/') && (
         <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none">
           <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">{video.title}</h3>
         </div>

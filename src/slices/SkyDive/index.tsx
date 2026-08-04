@@ -26,6 +26,8 @@ export type SkyDiveProps = SliceComponentProps<Content.SkyDiveSlice>;
  * Component for "SkyDive" Slices.
  */
 const SkyDive = ({ slice }: SkyDiveProps): JSX.Element => {
+  return null;
+  /*
   return (
     <section
       data-slice-type={slice.slice_type}
@@ -44,6 +46,7 @@ const SkyDive = ({ slice }: SkyDiveProps): JSX.Element => {
       </View>
     </section>
   );
+  */
 };
 
 export default SkyDive;

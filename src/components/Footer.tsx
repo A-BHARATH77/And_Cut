@@ -49,18 +49,6 @@ export default function Footer() {
                 <h3 className="font-bold uppercase tracking-widest text-[#6EE7FF] mb-4 md:mb-6 text-xs md:text-sm">Connect</h3>
                 <ul className="space-y-3 md:space-y-4">
                   <li>
-                    <a href="https://www.instagram.com/andcut.contentstudio/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
-                      Instagram
-                      <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.linkedin.com/company/andcut-content-studio/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
-                      LinkedIn
-                      <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
-                    </a>
-                  </li>
-                  <li>
                     <a href="mailto:kushal.andcut@gmail.com" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
                       Email Us
                       <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
@@ -69,6 +57,18 @@ export default function Footer() {
                   <li>
                     <a href="tel:+918805678857" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
                       +91 88056 78857
+                      <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.instagram.com/andcut.contentstudio/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
+                      Instagram
+                      <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.linkedin.com/company/andcut-content-studio/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
+                      LinkedIn
                       <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
                     </a>
                   </li>

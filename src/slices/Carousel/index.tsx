@@ -238,34 +238,18 @@ function ModalContent({
   setModalData: (data: { section: string; idx: number } | null) => void;
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
-  useEffect(() => {
-    let animId: number;
-    const scroll = () => {
-      if (sidebarRef.current && !isSidebarHovered) {
-        const isDesktop = window.innerWidth >= 768;
-        if (isDesktop) {
-          const { scrollTop, scrollHeight, clientHeight } = sidebarRef.current;
-          if (scrollTop >= scrollHeight - clientHeight - 2) {
-            sidebarRef.current.scrollTop = 0;
-          } else {
-            sidebarRef.current.scrollTop += 0.5;
-          }
-        } else {
-          const { scrollLeft, scrollWidth, clientWidth } = sidebarRef.current;
-          if (scrollLeft >= scrollWidth - clientWidth - 2) {
-            sidebarRef.current.scrollLeft = 0;
-          } else {
-            sidebarRef.current.scrollLeft += 0.5;
-          }
-        }
-      }
-      animId = requestAnimationFrame(scroll);
-    };
-    animId = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animId);
-  }, [isSidebarHovered, modalData.section]);
+  const scrollUp = () => {
+    if (sidebarRef.current) {
+      sidebarRef.current.scrollBy({ top: -200, behavior: "smooth" });
+    }
+  };
+
+  const scrollDown = () => {
+    if (sidebarRef.current) {
+      sidebarRef.current.scrollBy({ top: 200, behavior: "smooth" });
+    }
+  };
 
   return (
     <motion.div
@@ -275,13 +259,36 @@ function ModalContent({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-3 sm:p-6 md:p-10 overflow-y-auto"
     >
       <div className="w-full max-w-[1600px] h-full md:h-[85vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0">
-        {/* Left side thumbnails - Hidden on mobile screen */}
-        <div 
-          ref={sidebarRef}
-          onMouseEnter={() => setIsSidebarHovered(true)}
-          onMouseLeave={() => setIsSidebarHovered(false)}
-          className="hidden md:flex w-[140px] shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar order-1 h-full justify-start"
-        >
+        {/* Arrows and Thumbnails container - Hidden on mobile screen */}
+        <div className="hidden md:flex items-center gap-2 xl:gap-4 h-full order-1 min-h-0">
+          {/* Scroll Arrows */}
+          <div className="flex flex-col gap-4">
+            <button 
+              onClick={scrollUp}
+              className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+              aria-label="Scroll Up"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+            <button 
+              onClick={scrollDown}
+              className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+              aria-label="Scroll Down"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Left side thumbnails */}
+          <div 
+            ref={sidebarRef}
+            className="w-[140px] shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 flex pointer-events-auto scroll-smooth"
+            data-lenis-prevent="true"
+          >
           {FORMATS_DATA[modalData.section].map((video, idx) => {
             const isSelected = idx === modalData.idx;
             return (
@@ -306,12 +313,15 @@ function ModalContent({
                 ) : (
                   <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover" alt={video.title} />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
-                  <span className="text-[10px] text-white font-medium truncate">{video.title}</span>
-                </div>
+                {!video.videoPath.includes('/UGC/') && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                    <span className="text-[10px] text-white font-medium truncate">{video.title}</span>
+                  </div>
+                )}
               </motion.div>
             )
           })}
+          </div>
         </div>
 
         {/* Center Active Playing Video */}
@@ -356,9 +366,11 @@ function ModalContent({
               <div className="inline-block px-3 py-1 mb-2 sm:mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                 {modalData.section} Format
               </div>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white capitalize mb-2 sm:mb-3 pr-8">
-                {FORMATS_DATA[modalData.section][modalData.idx].title}
-              </h3>
+              {modalData.section !== "UGC" && (
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white capitalize mb-2 sm:mb-3 pr-8">
+                  {FORMATS_DATA[modalData.section][modalData.idx].title}
+                </h3>
+              )}
               <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
                 Premium, high-converting visual storytelling designed specifically for {modalData.section} placement to drive maximum engagement.
               </p>
@@ -428,11 +440,13 @@ function VideoCard({ video }: { video: VideoData }) {
       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
 
       {/* Title */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none">
-        <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">
-          {video.title}
-        </h3>
-      </div>
+      {!video.videoPath.includes('/UGC/') && (
+        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none">
+          <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">
+            {video.title}
+          </h3>
+        </div>
+      )}
     </div>
   );
 }
@@ -462,16 +476,18 @@ function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: ()
         </div>
       </div>
       {/* Text Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <div className="inline-block px-2 py-0.5 mb-2 text-[9px] md:text-[10px] font-bold tracking-wider uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
-            Horizontal Format
+      {!video.videoPath.includes('/UGC/') && (
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <div className="inline-block px-2 py-0.5 mb-2 text-[9px] md:text-[10px] font-bold tracking-wider uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+              Horizontal Format
+            </div>
+            <h3 className="text-white text-lg sm:text-2xl md:text-4xl font-bold tracking-wide capitalize">
+              {video.title}
+            </h3>
           </div>
-          <h3 className="text-white text-lg sm:text-2xl md:text-4xl font-bold tracking-wide capitalize">
-            {video.title}
-          </h3>
         </div>
-      </div>
+      )}
     </div>
   );
 }
