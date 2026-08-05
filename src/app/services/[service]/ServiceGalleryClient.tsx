@@ -335,7 +335,7 @@ function VideoCard({
           loop
           muted={isMuted}
           playsInline
-          preload="auto"
+          preload={isThumbnail ? "metadata" : "auto"}
           className={clsx(
             "w-full h-full object-cover transition-transform duration-700",
             !isActive && "group-hover:scale-105",

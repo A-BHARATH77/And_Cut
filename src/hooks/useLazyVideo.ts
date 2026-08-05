@@ -6,12 +6,12 @@ import { useEffect, useRef } from "react";
  * Behaviour:
  * - The video starts paused and does NOT preload anything until it enters the
  *   viewport. This saves significant bandwidth on page load.
- * - Once at least 10 % of the element is visible, the video plays.
+ * - Once at least 10 % of the element is visible, the video loads and plays.
  * - When it leaves the viewport it pauses again (saves CPU/GPU/battery).
  *
  * Usage:
  *   const videoRef = useLazyVideo();
- *   <video ref={videoRef} src="..." loop muted playsInline />
+ *   <video ref={videoRef} src="..." loop muted playsInline preload="none" />
  */
 export function useLazyVideo() {
   const ref = useRef<HTMLVideoElement>(null);
@@ -20,32 +20,42 @@ export function useLazyVideo() {
     const video = ref.current;
     if (!video) return;
 
-    // Start paused — let the IntersectionObserver decide when to play.
-    video.pause();
+    let isInView = false;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Load and play only when in view
-            if (video.paused) {
-              video.load(); // ensures the browser starts buffering
-              video.play().catch(() => {
-                // Autoplay may be blocked in some browsers; ignore silently.
-              });
-            }
+    const tryPlay = () => {
+      if (!isInView) return;
+      video.play().catch(() => {
+        // Autoplay may be blocked in some browsers; ignore silently.
+      });
+    };
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        isInView = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          if (video.readyState === 0) {
+            // preload="none": need to trigger network fetch first
+            video.addEventListener("canplay", tryPlay, { once: true });
+            video.load();
           } else {
-            if (!video.paused) {
-              video.pause();
-            }
+            tryPlay();
           }
-        });
-      },
-      { threshold: 0.1 }
-    );
+        } else {
+          video.pause();
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.1,
+      root: null, // use the document viewport
+    });
 
     observer.observe(video);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      isInView = false;
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount — the ref is stable
 

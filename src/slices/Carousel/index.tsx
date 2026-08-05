@@ -307,7 +307,7 @@ function ModalContent({
                     loop 
                     muted 
                     playsInline 
-                    preload="auto"
+                    preload="metadata"
                     className="w-full h-full object-cover" 
                   />
                 ) : (
@@ -425,7 +425,7 @@ function VideoCard({ video }: { video: VideoData }) {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="none"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       ) : (
@@ -461,9 +461,11 @@ function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: ()
       <video
         ref={videoRef}
         src={video.videoPath}
+        autoPlay
         loop
         muted
         playsInline
+        preload="none"
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       {/* Tap to unmute hint on mobile */}
