@@ -11,6 +11,7 @@ export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
 
+  /*
   useGSAP(() => {
     gsap.from(".hero-text-line", {
       y: 60,
@@ -21,6 +22,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
       delay: 0.2,
     });
   }, { scope: container });
+  */
 
   return (
     <>

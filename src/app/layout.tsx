@@ -44,11 +44,7 @@ export default function RootLayout({
         <link rel="preload" href="/preloader3.webp" as="image" />
         <link rel="preload" href="/preloader4.webp" as="image" />
         {/* Showreel video shown in the preloader centre card */}
-        <link rel="preload" href="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm" as="video" type="video/webm" crossOrigin="anonymous" />
         <link rel="preload" href="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp" as="image" />
-        {/* Hero background videos */}
-        <link rel="preload" href="/ANDCUT_VDS/Header.webm" as="video" type="video/webm" />
-        <link rel="preload" href="/ANDCUT_VDS/MobileHero.mp4" as="video" type="video/mp4" />
       </head>
       <body className="overflow-x-hidden bg-[#0A0A0F]">
         <LenisProvider>
@@ -63,7 +59,7 @@ export default function RootLayout({
           </div>
         </LenisProvider>
       </body>
-      <PrismicPreview repositoryName={repositoryName} />
+      {/* <PrismicPreview repositoryName={repositoryName} /> */}
     </html>
   );
 }

@@ -169,7 +169,6 @@ export default function Preloader() {
       img.dataset.centeredX = centeredX.toString();
     });
 
-    gsap.set(".line", { y: "125%" });
     gsap.set(".preloader-text-overlay", { opacity: 0 });
     gsap.set(".preloader-text-overlay .hero-text-line", { opacity: 0, y: 60 });
     // Hide the real header logo inside the preloader until the animated one lands
