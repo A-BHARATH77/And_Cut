@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { X } from "lucide-react";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
@@ -17,15 +18,16 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [modalData, setModalData] = useState<{ section: string; idx: number } | null>(null);
+  const [simpleVideoSrc, setSimpleVideoSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (modalData) {
+    if (modalData || simpleVideoSrc) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
     return () => { document.body.style.overflow = ""; };
-  }, [modalData]);
+  }, [modalData, simpleVideoSrc]);
 
   const activeVideos = FORMATS_DATA[activeTab];
 
@@ -59,7 +61,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
         id="format"
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
-        className="relative w-full bg-[#050508] pt-16 md:pt-24 pb-10 md:pb-16 overflow-hidden"
+        className="relative w-full bg-[#050508] py-0 md:py-2 overflow-hidden"
       >
         <style>{`
           .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -184,7 +186,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
       </section>
 
       {/* ── Beyond Vertical Section ── */}
-      <section id="beyond-vertical" className="relative w-full bg-[#050508] pb-16 md:pb-28 overflow-hidden flex flex-col items-center">
+      <section id="beyond-vertical" className="relative w-full bg-[#050508] pt-10 pb-0 md:pt-18 md:pb-2 overflow-hidden flex flex-col items-center">
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[800px] h-[400px] bg-[#6EE7FF]/5 blur-[150px] rounded-full" />
         </div>
@@ -194,13 +196,13 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          className="text-center mb-6 md:mb-12 max-w-2xl px-4 relative z-10 pt-12 md:pt-0"
+          className="text-center mb-6 md:mb-12 max-w-2xl px-4 relative z-10"
         >
           <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 uppercase mb-3 md:mb-4">
             BEYOND VERTICAL
           </h2>
-          <p className="text-neutral-400 text-xs sm:text-sm md:text-base font-medium">
-            Cinematic, high-impact horizontal formats tailored for YouTube, Web, and Television.
+          <p className="text-neutral-400 text-xs sm:text-sm md:text-base font-medium max-w-[800px] mx-auto">
+            We don&apos;t just shoot for the social feed. We also produce high-impact ad films, genuine customer testimonials, and clean corporate films when your brand needs a bigger, we write, shoot, and edit it all.
           </p>
         </motion.div>
 
@@ -208,7 +210,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
         <div className="w-full max-w-[1400px] px-3 sm:px-6 md:px-12 lg:px-20 relative z-10 flex flex-col gap-4 md:gap-8">
           {FORMATS_DATA["Horizontal"].map((video, idx) => (
             <div key={`horizontal-${idx}`} className="w-full relative group">
-              <HorizontalVideoCard video={video} onClick={() => setModalData({ section: "Horizontal", idx })} />
+              <HorizontalVideoCard video={video} onClick={() => setSimpleVideoSrc(video.videoPath)} />
             </div>
           ))}
         </div>
@@ -221,6 +223,40 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
             modalData={modalData} 
             setModalData={setModalData} 
           />
+        )}
+      </AnimatePresence>
+
+      {/* Simple Full Screen Lightbox for Beyond Vertical */}
+      <AnimatePresence>
+        {simpleVideoSrc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92 backdrop-blur-md p-3 sm:p-6 md:p-12 cursor-pointer"
+            onClick={() => setSimpleVideoSrc(null)}
+          >
+            <button
+              className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 z-50 transition-colors"
+              onClick={() => setSimpleVideoSrc(null)}
+            >
+              <X size={28} />
+            </button>
+
+            <motion.div
+              className="relative w-full max-w-[95vw] md:max-w-[1100px] aspect-video overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <video
+                src={simpleVideoSrc}
+                autoPlay
+                controls
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
@@ -249,6 +285,8 @@ function ModalContent({
       sidebarRef.current.scrollBy({ top: 200, behavior: "smooth" });
     }
   };
+
+  const isLandscapeModal = modalData.section === "Ad films & others" || modalData.section === "Photoshoot";
 
   return (
     <motion.div
@@ -285,7 +323,7 @@ function ModalContent({
           {/* Left side thumbnails */}
           <div 
             ref={sidebarRef}
-            className="w-[140px] shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 flex pointer-events-auto scroll-smooth"
+            className="w-[150px] px-2 shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 flex pointer-events-auto scroll-smooth"
             data-lenis-prevent="true"
           >
           {FORMATS_DATA[modalData.section].map((video, idx) => {
@@ -324,7 +362,10 @@ function ModalContent({
         </div>
 
         {/* Center Active Playing Video */}
-        <div className="flex-1 w-full h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0">
+        <div className={clsx(
+          "h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0",
+          isLandscapeModal ? "flex-1 w-full" : "aspect-[9/16] mx-auto md:mx-0"
+        )}>
           {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
             <video 
               key={`modal-active-vid-${modalData.idx}`}
@@ -346,7 +387,10 @@ function ModalContent({
         </div>
 
         {/* Right Side Text Component */}
-        <div className="w-full md:w-[320px] lg:w-[360px] shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-8 relative overflow-hidden h-auto md:h-full">
+        <div className={clsx(
+          "shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-8 relative overflow-hidden h-auto md:h-full",
+          isLandscapeModal ? "w-full md:w-[320px] lg:w-[360px]" : "w-full md:flex-1"
+        )}>
           <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
           
           {/* Close button positioned top right */}

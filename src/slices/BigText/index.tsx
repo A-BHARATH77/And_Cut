@@ -123,14 +123,22 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
       id="works"
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
-      className="w-full bg-[#050508] text-[#6EE7FF] pt-16 md:pt-24 pb-10 md:pb-16"
+      className="w-full bg-[#050508] text-[#6EE7FF] py-0 md:py-2"
     >
       {/* Section Title */}
-      <div className="w-full flex justify-center items-center py-6 md:py-14 px-4">
-        <h2 className="text-[14vw] sm:text-[12vw] md:text-[10vw] font-black uppercase leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        className="w-full text-center mt-12 mb-6 md:mt-20 md:mb-12 max-w-2xl px-4 mx-auto relative z-10"
+      >
+        <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 uppercase mb-3 md:mb-4">
           OUR WORK
         </h2>
-      </div>
+        <p className="text-neutral-400 text-xs sm:text-sm md:text-base font-medium max-w-[800px] mx-auto">
+          A curated selection of our highest-converting and most visually striking projects.
+        </p>
+      </motion.div>
 
       {/* Video Grid */}
       <div className="max-w-[1300px] mx-auto px-3 sm:px-4 md:px-8 pb-4">

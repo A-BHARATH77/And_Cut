@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://andcut.in"),
   title: "ANDCUT Studios — The UGC Video Agency",
   description:
-    "Stop blending in. Our creators deliver native, high-energy content built specifically for TikTok, Reels, and Shorts. We are ANDCUT Studios.",
+    "Have a project in mind or just want to chat about what kind of video your brand needs next? Drop us a line and let’s figure it out.",
 };
 
 import LenisProvider from "@/components/LenisProvider";

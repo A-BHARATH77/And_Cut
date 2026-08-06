@@ -10,24 +10,24 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="relative overflow-hidden bg-[#050508] text-white pt-20 pb-6 px-6 md:px-12">
+      <footer className="relative overflow-hidden bg-[#050508] text-white pt-24 md:pt-32 pb-10 md:pb-12 px-6 md:px-12 min-h-[50vh] md:min-h-[60vh] flex flex-col">
         {/* Funky ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] max-w-5xl aspect-square bg-[#1A0630] rounded-full blur-[120px] opacity-30 pointer-events-none" />
 
-        <div className="mx-auto max-w-7xl relative z-10">
+        <div className="mx-auto max-w-7xl w-full relative z-10 flex flex-col flex-1 justify-between gap-16 md:gap-24">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
             
             {/* Brand & Description */}
             <div className="md:col-span-5 flex flex-col items-start">
-              <img src="/and_cut_logo.webp" alt="ANDCUT Studios" loading="lazy" className="h-12 md:h-20 w-auto object-contain" />
+              <img src="/and_cut_logo.webp" alt="ANDCUT Studios" loading="lazy" className="h-16 md:h-28 w-auto object-contain object-left-top -mt-2 md:-mt-4" />
               <p className="mt-5 md:mt-8 text-white/60 text-base md:text-lg max-w-sm text-balance font-light leading-relaxed">
-                Stop blending in. We deliver native, high-energy UGC content built specifically to dominate TikTok, Reels, and Shorts.
+                Have a project in mind or just want to chat about what kind of video your brand needs next? Drop us a line and let’s figure it out
               </p>
               <a 
                 href="https://tally.so/r/EkNRrX" target="_blank" rel="noopener noreferrer"
                 className="mt-6 md:mt-8 inline-flex items-center justify-center rounded-full bg-white/5 border border-white/10 px-6 py-3 md:px-8 md:py-3.5 text-sm md:text-base font-semibold tracking-wide hover:bg-white hover:text-black transition-all duration-300"
               >
-                Let&apos;s Make It Viral
+                Let&apos;s Chat
               </a>
             </div>
 
@@ -78,12 +78,7 @@ export default function Footer() {
 
           </div>
 
-          {/* Big Background Text */}
-          <div className="mt-16 md:mt-20 -mb-4 md:-mb-10 w-full flex justify-center pointer-events-none select-none overflow-hidden">
-            <span className="text-[20vw] sm:text-[18vw] font-black uppercase leading-[0.75] tracking-tighter text-white">
-              ANDCUT
-            </span>
-          </div>
+
 
           {/* Legal Footer */}
           <div className="relative z-20 mt-8 md:mt-0 pt-6 md:pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -91,6 +86,7 @@ export default function Footer() {
               <p className="text-sm text-white/40 font-light">
                 © {new Date().getFullYear()} ANDCUT Studios. All rights reserved.
               </p>
+              {/* 
               <span className="hidden md:inline text-white/20">|</span>
               <p className="text-sm text-white/40 font-light flex items-center gap-1.5">
                 Built in partnership with
@@ -103,6 +99,7 @@ export default function Footer() {
                   Raghav
                 </a>
               </p>
+              */}
             </div>
             
             <div className="flex items-center gap-6 text-sm text-white/40 font-light">

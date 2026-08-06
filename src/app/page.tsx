@@ -8,7 +8,7 @@ import { components } from "@/slices";
 
 export const metadata: Metadata = {
   title: "ANDCUT Studios — The UGC Video Agency",
-  description: "Stop blending in. Our creators deliver native, high-energy content built specifically for TikTok, Reels, and Shorts.",
+  description: "Have a project in mind or just want to chat about what kind of video your brand needs next? Drop us a line and let’s figure it out.",
   openGraph: {
     title: "ANDCUT Studios — The UGC Video Agency",
     description: "Authentic, high-energy videos built for TikTok & Reels.",
