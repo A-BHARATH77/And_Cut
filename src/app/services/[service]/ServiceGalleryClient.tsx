@@ -289,21 +289,20 @@ function VideoCard({
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // When this card becomes the active (main) video, play it
   useEffect(() => {
+    if (isActive && videoRef.current) {
+      videoRef.current.muted = true; // keep muted to satisfy autoplay policy
+      setIsMuted(true);
+      videoRef.current.load();
+      videoRef.current.play().catch(() => {});
+    }
     if (isThumbnail && videoRef.current) {
       videoRef.current.muted = true;
       setIsMuted(true);
       videoRef.current.pause();
     }
-  }, [isThumbnail]);
-
-  useEffect(() => {
-    if (isActive && videoRef.current) {
-      videoRef.current.muted = false;
-      setIsMuted(false);
-      videoRef.current.play().catch(() => {});
-    }
-  }, [isActive]);
+  }, [isActive, isThumbnail]);
 
   if (!video) return null;
 

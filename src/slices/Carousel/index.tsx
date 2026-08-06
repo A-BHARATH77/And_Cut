@@ -7,7 +7,6 @@ import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
-import { useLazyVideo } from "../../hooks/useLazyVideo";
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
@@ -407,7 +406,42 @@ function ModalContent({
 }
 
 function VideoCard({ video }: { video: VideoData }) {
-  const videoRef = useLazyVideo();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Lazy-load + play when in viewport; reload whenever src changes
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    let inView = false;
+
+    const tryPlay = () => {
+      if (!inView) return;
+      el.play().catch(() => {});
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          inView = entry.isIntersecting;
+          if (entry.isIntersecting) {
+            // Always reload src when entering view so tab-switches load correctly
+            el.load();
+            el.addEventListener("canplay", tryPlay, { once: true });
+          } else {
+            el.pause();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      inView = false;
+    };
+  }, [video.videoPath]); // re-run when src changes (tab switch)
 
   if (!video) return null;
 
@@ -425,7 +459,7 @@ function VideoCard({ video }: { video: VideoData }) {
           loop
           muted
           playsInline
-          preload="none"
+          preload="metadata"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       ) : (
@@ -452,7 +486,34 @@ function VideoCard({ video }: { video: VideoData }) {
 }
 
 function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: () => void }) {
-  const videoRef = useLazyVideo();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    let inView = false;
+    const tryPlay = () => { if (inView) el.play().catch(() => {}); };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          inView = entry.isIntersecting;
+          if (entry.isIntersecting) {
+            el.load();
+            el.addEventListener("canplay", tryPlay, { once: true });
+          } else {
+            el.pause();
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+    return () => { observer.disconnect(); inView = false; };
+  }, [video.videoPath]);
+
   return (
     <div
       className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 relative cursor-pointer group-hover:border-white/20 transition-all duration-500"
@@ -461,11 +522,10 @@ function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: ()
       <video
         ref={videoRef}
         src={video.videoPath}
-        autoPlay
         loop
         muted
         playsInline
-        preload="none"
+        preload="metadata"
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       {/* Tap to unmute hint on mobile */}
