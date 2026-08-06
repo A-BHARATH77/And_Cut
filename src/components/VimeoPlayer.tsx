@@ -41,6 +41,7 @@ export default function VimeoPlayer({
         controls={controls}
         muted={muted}
         loop={loop}
+        playsInline={true}
         width="100%"
         height="100%"
         config={{

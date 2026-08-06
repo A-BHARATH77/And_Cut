@@ -4,6 +4,9 @@ import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "@/components/Header";
+import dynamic from "next/dynamic";
+
+const VimeoPlayer = dynamic(() => import("@/components/VimeoPlayer"), { ssr: false });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRITICAL ASSETS ONLY
@@ -374,6 +377,11 @@ export default function Preloader() {
         </div>
       </section>
 
+      {/* Secretly preload the heavy Vimeo SDK chunk and iframe in the background 
+          so it's instantly ready when the user scrolls down to the carousel later */}
+      <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
+        <VimeoPlayer vimeoId="1216196958" playing={false} />
+      </div>
     </div>
   );
 }
