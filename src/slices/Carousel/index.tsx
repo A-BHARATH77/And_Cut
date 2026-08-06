@@ -484,7 +484,7 @@ function VideoCard({ video }: { video: VideoData }) {
       (entries) => {
         setIsVimeoInView(entries[0].isIntersecting);
       },
-      { threshold: 0.1 }
+      { rootMargin: "1000px" } // Buffer zone: start playing 1000px before entering viewport
     );
     observer.observe(el);
     return () => observer.disconnect();

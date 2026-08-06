@@ -54,12 +54,15 @@ export default function VimeoPlayer({
               byline: false,
               portrait: false,
               dnt: true,
-              transparent: true
+              transparent: true,
+              autopause: false
             },
             // Fallback for newer react-player v3 versions
             background: background,
             controls: false,
-            dnt: true
+            dnt: true,
+            autopause: false,
+            preload: "auto"
           } as any,
         }}
         style={{ position: "absolute", top: 0, left: 0 }}
