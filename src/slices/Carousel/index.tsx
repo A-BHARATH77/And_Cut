@@ -8,6 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
+import dynamic from "next/dynamic";
+
+// Loaded client-side only — keeps Vimeo SDK off the critical path
+const VimeoPlayer = dynamic(() => import("../../components/VimeoPlayer"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 flex items-center justify-center bg-black"><div className="w-10 h-10 border-2 border-[#6EE7FF]/30 border-t-[#6EE7FF] rounded-full animate-spin" /></div>,
+});
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
@@ -366,24 +373,37 @@ function ModalContent({
           "h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0",
           isLandscapeModal ? "flex-1 w-full" : "aspect-[9/16] mx-auto md:mx-0"
         )}>
-          {isVideo(FORMATS_DATA[modalData.section][modalData.idx].videoPath) ? (
-            <video 
-              key={`modal-active-vid-${modalData.idx}`}
-              src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
-              autoPlay 
-              loop 
-              controls
-              playsInline
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <img 
-              src={FORMATS_DATA[modalData.section][modalData.idx].videoPath}
-              alt={FORMATS_DATA[modalData.section][modalData.idx].title}
-              loading="lazy"
-              className="w-full h-full object-contain"
-            />
-          )}
+          {(() => {
+            const active = FORMATS_DATA[modalData.section][modalData.idx];
+            if (active.vimeoId) {
+              return (
+                <VimeoPlayer
+                  key={`vimeo-${active.vimeoId}`}
+                  vimeoId={active.vimeoId}
+                  playing
+                  controls
+                />
+              );
+            }
+            return isVideo(active.videoPath) ? (
+              <video
+                key={`modal-active-vid-${modalData.idx}`}
+                src={active.videoPath}
+                autoPlay
+                loop
+                controls
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <img
+                src={active.videoPath}
+                alt={active.title}
+                loading="lazy"
+                className="w-full h-full object-contain"
+              />
+            );
+          })()}
         </div>
 
         {/* Right Side Text Component */}
@@ -451,6 +471,24 @@ function ModalContent({
 
 function VideoCard({ video }: { video: VideoData }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVimeoInView, setIsVimeoInView] = useState(false);
+
+  // Track visibility for Vimeo iframes to play/pause automatically
+  useEffect(() => {
+    if (!video.vimeoId) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setIsVimeoInView(entries[0].isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [video.vimeoId]);
 
   // Lazy-load + play when in viewport; reload whenever src changes
   useEffect(() => {
@@ -491,12 +529,23 @@ function VideoCard({ video }: { video: VideoData }) {
 
   return (
     <div
+      ref={containerRef}
       className={clsx(
         "relative rounded-xl md:rounded-[2rem] overflow-hidden group border border-white/5 w-full bg-neutral-900",
         video.isHorizontal ? "aspect-video" : "aspect-[9/16]"
       )}
     >
-      {isVideo(video.videoPath) ? (
+      {video.vimeoId ? (
+        <VimeoPlayer
+          vimeoId={video.vimeoId}
+          playing={isVimeoInView}
+          muted
+          loop
+          controls={false}
+          background={true}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+        />
+      ) : isVideo(video.videoPath) ? (
         <video
           ref={videoRef}
           src={video.videoPath}

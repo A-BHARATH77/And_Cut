@@ -2,6 +2,7 @@ export type VideoData = {
   title: string;
   videoPath: string;
   isHorizontal?: boolean;
+  vimeoId?: string; // If set, video is streamed from Vimeo instead of local file
 };
 
 /**
@@ -29,7 +30,7 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "Seven UGC",         videoPath: p("/UGC/Seven UGC.mp4") },
     { title: "Soul Flower",       videoPath: p("/UGC/Soul Flower.mp4") },
     { title: "Soul Flower 2",     videoPath: p("/UGC/Soul Flower 2.mp4") },
-    { title: "Reel 1",            videoPath: p("/UGC/0730(7).mp4") },
+    { title: "Reel 1",            videoPath: p("/UGC/0730(7).mp4"), vimeoId: "1216196958" },
     { title: "Reel 2",            videoPath: p("/UGC/0730(8).mp4") },
   ],
   DVC: [
