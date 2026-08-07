@@ -484,7 +484,7 @@ function VideoCard({ video }: { video: VideoData }) {
       (entries) => {
         setIsVimeoInView(entries[0].isIntersecting);
       },
-      { rootMargin: "1000px" } // Buffer zone: start playing 1000px before entering viewport
+      { rootMargin: "1500px" } // Mount iframe 1500px before entering viewport so it buffers ahead of time
     );
     observer.observe(el);
     return () => observer.disconnect();
