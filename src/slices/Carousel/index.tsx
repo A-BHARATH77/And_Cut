@@ -124,7 +124,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               OUR SERVICES
             </h2>
             <p className="text-neutral-400 text-xs sm:text-sm md:text-base font-medium">
-              From the first script to the final edit, we tell your brand's story across different video formats so it feels authentic and ready to watch.
+              {"From the first script to the final edit, we tell your brand's story across different video formats so it feels authentic and ready to watch."}
             </p>
           </div>
 
@@ -504,7 +504,7 @@ modalData: { section: string; idx: number };
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot entirely on the latest iPhone models so the footage feels completely native, relatable, and authentic to the feed.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
@@ -553,7 +553,7 @@ modalData: { section: string; idx: number };
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
@@ -602,7 +602,7 @@ modalData: { section: string; idx: number };
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
@@ -651,7 +651,7 @@ modalData: { section: string; idx: number };
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
