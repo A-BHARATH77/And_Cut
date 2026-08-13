@@ -5,8 +5,15 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "@/components/Header";
 import dynamic from "next/dynamic";
+import { FORMATS_DATA } from "@/data/services";
 
 const VimeoPlayer = dynamic(() => import("@/components/VimeoPlayer"), { ssr: false });
+
+// All UGC Vimeo IDs — preloaded silently during the loader so they're buffered
+// by the time the user scrolls down to the carousel.
+const UGC_VIMEO_IDS = FORMATS_DATA["UGC"]
+  .filter((v) => v.vimeoId)
+  .map((v) => v.vimeoId as string);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRITICAL ASSETS ONLY
@@ -377,10 +384,24 @@ export default function Preloader() {
         </div>
       </section>
 
-      {/* Secretly preload the heavy Vimeo SDK chunk and iframe in the background 
-          so it's instantly ready when the user scrolls down to the carousel later */}
-      <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
-        <VimeoPlayer vimeoId="1216196958" playing={false} />
+      {/* ─────────────────────────────────────────────────────────────────────
+          UGC VIDEO PREWARMING
+          Mount ALL UGC Vimeo iframes invisibly during the loader so each one
+          begins buffering immediately.  By the time the user scrolls to the
+          carousel, the videos are already ready — no spinner on arrival.
+
+          Each VimeoPlayer mounts with autoplay=1 in the URL (Vimeo starts
+          buffering on the CDN edge) but playing=false (we stay paused).
+          The iframes are 0×0 and opacity-0 so nothing is ever visible.
+          ───────────────────────────────────────────────────────────────── */}
+      <div
+        aria-hidden="true"
+        className="absolute opacity-0 pointer-events-none"
+        style={{ width: 0, height: 0, overflow: "hidden" }}
+      >
+        {UGC_VIMEO_IDS.map((id) => (
+          <VimeoPlayer key={id} vimeoId={id} playing={false} muted loop background />
+        ))}
       </div>
     </div>
   );

@@ -27,6 +27,36 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [modalData, setModalData] = useState<{ section: string; idx: number } | null>(null);
   const [simpleVideoSrc, setSimpleVideoSrc] = useState<string | null>(null);
 
+  const [isManuallyScrolling, setIsManuallyScrolling] = useState(false);
+  const manualScrollTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handleManualScroll = (direction: "left" | "right") => {
+    setIsManuallyScrolling(true);
+    if (manualScrollTimer.current) clearTimeout(manualScrollTimer.current);
+    manualScrollTimer.current = setTimeout(() => {
+      setIsManuallyScrolling(false);
+    }, 800); // Pause auto-scroll to let smooth scroll finish
+
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      const scrollAmount = window.innerWidth < 768 ? 240 : 320; // smaller scroll on mobile
+      
+      if (direction === "left") {
+        if (scrollLeft <= 10) {
+          scrollContainerRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+        } else {
+          scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        }
+      } else {
+        if (scrollLeft >= scrollWidth - clientWidth - 10) {
+          scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (modalData || simpleVideoSrc) {
       document.body.style.overflow = "hidden";
@@ -42,7 +72,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   useEffect(() => {
     let animId: number;
     const scroll = () => {
-      if (scrollContainerRef.current && !isHovered) {
+      if (scrollContainerRef.current && !isHovered && !isManuallyScrolling) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
         if (scrollLeft >= scrollWidth - clientWidth - 2) {
           scrollContainerRef.current.scrollLeft = 0;
@@ -54,7 +84,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
     };
     animId = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(animId);
-  }, [isHovered, activeTab]);
+  }, [isHovered, isManuallyScrolling, activeTab]);
 
   // Reset on tab change
   useEffect(() => {
@@ -125,11 +155,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
             {/* Left Arrow Button */}
             <button
-              onClick={() => {
-                if (scrollContainerRef.current) {
-                  scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
-                }
-              }}
+              onClick={() => handleManualScroll("left")}
               className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
               aria-label="Scroll Left"
             >
@@ -140,11 +166,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
             {/* Right Arrow Button */}
             <button
-              onClick={() => {
-                if (scrollContainerRef.current) {
-                  scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
-                }
-              }}
+              onClick={() => handleManualScroll("right")}
               className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
               aria-label="Scroll Right"
             >
