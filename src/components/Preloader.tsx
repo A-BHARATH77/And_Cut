@@ -174,7 +174,8 @@ export default function Preloader() {
     // Hide the real header logo inside the preloader until the animated one lands
     gsap.set(".header-logo-img", { opacity: 0 });
 
-    const tl = gsap.timeline({ delay: 0.2 });
+    const tl = gsap.timeline({ delay: 2.7 }); // 2.5s extra gives Vimeo iframes time to init & buffer
+
 
     // Hide the FOUC overlay immediately when the animation starts
     tl.to(".fouc-overlay", { opacity: 0, duration: 0.5, ease: "power2.out" }, 0);

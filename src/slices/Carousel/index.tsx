@@ -200,7 +200,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                     )}
                   >
                     <div className="cursor-pointer" onClick={() => setModalData({ section: tab, idx })}>
-                      <VideoCard video={video} />
+                      <VideoCard video={video} index={idx} />
                     </div>
                   </div>
                 ))}
@@ -493,11 +493,25 @@ function ModalContent({
   );
 }
 
-function VideoCard({ video }: { video: VideoData }) {
+function VideoCard({ video, index = 0 }: { video: VideoData; index?: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVimeoInView, setIsVimeoInView] = useState(false);
   const [isVimeoReady, setIsVimeoReady] = useState(false);
+
+  // Stagger Vimeo iframe mounts so they don't all race for the CDN at once.
+  // Card 0 = immediate, card 1 = 200ms, ..., card 11 = 2200ms.
+  // Combined with the 2.5s extra preloader delay, every iframe has had
+  // several seconds of head-start buffering before the user can scroll here.
+  const [shouldMountVimeo, setShouldMountVimeo] = useState(
+    !video.vimeoId || index === 0
+  );
+
+  useEffect(() => {
+    if (!video.vimeoId || index === 0) return;
+    const timer = setTimeout(() => setShouldMountVimeo(true), index * 200);
+    return () => clearTimeout(timer);
+  }, [index, video.vimeoId]);
 
   // Track visibility for Vimeo iframes to play/pause automatically
   useEffect(() => {
@@ -562,8 +576,8 @@ function VideoCard({ video }: { video: VideoData }) {
     >
       {video.vimeoId ? (
         <>
-          {/* Shimmer shown until the Vimeo player fires its ready event */}
-          {!isVimeoReady && (
+          {/* Shimmer: shown while waiting for stagger delay OR while Vimeo player initialises */}
+          {(!shouldMountVimeo || !isVimeoReady) && (
             <div className="absolute inset-0 z-10 overflow-hidden bg-neutral-900">
               <div
                 className="absolute inset-0"
@@ -576,17 +590,19 @@ function VideoCard({ video }: { video: VideoData }) {
               <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
             </div>
           )}
-          <VimeoPlayer
-            vimeoId={video.vimeoId}
-            playing={isVimeoInView}
-            muted
-            loop
-            controls={false}
-            background={true}
-            quality="360p"
-            onReady={() => setIsVimeoReady(true)}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
-          />
+          {shouldMountVimeo && (
+            <VimeoPlayer
+              vimeoId={video.vimeoId}
+              playing={isVimeoInView}
+              muted
+              loop
+              controls={false}
+              background={true}
+              quality="360p"
+              onReady={() => setIsVimeoReady(true)}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+            />
+          )}
         </>
       ) : isVideo(video.videoPath) ? (
         <video
