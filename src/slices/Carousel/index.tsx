@@ -626,7 +626,7 @@ function VideoCard({ video, index = 0 }: { video: VideoData; index?: number }) {
       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
 
       {/* Title */}
-      {!video.videoPath.includes('/UGC/') && (
+      {!video.videoPath.includes('/UGC/') && !video.videoPath.includes('/Photoshoot/') && (
         <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none">
           <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">
             {video.title}

@@ -33,10 +33,10 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "UGC Reel 12", videoPath: p("/UGC/vimeo12.mp4"), vimeoId: "1216461126" },
   ],
   DVC: [
-    { title: "brand story",    videoPath: p("/DVC/0504(1).mp4") },
-    { title: "cinematic flow", videoPath: p("/DVC/0730.mp4") },
-    { title: "DVC 1",          videoPath: p("/DVC/0707.mp4") },
-    { title: "DVC 2",          videoPath: p("/DVC/0730(1).mp4") },
+    { title: "brand story",    videoPath: p("/DVC/0504(1).mp4"), vimeoId: "1218018594" },
+    { title: "cinematic flow", videoPath: p("/DVC/0730.mp4"), vimeoId: "1218018593" },
+    { title: "DVC 1",          videoPath: p("/DVC/0707.mp4"), vimeoId: "1218018596" },
+    { title: "DVC 2",          videoPath: p("/DVC/0730(1).mp4"), vimeoId: "1218018595" },
   ],
   "Micro Drama": [
     { title: "Hula Hoop EP 1",   videoPath: p("/micro_drama/Hula Hoop 1  EP 1.mp4") },
