@@ -7,8 +7,10 @@
  * - The iframe src is built ONCE on mount and never changes (no reloads, no black screen).
  * - autoplay=1 is always in the URL so Vimeo begins buffering the moment the iframe mounts.
  * - The `playing` prop controls play/pause via Vimeo's postMessage API — no src rebuild needed.
- * - The Carousel's IntersectionObserver mounts this 1000px before viewport entry, giving the
- *   video ample time to buffer before the user ever sees it.
+ * - A unique `player_id` is baked into the URL and matched on every incoming postMessage so
+ *   each instance only reacts to its OWN iframe (avoids mass-triggering with many iframes).
+ * - `quality` defaults to "360p" for background thumbnail cards (fast first-frame) and
+ *   should be set to "auto" for the modal (quality adapts to bandwidth).
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +23,8 @@ interface VimeoPlayerProps {
   muted?: boolean;
   loop?: boolean;
   background?: boolean;
+  quality?: string; // e.g. "360p" for thumbnails, "auto" for modal
+  onReady?: () => void; // fires when player is ready and showing first frame
 }
 
 export default function VimeoPlayer({
@@ -31,9 +35,20 @@ export default function VimeoPlayer({
   muted = false,
   loop = false,
   background = false,
+  quality,
+  onReady,
 }: VimeoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isReady, setIsReady] = useState(false);
+
+  // Stable unique ID for this player instance — used to match postMessages
+  // to exactly this iframe and no other.
+  const playerIdRef = useRef(`vp-${vimeoId}-${Math.random().toString(36).slice(2, 8)}`);
+  const playerId = playerIdRef.current;
+
+  // Resolve quality: if explicitly given use it; otherwise thumbnail cards default
+  // to 360p (fast first-frame), non-background players default to auto.
+  const resolvedQuality = quality ?? (background ? "360p" : "auto");
 
   // Build src ONCE — autoplay=1 always so buffering starts on mount immediately.
   // Never recalculated, so the iframe is never reloaded.
@@ -49,16 +64,20 @@ export default function VimeoPlayer({
     `&portrait=0` +
     `&dnt=1` +
     `&playsinline=1` +
-    `&quality=1080p`;
+    `&quality=${resolvedQuality}` +
+    `&player_id=${encodeURIComponent(playerId)}`;
 
-  // Listen for Vimeo's "ready" event so we know postMessage is accepted
+  // Listen for Vimeo postMessages — filter to only THIS iframe's player_id
+  // so multiple instances don't all fire at once.
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== "https://player.vimeo.com") return;
+      if (iframeRef.current && e.source !== iframeRef.current.contentWindow) return;
       try {
         const data = JSON.parse(e.data as string);
         if (data.event === "ready") {
           setIsReady(true);
+          onReady?.();
         }
       } catch {
         // non-JSON messages from other iframes — safely ignore
@@ -66,6 +85,7 @@ export default function VimeoPlayer({
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Control play / pause via postMessage — zero iframe reload

@@ -399,11 +399,12 @@ function ModalContent({
             const active = FORMATS_DATA[modalData.section][modalData.idx];
             if (active.vimeoId) {
               return (
-                <VimeoPlayer
+              <VimeoPlayer
                   key={`vimeo-${active.vimeoId}`}
                   vimeoId={active.vimeoId}
                   playing
                   controls
+                  quality="auto"
                 />
               );
             }
@@ -495,6 +496,7 @@ function VideoCard({ video }: { video: VideoData }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVimeoInView, setIsVimeoInView] = useState(false);
+  const [isVimeoReady, setIsVimeoReady] = useState(false);
 
   // Track visibility for Vimeo iframes to play/pause automatically
   useEffect(() => {
@@ -506,7 +508,7 @@ function VideoCard({ video }: { video: VideoData }) {
       (entries) => {
         setIsVimeoInView(entries[0].isIntersecting);
       },
-      { rootMargin: "1500px" } // Mount iframe 1500px before entering viewport so it buffers ahead of time
+      { rootMargin: "1500px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -558,15 +560,33 @@ function VideoCard({ video }: { video: VideoData }) {
       )}
     >
       {video.vimeoId ? (
-        <VimeoPlayer
-          vimeoId={video.vimeoId}
-          playing={isVimeoInView}
-          muted
-          loop
-          controls={false}
-          background={true}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
-        />
+        <>
+          {/* Shimmer shown until the Vimeo player fires its ready event */}
+          {!isVimeoReady && (
+            <div className="absolute inset-0 z-10 overflow-hidden bg-neutral-900">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: "linear-gradient(110deg, #1a1a1a 30%, #2a2a2a 50%, #1a1a1a 70%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 1.6s infinite linear",
+                }}
+              />
+              <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+            </div>
+          )}
+          <VimeoPlayer
+            vimeoId={video.vimeoId}
+            playing={isVimeoInView}
+            muted
+            loop
+            controls={false}
+            background={true}
+            quality="360p"
+            onReady={() => setIsVimeoReady(true)}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+          />
+        </>
       ) : isVideo(video.videoPath) ? (
         <video
           ref={videoRef}
