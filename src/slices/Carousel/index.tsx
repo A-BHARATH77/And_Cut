@@ -5,7 +5,6 @@ import { SliceComponentProps } from "@prismicio/react";
 import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import { X } from "lucide-react";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
 import dynamic from "next/dynamic";
@@ -22,7 +21,12 @@ const isVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
 
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState<string>("UGC");
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // One scroll container ref per tab — keeps each tab's scroll position
+  // independent and, crucially, keeps the DOM nodes (and Vimeo iframes) alive
+  // when switching tabs so they never lose their buffer.
+  const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const [isHovered, setIsHovered] = useState(false);
   const [modalData, setModalData] = useState<{ section: string; idx: number } | null>(null);
   const [simpleVideoSrc, setSimpleVideoSrc] = useState<string | null>(null);
@@ -35,23 +39,24 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
     if (manualScrollTimer.current) clearTimeout(manualScrollTimer.current);
     manualScrollTimer.current = setTimeout(() => {
       setIsManuallyScrolling(false);
-    }, 800); // Pause auto-scroll to let smooth scroll finish
+    }, 800);
 
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      const scrollAmount = window.innerWidth < 768 ? 240 : 320; // smaller scroll on mobile
-      
+    const container = scrollRefs.current[activeTab];
+    if (container) {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const scrollAmount = window.innerWidth < 768 ? 240 : 320;
+
       if (direction === "left") {
         if (scrollLeft <= 10) {
-          scrollContainerRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+          container.scrollTo({ left: scrollWidth, behavior: "smooth" });
         } else {
-          scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+          container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
         }
       } else {
         if (scrollLeft >= scrollWidth - clientWidth - 10) {
-          scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
+          container.scrollTo({ left: 0, behavior: "smooth" });
         } else {
-          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+          container.scrollBy({ left: scrollAmount, behavior: "smooth" });
         }
       }
     }
@@ -66,18 +71,17 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
     return () => { document.body.style.overflow = ""; };
   }, [modalData, simpleVideoSrc]);
 
-  const activeVideos = FORMATS_DATA[activeTab];
-
-  // Auto-scroll (Infinite loop)
+  // Auto-scroll — always targets the currently visible tab's container
   useEffect(() => {
     let animId: number;
     const scroll = () => {
-      if (scrollContainerRef.current && !isHovered && !isManuallyScrolling) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      const container = scrollRefs.current[activeTab];
+      if (container && !isHovered && !isManuallyScrolling) {
+        const { scrollLeft, scrollWidth, clientWidth } = container;
         if (scrollLeft >= scrollWidth - clientWidth - 2) {
-          scrollContainerRef.current.scrollLeft = 0;
+          container.scrollLeft = 0;
         } else {
-          scrollContainerRef.current.scrollLeft += 0.6;
+          container.scrollLeft += 0.6;
         }
       }
       animId = requestAnimationFrame(scroll);
@@ -86,9 +90,10 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
     return () => cancelAnimationFrame(animId);
   }, [isHovered, isManuallyScrolling, activeTab]);
 
-  // Reset on tab change
+  // Reset scroll position of the newly-activated tab
   useEffect(() => {
-    if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = 0;
+    const container = scrollRefs.current[activeTab];
+    if (container) container.scrollLeft = 0;
   }, [activeTab]);
 
   return (
@@ -175,36 +180,32 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               </svg>
             </button>
 
-            <div
-              ref={scrollContainerRef}
-              className="flex overflow-x-auto hide-scrollbar gap-3 sm:gap-4 md:gap-6 pb-4 w-full px-4"
-              style={{ scrollBehavior: "auto" }}
-            >
-              <AnimatePresence mode="wait">
-                {activeVideos.map((video, idx) => {
-                  const serviceSlug = encodeURIComponent(activeTab.toLowerCase());
-                  return (
-                    <motion.div
-                      key={`${activeTab}-${idx}`}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.3 }}
-                      className={clsx(
-                        "shrink-0",
-                        video.isHorizontal
-                          ? "w-[75vw] sm:w-[60vw] md:w-[500px] lg:w-[650px]"
-                          : "w-[48vw] sm:w-[40vw] md:w-[280px] lg:w-[320px]"
-                      )}
-                    >
-                      <div className="cursor-pointer" onClick={() => setModalData({ section: activeTab, idx })}>
-                        <VideoCard video={video} />
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
+            {/* All tab contents — always in DOM, shown/hidden via display so
+                Vimeo iframes are never destroyed when switching tabs */}
+            {FORMAT_TABS.map((tab) => (
+              <div
+                key={tab}
+                ref={(el) => { scrollRefs.current[tab] = el; }}
+                className="flex overflow-x-auto hide-scrollbar gap-3 sm:gap-4 md:gap-6 pb-4 w-full px-4"
+                style={{ scrollBehavior: "auto", display: activeTab === tab ? "flex" : "none" }}
+              >
+                {FORMATS_DATA[tab].map((video, idx) => (
+                  <div
+                    key={`${tab}-${idx}`}
+                    className={clsx(
+                      "shrink-0",
+                      video.isHorizontal
+                        ? "w-[75vw] sm:w-[60vw] md:w-[500px] lg:w-[650px]"
+                        : "w-[48vw] sm:w-[40vw] md:w-[280px] lg:w-[320px]"
+                    )}
+                  >
+                    <div className="cursor-pointer" onClick={() => setModalData({ section: tab, idx })}>
+                      <VideoCard video={video} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Swipe hint on mobile */}
