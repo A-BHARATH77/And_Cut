@@ -9,7 +9,7 @@ import { X } from "lucide-react";
 import { FORMATS_DATA, FORMAT_TABS, FORMAT_PRICES, VideoData } from "../../data/services";
 import dynamic from "next/dynamic";
 
-// Loaded client-side only — keeps Vimeo SDK off the critical path
+// Loaded client-side only Ã¢â‚¬â€ keeps Vimeo SDK off the critical path
 const VimeoPlayer = dynamic(() => import("../../components/VimeoPlayer"), {
   ssr: false,
   loading: () => <div className="absolute inset-0 flex items-center justify-center bg-black"><div className="w-10 h-10 border-2 border-[#6EE7FF]/30 border-t-[#6EE7FF] rounded-full animate-spin" /></div>,
@@ -22,7 +22,7 @@ const isVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState<string>("UGC");
 
-  // One scroll container ref per tab — keeps each tab's scroll position
+  // One scroll container ref per tab Ã¢â‚¬â€ keeps each tab's scroll position
   // independent and, crucially, keeps the DOM nodes (and Vimeo iframes) alive
   // when switching tabs so they never lose their buffer.
   const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -71,7 +71,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
     return () => { document.body.style.overflow = ""; };
   }, [modalData, simpleVideoSrc]);
 
-  // Auto-scroll — always targets the currently visible tab's container
+  // Auto-scroll Ã¢â‚¬â€ always targets the currently visible tab's container
   useEffect(() => {
     let animId: number;
     const scroll = () => {
@@ -98,7 +98,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
   return (
     <>
-      {/* ── Services Carousel Section ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Services Carousel Section Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section
         id="format"
         data-slice-type={slice.slice_type}
@@ -124,11 +124,11 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               OUR SERVICES
             </h2>
             <p className="text-neutral-400 text-xs sm:text-sm md:text-base font-medium">
-              Tailored visual storytelling designed to capture attention.
+              From the first script to the final edit, we tell your brand's story across different video formats so it feels authentic and ready to watch.
             </p>
           </div>
 
-          {/* Tabs — horizontal scroll on mobile */}
+          {/* Tabs Ã¢â‚¬â€ horizontal scroll on mobile */}
           <div className="w-full overflow-x-auto hide-scrollbar mb-6 md:mb-10">
             <div className="flex items-center gap-2 md:gap-3 p-1.5 bg-white/5 border border-white/10 rounded-2xl md:rounded-full backdrop-blur-xl w-max mx-auto px-3 md:px-2">
               {FORMAT_TABS.map((tab) => (
@@ -180,7 +180,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               </svg>
             </button>
 
-            {/* All tab contents — always in DOM, shown/hidden via display so
+            {/* All tab contents Ã¢â‚¬â€ always in DOM, shown/hidden via display so
                 Vimeo iframes are never destroyed when switching tabs */}
             {FORMAT_TABS.map((tab) => (
               <div
@@ -210,12 +210,12 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
           {/* Swipe hint on mobile */}
           <p className="mt-2 text-white/30 text-[10px] tracking-widest uppercase md:hidden">
-            ← swipe to browse →
+            Ã¢â€ Â swipe to browse Ã¢â€ â€™
           </p>
         </div>
       </section>
 
-      {/* ── Beyond Vertical Section ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Beyond Vertical Section Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section id="beyond-vertical" className="relative w-full bg-[#050508] pt-10 pb-0 md:pt-18 md:pb-2 overflow-hidden flex flex-col items-center">
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[800px] h-[400px] bg-[#6EE7FF]/5 blur-[150px] rounded-full" />
@@ -299,10 +299,25 @@ function ModalContent({
   modalData,
   setModalData
 }: {
-  modalData: { section: string; idx: number };
+modalData: { section: string; idx: number };
   setModalData: (data: { section: string; idx: number } | null) => void;
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [isVimeoReady, setIsVimeoReady] = useState<Record<number, boolean>>({});
+  const [mountedIndices, setMountedIndices] = useState<number[]>([modalData.idx]);
+  const [ugcPackage, setUgcPackage] = useState<5 | 10 | 20>(5);
+  const [dvcPackage, setDvcPackage] = useState<5 | 10>(5);
+  const [microDramaPackage, setMicroDramaPackage] = useState<3 | 5>(3);
+
+  // Keep track of which videos have been viewed so we can keep them in the DOM cache
+  useEffect(() => {
+    setMountedIndices((prev) => {
+      if (!prev.includes(modalData.idx)) {
+        return [...prev, modalData.idx];
+      }
+      return prev;
+    });
+  }, [modalData.idx]);
 
   const scrollUp = () => {
     if (sidebarRef.current) {
@@ -326,6 +341,16 @@ function ModalContent({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-3 sm:p-6 md:p-10 overflow-y-auto"
     >
       <div className="w-full max-w-[1600px] h-full md:h-[85vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0">
+        <button 
+          onClick={() => setModalData(null)}
+          className="fixed top-4 right-4 md:top-8 md:right-8 z-[200] text-white/75 hover:text-white transition-all hover:scale-110 p-2.5 md:p-3 rounded-full bg-[#0A0A0F]/80 border border-white/10 backdrop-blur-md hover:bg-[#0A0A0F]"
+          aria-label="Close modal"
+        >
+          <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* Arrows and Thumbnails container - Hidden on mobile screen */}
         <div className="hidden md:flex items-center gap-2 xl:gap-4 h-full order-1 min-h-0">
           {/* Scroll Arrows */}
@@ -367,20 +392,8 @@ function ModalContent({
                   isSelected ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105" : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
                 )}
               >
-                {isVideo(video.videoPath) ? (
-                  <video 
-                    src={video.videoPath} 
-                    autoPlay
-                    loop 
-                    muted 
-                    playsInline 
-                    preload="metadata"
-                    className="w-full h-full object-cover" 
-                  />
-                ) : (
-                  <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover" alt={video.title} />
-                )}
-                {!video.videoPath.includes('/UGC/') && (
+                <ModalSidebarThumbnail video={video} index={idx} />
+                {!video.videoPath.includes('/UGC/') && !video.videoPath.includes('/Photoshoot/') && !video.videoPath.includes('/DVC/') && (
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
                     <span className="text-[10px] text-white font-medium truncate">{video.title}</span>
                   </div>
@@ -396,22 +409,57 @@ function ModalContent({
           "h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0",
           isLandscapeModal ? "flex-1 w-full" : "aspect-[9/16] mx-auto md:mx-0"
         )}>
-          {(() => {
-            const active = FORMATS_DATA[modalData.section][modalData.idx];
+          {FORMATS_DATA[modalData.section].map((active, index) => {
+            if (!mountedIndices.includes(index)) return null;
+
+            const isSelected = index === modalData.idx;
+            const ready = isVimeoReady[index];
+
             if (active.vimeoId) {
               return (
-              <VimeoPlayer
-                  key={`vimeo-${active.vimeoId}`}
-                  vimeoId={active.vimeoId}
-                  playing
-                  controls
-                  quality="auto"
-                />
+                <div key={`modal-vimeo-${active.vimeoId}`} className="absolute inset-0 w-full h-full bg-black" style={{ display: isSelected ? "block" : "none" }}>
+                  {!ready && (
+                    <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+                      {isVideo(active.videoPath) ? (
+                        <video
+                          src={active.videoPath}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-neutral-900 pointer-events-none">
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background: "linear-gradient(110deg, #1a1a1a 30%, #2a2a2a 50%, #1a1a1a 70%)",
+                              backgroundSize: "200% 100%",
+                              animation: "shimmer 1.6s infinite linear",
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <VimeoPlayer
+                    vimeoId={active.vimeoId}
+                    playing={isSelected}
+                    controls
+                    quality="auto"
+                    onReady={() => setIsVimeoReady(prev => ({ ...prev, [index]: true }))}
+                  />
+                </div>
               );
             }
+
+            // Local fallback (mount on demand, destroy on blur to prevent background audio)
+            if (!isSelected) return null;
+
             return isVideo(active.videoPath) ? (
               <video
-                key={`modal-active-vid-${modalData.idx}`}
+                key={`modal-active-vid-${index}`}
                 src={active.videoPath}
                 autoPlay
                 loop
@@ -421,13 +469,13 @@ function ModalContent({
               />
             ) : (
               <img
+                key={`modal-active-img-${index}`}
                 src={active.videoPath}
-                alt={active.title}
-                loading="lazy"
                 className="w-full h-full object-contain"
+                alt={active.title}
               />
             );
-          })()}
+          })}
         </div>
 
         {/* Right Side Text Component */}
@@ -437,60 +485,235 @@ function ModalContent({
         )}>
           <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
           
-          {/* Close button positioned top right */}
-          <button 
-            onClick={() => setModalData(null)}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 text-white/50 hover:text-white transition-all hover:scale-110 p-2 rounded-full hover:bg-white/10"
-            aria-label="Close modal"
+          <div 
+            className={clsx("relative z-10 flex-1 min-h-0 flex flex-col gap-4 sm:gap-6 pt-12 md:pt-4 overflow-y-auto pb-4 pr-1", isLandscapeModal ? "custom-scrollbar" : "hide-scrollbar")}
+            data-lenis-prevent="true"
           >
-            <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          <div className="relative z-10 flex flex-col gap-4 sm:gap-6 my-auto pt-2 md:pt-0">
-            <div>
-              <div className="inline-block px-3 py-1 mb-2 sm:mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
-                {modalData.section} Format
-              </div>
-              {modalData.section !== "UGC" && (
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white capitalize mb-2 sm:mb-3 pr-8">
-                  {FORMATS_DATA[modalData.section][modalData.idx].title}
-                </h3>
-              )}
-              <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
-                Premium, high-converting visual storytelling designed specifically for {modalData.section} placement to drive maximum engagement.
-              </p>
-            </div>
-
-            {FORMAT_PRICES[modalData.section] && (
-              <>
-                <div className="h-px bg-gradient-to-r from-white/20 to-transparent" />
+            {modalData.section === "UGC" ? (
+              <div className="flex flex-col gap-4 md:gap-5">
                 <div>
-                  <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Starting At</div>
-                  <div className="text-2xl sm:text-3xl font-black text-white">
-                    {FORMAT_PRICES[modalData.section]}/-
+                  <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    UGC Format
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                    People buy from people, not logos.
+                  </h3>
+                  <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+                    Authentic videos out-convert polished ads every day. Plus, with 2 unique hooks for every video, you get total freedom to run creative testing and optimize your ad spend.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot entirely on the latest iPhone models so the footage feels completely native, relatable, and authentic to the feed.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-neutral-500 uppercase tracking-widest mb-3">The Packages</h4>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {[5, 10, 20].map((pkg) => (
+                      <button
+                        key={pkg}
+                        onClick={() => setUgcPackage(pkg as 5 | 10 | 20)}
+                        className={clsx(
+                          "px-4 py-2 rounded-lg text-sm md:text-base font-bold transition-all border",
+                          ugcPackage === pkg
+                            ? "bg-[#6EE7FF] text-black border-[#6EE7FF] shadow-[0_0_15px_rgba(110,231,255,0.4)]"
+                            : "bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white"
+                        )}
+                      >
+                        {pkg} Video Ads
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
+                  <div>
+                    <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
+                    <div className="text-3xl md:text-4xl font-black text-white">
+                      {ugcPackage === 5 ? "\u20B995,000" : ugcPackage === 10 ? "\u20B91,80,000" : "\u20B92,80,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
+                    </div>
                   </div>
                 </div>
-              </>
+              </div>
+            ) : modalData.section === "DVC" ? (
+              <div className="flex flex-col gap-4 md:gap-5">
+                <div>
+                  <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    DVC Format
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                    A Digital Video Commercial (DVC)
+                  </h3>
+                  <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+                    is a high-quality, TV-grade video ad designed specifically for social media and digital screens. DVC gives your brand instant credibility, helps you stop the scroll, win over customers, and get maximum impact out of your marketing budget.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-neutral-500 uppercase tracking-widest mb-3">The Packages</h4>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {[5, 10].map((pkg) => (
+                      <button
+                        key={pkg}
+                        onClick={() => setDvcPackage(pkg as 5 | 10)}
+                        className={clsx(
+                          "px-4 py-2 rounded-lg text-sm md:text-base font-bold transition-all border",
+                          dvcPackage === pkg
+                            ? "bg-[#6EE7FF] text-black border-[#6EE7FF] shadow-[0_0_15px_rgba(110,231,255,0.4)]"
+                            : "bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white"
+                        )}
+                      >
+                        {pkg} Video Ads
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
+                  <div>
+                    <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
+                    <div className="text-3xl md:text-4xl font-black text-white">
+                      {dvcPackage === 5 ? "\u20B91,80,000" : "\u20B93,10,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : modalData.section === "Micro Drama" ? (
+              <div className="flex flex-col gap-4 md:gap-5">
+                <div>
+                  <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    Micro Drama Format
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                    Micro-Dramas bring cinematic production
+                  </h3>
+                  <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+                    to fast-paced drama and comedy built directly for modern social feeds. It is the ultimate format for direct-to-consumer brands looking to boost audience engagement, build brand affinity, and stand out in crowded digital spaces.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-neutral-500 uppercase tracking-widest mb-3">The Packages</h4>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {[3, 5].map((pkg) => (
+                      <button
+                        key={pkg}
+                        onClick={() => setMicroDramaPackage(pkg as 3 | 5)}
+                        className={clsx(
+                          "px-4 py-2 rounded-lg text-sm md:text-base font-bold transition-all border",
+                          microDramaPackage === pkg
+                            ? "bg-[#6EE7FF] text-black border-[#6EE7FF] shadow-[0_0_15px_rgba(110,231,255,0.4)]"
+                            : "bg-transparent text-white/70 border-white/20 hover:border-white/50 hover:text-white"
+                        )}
+                      >
+                        {pkg} Video Ads
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
+                  <div>
+                    <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
+                    <div className="text-3xl md:text-4xl font-black text-white">
+                      {microDramaPackage === 3 ? "\u20B91,80,000" : "\u20B93,10,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : modalData.section === "Ad films & others" ? (
+              <div className="flex flex-col gap-4 md:gap-5">
+                <div>
+                  <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    Ad films & others Format
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                    Premium, scroll-stopping commercials
+                  </h3>
+                  <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+                    designed to launch products, capture attention instantly, and convert digital buyers. On the other hand, Brand Documentaries blend cinematic realism with candid storytelling to showcase the human side, scale, and mission behind your business.
+                  </p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                  <h4 className="text-base md:text-lg font-bold text-white mb-1">How It's Shot & What's Included</h4>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
+                  <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Pipeline:</strong> We handle everything, Concept, Scripting, Locations, Shooting, and final Editing are all fully included. No hidden creative fees.</p>
+                </div>
+
+                <div>
+                  <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
+                  <div>
+                    <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Price</div>
+                    <div className="text-3xl md:text-4xl font-black text-white">
+                      Get a Custom Quote
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <div className="inline-block px-3 py-1 mb-2 sm:mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
+                    {modalData.section} Format
+                  </div>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white capitalize mb-2 sm:mb-3 pr-8">
+                    {FORMATS_DATA[modalData.section][modalData.idx].title}
+                  </h3>
+                  <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
+                    Premium, high-converting visual storytelling designed specifically for {modalData.section} placement to drive maximum engagement.
+                  </p>
+                </div>
+
+                {FORMAT_PRICES[modalData.section] && (
+                  <>
+                    <div className="h-px bg-gradient-to-r from-white/20 to-transparent" />
+                    <div>
+                      <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Starting At</div>
+                      <div className="text-2xl sm:text-3xl font-black text-white">
+                        {FORMAT_PRICES[modalData.section]}/-
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
 
-            <a
-              href="https://tally.so/r/EkNRrX"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-1"
-            >
-              Connect With Us
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
+            {modalData.section !== "UGC" && modalData.section !== "DVC" && modalData.section !== "Micro Drama" && modalData.section !== "Ad films & others" && (
+              <a
+                href="https://tally.so/r/EkNRrX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-1"
+              >
+                Connect With Us
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
   );
+
 }
 
 function VideoCard({ video, index = 0 }: { video: VideoData; index?: number }) {
@@ -626,7 +849,7 @@ function VideoCard({ video, index = 0 }: { video: VideoData; index?: number }) {
       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
 
       {/* Title */}
-      {!video.videoPath.includes('/UGC/') && !video.videoPath.includes('/Photoshoot/') && (
+      {!video.videoPath.includes('/UGC/') && !video.videoPath.includes('/Photoshoot/') && !video.videoPath.includes('/DVC/') && (
         <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none">
           <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">
             {video.title}
@@ -705,3 +928,54 @@ function HorizontalVideoCard({ video, onClick }: { video: VideoData, onClick: ()
     </div>
   );
 }
+
+function ModalSidebarThumbnail({ video, index }: { video: VideoData; index: number }) {
+  const [shouldMount, setShouldMount] = useState(!video.vimeoId);
+
+  useEffect(() => {
+    if (!video.vimeoId) return;
+    // Delay sidebar iframes heavily (1500ms + stagger) so center video loads instantly
+    const timer = setTimeout(() => setShouldMount(true), 1500 + index * 300);
+    return () => clearTimeout(timer);
+  }, [video.vimeoId, index]);
+
+  if (!video.vimeoId) {
+    return isVideo(video.videoPath) ? (
+      <video src={video.videoPath} autoPlay loop muted playsInline preload="metadata" className="w-full h-full object-cover" />
+    ) : (
+      <img src={video.videoPath} loading="lazy" className="w-full h-full object-cover" alt={video.title} />
+    );
+  }
+
+  return (
+    <div className="w-full h-full pointer-events-none overflow-hidden relative">
+      {!shouldMount && (
+        <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(110deg, #1a1a1a 30%, #2a2a2a 50%, #1a1a1a 70%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 1.6s infinite linear",
+            }}
+          />
+        </div>
+      )}
+      {shouldMount && (
+        <VimeoPlayer
+          vimeoId={video.vimeoId}
+          playing={true}
+          muted
+          loop
+          background={true}
+          controls={false}
+          quality="360p"
+          className="scale-[1.5]"
+        />
+      )}
+    </div>
+  );
+}
+
+
+
