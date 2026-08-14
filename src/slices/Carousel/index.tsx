@@ -19,6 +19,71 @@ export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
 const isVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
 
+const RevealText = () => {
+  const text = "We create eye-candy ads so ridiculously good, people forget they’re being sold to";
+  const words = text.split(" ");
+  
+  // Shuffled indices for random order animation delays & offsets
+  const shuffledIndices = [8, 3, 11, 1, 9, 5, 0, 12, 6, 2, 7, 10, 4];
+  
+  return (
+    <motion.h2 
+      className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight uppercase flex flex-wrap justify-center gap-x-[0.25em] gap-y-[0.1em]"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, margin: "-120px" }}
+    >
+      {words.map((word, idx) => {
+        const order = shuffledIndices[idx % shuffledIndices.length];
+        const delay = order * 0.06;
+        
+        // Match original coloring rules
+        const isEyeCandy = idx === 2 || idx === 3; // "eye-candy" and "ads"
+        const isBeingSoldTo = idx >= 10 && idx <= 12; // "being", "sold", "to"
+        
+        let wordClass = "inline-block";
+        if (isEyeCandy) {
+          wordClass = "inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6]";
+        } else if (isBeingSoldTo) {
+          wordClass = "inline-block text-[#6EE7FF]";
+        }
+
+        // Assemble by rising straight up from the bottom
+        const randomX = 0;
+        const randomY = 40;
+
+        return (
+          <motion.span
+            key={idx}
+            className={wordClass}
+            variants={{
+              hidden: { 
+                opacity: 0,
+                x: randomX,
+                y: randomY,
+                filter: "blur(4px)"
+              },
+              visible: { 
+                opacity: 1,
+                x: 0,
+                y: 0,
+                filter: "blur(0px)",
+                transition: {
+                  duration: 0.7,
+                  delay: delay,
+                  ease: [0.16, 1, 0.3, 1]
+                }
+              }
+            }}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
+    </motion.h2>
+  );
+};
+
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState<string>("UGC");
 
@@ -98,7 +163,18 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
   return (
     <>
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Services Carousel Section Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── Scroll Reveal One-Liner Section ── */}
+      <section className="relative w-full bg-[#050508] py-20 md:py-36 flex items-center justify-center overflow-hidden border-b border-white/5">
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[800px] h-[300px] bg-[#6EE7FF]/5 blur-[120px] rounded-full" />
+        </div>
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <RevealText />
+        </div>
+      </section>
+
+      {/* ── Services Carousel Section ── */}
       <section
         id="format"
         data-slice-type={slice.slice_type}
@@ -108,6 +184,39 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
         <style>{`
           .hide-scrollbar::-webkit-scrollbar { display: none; }
           .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          
+          /* Responsive height-based spacing adjustments */
+          @media (max-height: 900px) {
+            .dynamic-modal-gap {
+              gap: 1.0rem !important;
+            }
+            .dynamic-info-box {
+              padding: 0.95rem !important;
+              gap: 0.5rem !important;
+            }
+            .dynamic-modal-gap h3 {
+              font-size: 2.0rem !important;
+              margin-bottom: 0.5rem !important;
+              line-height: 1.25 !important;
+            }
+            .dynamic-modal-gap p {
+              font-size: 1.0rem !important;
+              line-height: 1.45 !important;
+            }
+            .dynamic-info-box p {
+              font-size: 0.9rem !important;
+              line-height: 1.45 !important;
+            }
+            .dynamic-info-box h4 {
+              font-size: 1.05rem !important;
+              margin-bottom: 0.3rem !important;
+            }
+            .dynamic-modal-gap a {
+              padding-top: 0.8rem !important;
+              padding-bottom: 0.8rem !important;
+              margin-top: 0.3rem !important;
+            }
+          }
         `}</style>
 
         {/* Background glow */}
@@ -338,9 +447,9 @@ modalData: { section: string; idx: number };
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-3 sm:p-6 md:p-10 overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-3 sm:p-6 md:p-10 overflow-y-auto md:overflow-hidden"
     >
-      <div className="w-full max-w-[1600px] h-full md:h-[85vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0">
+      <div className="w-full max-w-[1600px] h-full md:h-[90vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0">
         <button 
           onClick={() => setModalData(null)}
           className="fixed top-4 right-4 md:top-8 md:right-8 z-[200] text-white/75 hover:text-white transition-all hover:scale-110 p-2.5 md:p-3 rounded-full bg-[#0A0A0F]/80 border border-white/10 backdrop-blur-md hover:bg-[#0A0A0F]"
@@ -352,7 +461,7 @@ modalData: { section: string; idx: number };
         </button>
 
         {/* Arrows and Thumbnails container - Hidden on mobile screen */}
-        <div className="hidden md:flex items-center gap-2 xl:gap-4 h-full order-1 min-h-0">
+        <div className="hidden md:flex items-start gap-2 xl:gap-4 h-full order-1 min-h-0">
           {/* Scroll Arrows */}
           <div className="flex flex-col gap-4">
             <button 
@@ -378,7 +487,7 @@ modalData: { section: string; idx: number };
           {/* Left side thumbnails */}
           <div 
             ref={sidebarRef}
-            className="w-[150px] px-2 shrink-0 flex-col gap-4 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 flex pointer-events-auto scroll-smooth"
+            className="w-[150px] px-2 shrink-0 flex-col gap-6 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 flex pointer-events-auto scroll-smooth"
             data-lenis-prevent="true"
           >
           {FORMATS_DATA[modalData.section].map((video, idx) => {
@@ -481,16 +590,16 @@ modalData: { section: string; idx: number };
         {/* Right Side Text Component */}
         <div className={clsx(
           "shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-8 relative overflow-hidden h-auto md:h-full",
-          isLandscapeModal ? "w-full md:w-[320px] lg:w-[360px]" : "w-full md:flex-1"
+          isLandscapeModal ? "w-full md:w-[480px] lg:w-[580px]" : "w-full md:flex-1"
         )}>
           <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
           
           <div 
-            className={clsx("relative z-10 flex-1 min-h-0 flex flex-col gap-4 sm:gap-6 pt-12 md:pt-4 overflow-y-auto pb-4 pr-1", isLandscapeModal ? "custom-scrollbar" : "hide-scrollbar")}
+            className={clsx("relative z-10 flex-1 min-h-0 flex flex-col gap-4 sm:gap-6 pt-12 md:pt-4 pb-4 pr-1 hide-scrollbar", isLandscapeModal ? "overflow-y-hidden" : "overflow-y-auto")}
             data-lenis-prevent="true"
           >
             {modalData.section === "UGC" ? (
-              <div className="flex flex-col gap-4 md:gap-5">
+              <div className="flex flex-col gap-4 md:gap-5 dynamic-modal-gap">
                 <div>
                   <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                     UGC Format
@@ -503,7 +612,7 @@ modalData: { section: string; idx: number };
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2 dynamic-info-box">
                   <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot entirely on the latest iPhone models so the footage feels completely native, relatable, and authentic to the feed.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
@@ -532,14 +641,25 @@ modalData: { section: string; idx: number };
                   <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
                   <div>
                     <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
-                    <div className="text-3xl md:text-4xl font-black text-white">
+                    <div className="text-3xl md:text-4xl font-black text-white mb-4">
                       {ugcPackage === 5 ? "\u20B995,000" : ugcPackage === 10 ? "\u20B91,80,000" : "\u20B92,80,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
                     </div>
+                    <a
+                      href="https://tally.so/r/EkNRrX"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                    >
+                      Connect
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               </div>
             ) : modalData.section === "DVC" ? (
-              <div className="flex flex-col gap-4 md:gap-5">
+              <div className="flex flex-col gap-4 md:gap-5 dynamic-modal-gap">
                 <div>
                   <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                     DVC Format
@@ -552,7 +672,7 @@ modalData: { section: string; idx: number };
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2 dynamic-info-box">
                   <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
@@ -581,14 +701,25 @@ modalData: { section: string; idx: number };
                   <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
                   <div>
                     <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
-                    <div className="text-3xl md:text-4xl font-black text-white">
+                    <div className="text-3xl md:text-4xl font-black text-white mb-4">
                       {dvcPackage === 5 ? "\u20B91,80,000" : "\u20B93,10,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
                     </div>
+                    <a
+                      href="https://tally.so/r/EkNRrX"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                    >
+                      Connect
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               </div>
             ) : modalData.section === "Micro Drama" ? (
-              <div className="flex flex-col gap-4 md:gap-5">
+              <div className="flex flex-col gap-4 md:gap-5 dynamic-modal-gap">
                 <div>
                   <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                     Micro Drama Format
@@ -601,7 +732,7 @@ modalData: { section: string; idx: number };
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2 dynamic-info-box">
                   <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
@@ -630,14 +761,25 @@ modalData: { section: string; idx: number };
                   <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
                   <div>
                     <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Package Total</div>
-                    <div className="text-3xl md:text-4xl font-black text-white">
+                    <div className="text-3xl md:text-4xl font-black text-white mb-4">
                       {microDramaPackage === 3 ? "\u20B91,80,000" : "\u20B93,10,000"} <span className="text-base text-neutral-400 font-medium">+ GST</span>
                     </div>
+                    <a
+                      href="https://tally.so/r/EkNRrX"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                    >
+                      Connect
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               </div>
             ) : modalData.section === "Ad films & others" ? (
-              <div className="flex flex-col gap-4 md:gap-5">
+              <div className="flex flex-col gap-4 md:gap-5 dynamic-modal-gap">
                 <div>
                   <div className="inline-block px-4 py-1.5 mb-3 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                     Ad films & others Format
@@ -650,7 +792,7 @@ modalData: { section: string; idx: number };
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2 dynamic-info-box">
                   <h4 className="text-base md:text-lg font-bold text-white mb-1">{"How It's Shot & What's Included"}</h4>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Setup:</strong> Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.</p>
                   <p className="text-neutral-400 text-sm md:text-base leading-relaxed"><strong className="text-white">The Talent:</strong> We bring in up to 3 different creators or actors for every batch of 5 videos to give your brand variety.</p>
@@ -661,14 +803,25 @@ modalData: { section: string; idx: number };
                   <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-3" />
                   <div>
                     <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Price</div>
-                    <div className="text-3xl md:text-4xl font-black text-white">
+                    <div className="text-3xl md:text-4xl font-black text-white mb-4">
                       Get a Custom Quote
                     </div>
+                    <a
+                      href="https://tally.so/r/EkNRrX"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                    >
+                      Connect
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 dynamic-modal-gap">
                 <div>
                   <div className="inline-block px-3 py-1 mb-2 sm:mb-3 text-[10px] font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
                     {modalData.section} Format
@@ -681,32 +834,43 @@ modalData: { section: string; idx: number };
                   </p>
                 </div>
 
-                {FORMAT_PRICES[modalData.section] && (
+                {FORMAT_PRICES[modalData.section] ? (
                   <>
                     <div className="h-px bg-gradient-to-r from-white/20 to-transparent" />
                     <div>
                       <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Starting At</div>
-                      <div className="text-2xl sm:text-3xl font-black text-white">
+                      <div className="text-2xl sm:text-3xl font-black text-white mb-4">
                         {FORMAT_PRICES[modalData.section]}/-
                       </div>
+                      <a
+                        href="https://tally.so/r/EkNRrX"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                      >
+                        Connect
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </a>
                     </div>
                   </>
+                ) : (
+                  <div className="mt-4">
+                    <a
+                      href="https://tally.so/r/EkNRrX"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)]"
+                    >
+                      Connect
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
+                  </div>
                 )}
               </div>
-            )}
-
-            {modalData.section !== "UGC" && modalData.section !== "DVC" && modalData.section !== "Micro Drama" && modalData.section !== "Ad films & others" && (
-              <a
-                href="https://tally.so/r/EkNRrX"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black uppercase tracking-widest text-xs md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] mt-1"
-              >
-                Connect With Us
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </a>
             )}
           </div>
         </div>

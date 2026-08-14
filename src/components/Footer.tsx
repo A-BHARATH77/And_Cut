@@ -4,12 +4,46 @@ import React, { useState } from "react";
 import { AndcutLogo } from "./AndcutLogo";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Lottie from "lottie-react";
+import arrowAnimation from "../../public/Lottie/arrow.json";
 
 export default function Footer() {
   const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
 
   return (
     <>
+      {/* CTA Themed Blue Banner */}
+      <section className="relative w-full bg-[#0B1524] py-16 md:py-20 px-6 border-y border-white/5 flex items-center justify-center z-10">
+        <div className="max-w-7xl w-full flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-12 relative z-10">
+          {/* Main Text */}
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight text-center sm:text-left uppercase">
+            Stop overthinking. Let&apos;s start shooting.
+          </h2>
+          
+          {/* Loop Arrow SVG & Button container */}
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Lottie Arrow Animation */}
+            <div className="w-36 h-16 hidden md:block select-none pointer-events-none">
+              <Lottie 
+                animationData={arrowAnimation} 
+                loop={true} 
+                autoplay={true}
+              />
+            </div>
+            
+            {/* Button */}
+            <a 
+              href="https://tally.so/r/EkNRrX" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#6EE7FF] to-[#3B82F6] text-[#050508] font-black text-xs md:text-sm tracking-widest uppercase transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(110,231,255,0.3)] whitespace-nowrap"
+            >
+              Let&apos;s Connect
+            </a>
+          </div>
+        </div>
+      </section>
+
       <footer className="relative overflow-hidden bg-[#050508] text-white pt-24 md:pt-32 pb-10 md:pb-12 px-6 md:px-12 min-h-[50vh] md:min-h-[60vh] flex flex-col">
         {/* Funky ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] max-w-5xl aspect-square bg-[#1A0630] rounded-full blur-[120px] opacity-30 pointer-events-none" />
