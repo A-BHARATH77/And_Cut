@@ -4,8 +4,10 @@ import React, { useState } from "react";
 import { AndcutLogo } from "./AndcutLogo";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 import arrowAnimation from "../../public/Lottie/arrow.json";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export default function Footer() {
   const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
@@ -23,7 +25,7 @@ export default function Footer() {
           {/* Loop Arrow SVG & Button container */}
           <div className="flex items-center gap-4 shrink-0">
             {/* Lottie Arrow Animation */}
-            <div className="w-36 h-16 hidden md:block select-none pointer-events-none">
+            <div className="w-20 h-10 md:w-36 md:h-16 block select-none pointer-events-none">
               <Lottie 
                 animationData={arrowAnimation} 
                 loop={true} 
