@@ -30,12 +30,28 @@ export default async function Index() {
         slices: [
           { slice_type: "hero", variation: "default", primary: {}, items: [] },
           { slice_type: "carousel", variation: "default", primary: {}, items: [] },
+          { slice_type: "big_text", variation: "default", primary: {}, items: [] },
         ]
       }
     } as any;
   }
 
+  let slices = home?.data?.slices ? [...home.data.slices] : [];
+  
+  // Force the big_text slice to render during development if it's missing from Prismic
+  if (!slices.find((s: any) => s.slice_type === "big_text")) {
+    slices.push({ slice_type: "big_text", variation: "default", id: "mock-big-text", primary: {}, items: [] } as any);
+  }
+
+  // FORCE ORDERING: Ensure big_text is ALWAYS the last item in the array, 
+  // even if Prismic CMS or mock data placed it higher up by mistake.
+  slices.sort((a: any, b: any) => {
+    if (a.slice_type === "big_text") return 1;
+    if (b.slice_type === "big_text") return -1;
+    return 0;
+  });
+
   return (
-    <SliceZone slices={home.data.slices} components={components} />
+    <SliceZone slices={slices} components={components} />
   );
 }

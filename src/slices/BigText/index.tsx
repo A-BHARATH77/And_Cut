@@ -108,6 +108,58 @@ const VIDEOS = {
   v12: "/ANDCUT_VDS/14.webm",
 };
 
+const COMMENTS_DATA = [
+  { user: "_faraz___khan", time: "5w", text: "Kya baat hai 😂 Sahi bande dhunda hai marketing ke liye 👏", pos: "top-[2%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
+  { user: "theaveragemallu", time: "2w", text: "Great ad", pos: "top-[25%] md:-left-[40%] lg:-left-[60%]", rotate: "rotate-[2deg]", delay: 0.2 },
+  { user: "laksakhala111", time: "2w", text: "Bc marketing koi inse seekho 😂", pos: "top-[48%] md:-left-[50%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
+  { user: "yj.lol.haha", time: "2w", text: "Nice marketing ha...", pos: "top-[75%] md:-left-[35%] lg:-left-[55%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
+  
+  { user: "kapilkhandelwal_kp", time: "2w", text: "Wow...this ad video, smartly executed 🔥", pos: "top-[8%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
+  { user: "imgyancho", time: "1w", text: "Ise kehte hai Ad.", pos: "top-[32%] md:-right-[40%] lg:-right-[65%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
+  { user: "itzz_harshil_009", time: "4w", text: "Sahii marketing kar raha hai 😂", pos: "top-[55%] md:-right-[55%] lg:-right-[85%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
+  { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[80%] md:-right-[45%] lg:-right-[70%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
+];
+
+const FloatingComment = ({ data }: { data: any }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.8 }}
+    whileInView={{ opacity: 1, scale: 1 }}
+    animate={{ y: [0, -8, 0] }}
+    transition={{
+      y: { duration: 4, repeat: Infinity, delay: data.delay, ease: "easeInOut" },
+      opacity: { duration: 0.5, delay: data.delay * 0.3 },
+      scale: { duration: 0.5, delay: data.delay * 0.3, type: "spring", stiffness: 200 }
+    }}
+    viewport={{ once: true, margin: "-100px" }}
+    className={clsx(
+      "absolute z-30 flex items-center gap-2 md:gap-3 p-2 md:p-3 pr-3 md:pr-5 bg-[#181818]/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-2xl border border-white/10 w-max max-w-[180px] md:max-w-[280px] lg:max-w-[320px] transition-transform hover:scale-[1.02] hover:z-40 cursor-default",
+      "scale-[0.75] sm:scale-90 md:scale-100", // Scale down heavily on mobile
+      data.pos,
+      data.rotate
+    )}
+    style={{ transformOrigin: data.pos.includes('left') ? 'right center' : 'left center' }}
+  >
+    <img 
+      src={`https://ui-avatars.com/api/?name=${data.user}&background=random&color=fff&size=100`} 
+      className="w-6 h-6 md:w-9 md:h-9 rounded-full object-cover shrink-0 border border-white/20" 
+      alt={data.user}
+    />
+    <div className="flex flex-col justify-center">
+      <div className="flex items-center gap-1 md:gap-1.5 text-[8px] md:text-[10px] text-white/50">
+        <span className="font-bold text-white/90 text-[9px] md:text-xs tracking-tight">{data.user}</span>
+        <span>{data.time}</span>
+        {data.authorLiked && (
+          <>
+            <span className="text-[#FF2D55] text-[10px] md:text-xs leading-none">♥</span>
+            <span className="hidden sm:inline">by author</span>
+          </>
+        )}
+      </div>
+      <p className="text-[10px] md:text-[13px] lg:text-sm text-white/90 leading-tight mt-0.5 md:mt-1 whitespace-normal font-medium">{data.text}</p>
+    </div>
+  </motion.div>
+);
+
 const BigText = ({ slice }: BigTextProps): JSX.Element => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedSrc, setSelectedSrc] = useState<string | null>(null);
@@ -211,6 +263,69 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
             <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => open("h4", VIDEOS.h4, "H")} />
           </div>
         </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="w-full min-h-[100svh] py-12 flex flex-col items-center justify-center bg-[#050508]">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          className="w-full text-center mb-8 md:mb-12 max-w-2xl px-4 mx-auto relative z-10"
+        >
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 uppercase mb-2">
+            COMMENTS
+          </h2>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          className="w-full mx-auto px-4 flex justify-center relative z-10"
+        >
+          <style>{`
+            @keyframes phone-gradient {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            .animate-phone-gradient {
+              background-size: 200% 200%;
+              animation: phone-gradient 5s ease infinite;
+            }
+          `}</style>
+          
+          {/* Black Background Circle */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] bg-black rounded-full z-0 opacity-80" />
+
+          <div className="relative flex justify-center items-center">
+            {/* Floating Comments */}
+            {COMMENTS_DATA.map((comment, i) => (
+              <FloatingComment key={i} data={comment} />
+            ))}
+
+            {/* CSS Phone Frame (Replaces the watermarked image) */}
+            <div className="relative w-[240px] h-[500px] md:w-[270px] md:h-[560px] rounded-[2.5rem] md:rounded-[3rem] border-[3px] md:border-[4px] border-white/80 overflow-hidden hover:scale-[1.02] transition-transform duration-500 bg-gradient-to-br from-[#6EE7FF] via-[#3B82F6] to-[#6EE7FF] animate-phone-gradient shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(255,255,255,0.3)] flex flex-col z-20">
+              
+              {/* Dynamic Island */}
+              <div className="absolute top-3 md:top-4 left-1/2 -translate-x-1/2 w-[80px] h-[24px] bg-black rounded-full border-[2px] border-white/80 z-20 shadow-sm" />
+              
+              {/* Home Indicator */}
+              <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 w-[100px] h-[4px] bg-white/80 rounded-full z-20" />
+
+              {/* Inner Content Area for Comments */}
+              <div className="flex-1 w-full h-full pt-14 pb-8 px-6 relative z-10 flex flex-col items-center justify-center text-center">
+                <div className="text-6xl md:text-7xl mb-4 md:mb-6 animate-bounce" style={{ animationDuration: '3s' }}>
+                  🤔
+                </div>
+                <span className="text-[#050508] text-xl md:text-2xl font-bold leading-snug tracking-tight">
+                  Still thinking? <br/><br/> Here's what people are saying.
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Full Screen Lightbox */}
