@@ -69,11 +69,11 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "Product Shoot", videoPath: p("/Photoshoot/Towel 9.webp"),      isHorizontal: true },
   ],
   "Ad films & others": [
-    { title: "Ad Film 1",                  videoPath: p("/ad_films/0730(5).webm"),                       isHorizontal: true },
-    { title: "Ad Film 2",                  videoPath: p("/ad_films/0730(6).webm"),                       isHorizontal: true },
-    { title: "CDD Testimonial",            videoPath: p("/ad_films/CDD Testimonial.webm"),               isHorizontal: true },
-    { title: "CNBC",                       videoPath: p("/ad_films/CNBC.webm"),                          isHorizontal: true },
-    { title: "Seven Ring Air Music Video", videoPath: p("/ad_films/Seven Ring Air Music Video .webm"),   isHorizontal: true },
+    { title: "Product launch ad film", videoPath: p("/ad_films/Seven Ring Air Music Video .webm"),   isHorizontal: true },
+    { title: "Brand AV",                       videoPath: p("/ad_films/CNBC.webm"),                          isHorizontal: true },
+    { title: "Industrial Films",                  videoPath: p("/ad_films/0730(5).webm"),                       isHorizontal: true },
+    { title: "Product Testimonial",                  videoPath: p("/ad_films/0730(6).webm"),                       isHorizontal: true },
+    { title: "Product Testimonial",            videoPath: p("/ad_films/CDD Testimonial.webm"),               isHorizontal: true },
   ],
   Horizontal: [
     { title: "Cinematic Reel", videoPath: p("/ANDCUT_VDS/4.webm"),           isHorizontal: true },

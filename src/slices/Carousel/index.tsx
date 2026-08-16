@@ -319,13 +319,13 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
           {/* Swipe hint on mobile */}
           <p className="mt-2 text-white/30 text-[10px] tracking-widest uppercase md:hidden">
-            Ã¢â€ Â swipe to browse Ã¢â€ â€™
+            ← swipe to browse →
           </p>
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Beyond Vertical Section Ã¢â€â‚¬Ã¢â€â‚¬ */}
-      <section id="beyond-vertical" className="relative w-full bg-[#050508] pt-10 pb-0 md:pt-18 md:pb-2 overflow-hidden flex flex-col items-center">
+      {/* ───── Beyond Vertical Section ───── */}
+      <section id="beyond-vertical" className="hidden md:flex relative w-full bg-[#050508] pt-10 pb-0 md:pt-18 md:pb-2 overflow-hidden flex-col items-center">
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[800px] h-[400px] bg-[#6EE7FF]/5 blur-[150px] rounded-full" />
         </div>

@@ -54,14 +54,12 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
             
             {/* Brand & Description */}
-            <div className="md:col-span-5 flex flex-col items-start">
-              <img src="/and_cut_logo.webp" alt="ANDCUT Studios" loading="lazy" className="h-16 md:h-28 w-auto object-contain object-left-top -mt-2 md:-mt-4" />
-              <p className="mt-5 md:mt-8 text-white/60 text-base md:text-lg max-w-sm text-balance font-light leading-relaxed">
-                Have a project in mind or just want to chat about what kind of video your brand needs next? Drop us a line and let’s figure it out
-              </p>
+            <div className="md:col-span-5 flex flex-row md:flex-col justify-between items-center md:items-start w-full">
+              <img src="/and_cut_logo.webp" alt="ANDCUT Studios" loading="lazy" className="h-12 md:h-28 w-auto object-contain object-left-top md:-mt-4" />
+
               <a 
                 href="https://tally.so/r/EkNRrX" target="_blank" rel="noopener noreferrer"
-                className="mt-6 md:mt-8 inline-flex items-center justify-center rounded-full bg-white/5 border border-white/10 px-6 py-3 md:px-8 md:py-3.5 text-sm md:text-base font-semibold tracking-wide hover:bg-white hover:text-black transition-all duration-300"
+                className="md:mt-8 inline-flex items-center justify-center rounded-full bg-white/5 border border-white/10 px-5 py-2.5 md:px-8 md:py-3.5 text-sm md:text-base font-semibold tracking-wide hover:bg-white hover:text-black transition-all duration-300 shrink-0"
               >
                 Let&apos;s Chat
               </a>

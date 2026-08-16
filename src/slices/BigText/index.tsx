@@ -74,8 +74,8 @@ const VideoBlock = ({
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={clsx(
-        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer flex-1",
-        aspect === "H" ? "aspect-video" : "aspect-[9/16]"
+        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer",
+        aspect === "H" ? "w-full aspect-video" : "flex-1 aspect-[9/16]"
       )}
     >
       {src && (
@@ -94,10 +94,11 @@ const VideoBlock = ({
 };
 
 const VIDEOS = {
-  h1: "/ANDCUT_VDS/4.webm",
-  h2: "/ANDCUT_VDS/horizontal2.webm",
-  h3: "/ANDCUT_VDS/CNBC.webm",
-  h4: "/ANDCUT_VDS/4.webm",
+  h1: "/ad_films/Seven Ring Air Music Video .webm",
+  h2: "/ad_films/CNBC.webm",
+  h3: "/ad_films/0730(5).webm",
+  h4: "/ad_films/0730(6).webm",
+  h5: "/ad_films/CDD Testimonial.webm",
   v1: "/ANDCUT_VDS/1.webm",
   v2: "/ANDCUT_VDS/2.webm",
   v3: "/ANDCUT_VDS/3.webm",
@@ -199,7 +200,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
       {/* Video Grid */}
       <div className="max-w-[1300px] mx-auto px-3 sm:px-4 md:px-8 pb-4">
 
-        {/* ── MOBILE layout (< md) ── */}
+        {/* 📱 MOBILE layout (< md) 📱 */}
         <div className="flex flex-col gap-3 md:hidden">
           {/* Wide */}
           <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => open("h1", VIDEOS.h1, "H")} />
@@ -208,6 +209,15 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
             <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => open("v1", VIDEOS.v1, "V")} />
             <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => open("v2", VIDEOS.v2, "V")} />
           </div>
+          
+          {/* Wide */}
+          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => open("h2", VIDEOS.h2, "H")} />
+          {/* 2 portrait */}
+          <div className="flex gap-3">
+            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => open("v3", VIDEOS.v3, "V")} />
+            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => open("v4", VIDEOS.v4, "V")} />
+          </div>
+          
           {/* Wide */}
           <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => open("h3", VIDEOS.h3, "H")} />
           {/* 2 portrait */}
@@ -215,17 +225,21 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
             <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => open("v5", VIDEOS.v5, "V")} />
             <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => open("v6", VIDEOS.v6, "V")} />
           </div>
-          {/* 2 portrait */}
-          <div className="flex gap-3">
-            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => open("v3", VIDEOS.v3, "V")} />
-            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => open("v4", VIDEOS.v4, "V")} />
-          </div>
+          
           {/* Wide */}
-          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => open("h2", VIDEOS.h2, "H")} />
+          <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => open("h4", VIDEOS.h4, "H")} />
           {/* 2 portrait */}
           <div className="flex gap-3">
             <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => open("v7", VIDEOS.v7, "V")} />
             <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => open("v8", VIDEOS.v8, "V")} />
+          </div>
+
+          {/* Wide */}
+          <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => open("h5", VIDEOS.h5, "H")} />
+          {/* 2 portrait */}
+          <div className="flex gap-3">
+            <VideoBlock id="v9" src={VIDEOS.v9} aspect="V" onClick={() => open("v9", VIDEOS.v9, "V")} />
+            <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => open("v10", VIDEOS.v10, "V")} />
           </div>
         </div>
 
@@ -247,6 +261,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
               <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => open("v11", VIDEOS.v11, "V")} />
               <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => open("v12", VIDEOS.v12, "V")} />
             </div>
+            <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => open("h5", VIDEOS.h5, "H")} />
           </div>
 
           {/* Right Column */}

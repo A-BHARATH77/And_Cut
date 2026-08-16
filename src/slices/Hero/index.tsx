@@ -19,30 +19,31 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
       setIsMobileVideoLoaded(true);
     }, 2500);
 
-    // Try to ensure the mobile video plays
-    if (mobileVideoRef.current) {
-      mobileVideoRef.current.defaultMuted = true;
-      mobileVideoRef.current.play().catch(e => {
-        console.warn("Mobile video autoplay prevented:", e);
-      });
+    const video = mobileVideoRef.current;
+    if (video) {
+      video.defaultMuted = true;
+      video.muted = true;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              video.play().catch(() => {});
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(video);
+
+      return () => {
+        observer.disconnect();
+        clearTimeout(timer);
+      };
     }
 
     return () => clearTimeout(timer);
   }, []);
-
-
-  /*
-  useGSAP(() => {
-    gsap.from(".hero-text-line", {
-      y: 60,
-      opacity: 0,
-      duration: 1.1,
-      stagger: 0.15,
-      ease: "power4.out",
-      delay: 0.2,
-    });
-  }, { scope: container });
-  */
 
   return (
     <>
@@ -81,13 +82,12 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           muted
           playsInline
           preload="auto"
-          className="hidden md:block absolute inset-0 w-full h-full object-cover"
+          className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
         />
 
         {/* Mobile Background Video */}
         <video
           ref={mobileVideoRef}
-          src="/ANDCUT_VDS/MobileHero.mp4"
           autoPlay
           loop
           muted
@@ -95,8 +95,10 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           preload="auto"
           onCanPlay={() => setIsMobileVideoLoaded(true)}
           onLoadedData={() => setIsMobileVideoLoaded(true)}
-          className="block md:hidden absolute inset-0 w-full h-full object-cover"
-        />
+          className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/ANDCUT_VDS/MobileHero.mp4" type="video/mp4" />
+        </video>
 
         {/* Bottom gradient for text readability */}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
