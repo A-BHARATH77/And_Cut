@@ -320,7 +320,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
                   🤔
                 </div>
                 <span className="text-[#050508] text-xl md:text-2xl font-bold leading-snug tracking-tight">
-                  Still thinking? <br/><br/> Here's what people are saying.
+                  Still thinking? <br/><br/> Here&apos;s what people are saying.
                 </span>
               </div>
             </div>

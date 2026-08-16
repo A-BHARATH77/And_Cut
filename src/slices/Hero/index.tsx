@@ -10,7 +10,25 @@ export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [isMobileVideoLoaded, setIsMobileVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    // Fallback to hide loader on mobile after 2.5s in case events don't fire
+    const timer = setTimeout(() => {
+      setIsMobileVideoLoaded(true);
+    }, 2500);
+
+    // Try to ensure the mobile video plays
+    if (mobileVideoRef.current) {
+      mobileVideoRef.current.defaultMuted = true;
+      mobileVideoRef.current.play().catch(e => {
+        console.warn("Mobile video autoplay prevented:", e);
+      });
+    }
+
+    return () => clearTimeout(timer);
+  }, []);
 
 
   /*
@@ -68,6 +86,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
 
         {/* Mobile Background Video */}
         <video
+          ref={mobileVideoRef}
           src="/ANDCUT_VDS/MobileHero.mp4"
           autoPlay
           loop
