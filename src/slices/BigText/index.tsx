@@ -6,6 +6,10 @@ import clsx from "clsx";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
+import dynamic from "next/dynamic";
+import reactionBubbles from "../../../public/Lottie/Reaction Bubbles.json";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export type BigTextProps = SliceComponentProps<Content.BigTextSlice>;
 
@@ -109,15 +113,15 @@ const VIDEOS = {
 };
 
 const COMMENTS_DATA = [
-  { user: "_faraz___khan", time: "5w", text: "Kya baat hai 😂 Sahi bande dhunda hai marketing ke liye 👏", pos: "top-[2%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
-  { user: "theaveragemallu", time: "2w", text: "Great ad", pos: "top-[25%] md:-left-[40%] lg:-left-[60%]", rotate: "rotate-[2deg]", delay: 0.2 },
-  { user: "laksakhala111", time: "2w", text: "Bc marketing koi inse seekho 😂", pos: "top-[48%] md:-left-[50%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
-  { user: "yj.lol.haha", time: "2w", text: "Nice marketing ha...", pos: "top-[75%] md:-left-[35%] lg:-left-[55%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
+  { user: "_faraz___khan", time: "5w", text: "Kya baat hai 😂 Sahi bande dhunda hai marketing ke liye 👏", pos: "top-[-5%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
+  { user: "theaveragemallu", time: "2w", text: "Great ad", pos: "top-[18%] md:top-[25%] -left-[10%] md:-left-[40%] lg:-left-[60%]", rotate: "rotate-[2deg]", delay: 0.2 },
+  { user: "laksakhala111", time: "2w", text: "Bc marketing koi inse seekho 😂", pos: "top-[78%] md:top-[48%] -left-[32%] md:-left-[50%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
+  { user: "yj.lol.haha", time: "2w", text: "Nice marketing ha...", pos: "top-[98%] md:top-[75%] -left-[15%] md:-left-[35%] lg:-left-[55%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
   
-  { user: "kapilkhandelwal_kp", time: "2w", text: "Wow...this ad video, smartly executed 🔥", pos: "top-[8%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
-  { user: "imgyancho", time: "1w", text: "Ise kehte hai Ad.", pos: "top-[32%] md:-right-[40%] lg:-right-[65%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
-  { user: "itzz_harshil_009", time: "4w", text: "Sahii marketing kar raha hai 😂", pos: "top-[55%] md:-right-[55%] lg:-right-[85%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
-  { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[80%] md:-right-[45%] lg:-right-[70%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
+  { user: "kapilkhandelwal_kp", time: "2w", text: "Wow...this ad video, smartly executed 🔥", pos: "top-[5%] md:top-[8%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
+  { user: "imgyancho", time: "1w", text: "Ise kehte hai Ad.", pos: "top-[24%] md:top-[32%] -right-[10%] md:-right-[40%] lg:-right-[65%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
+  { user: "itzz_harshil_009", time: "4w", text: "Sahii marketing kar raha hai 😂", pos: "top-[82%] md:top-[55%] -right-[26%] md:-right-[55%] lg:-right-[85%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
+  { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[102%] md:top-[80%] -right-[18%] md:-right-[45%] lg:-right-[70%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
 ];
 
 const FloatingComment = ({ data }: { data: any }) => (
@@ -175,7 +179,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
       id="works"
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
-      className="w-full bg-[#050508] text-[#6EE7FF] py-0 md:py-2"
+      className="w-full bg-[#050508] text-[#6EE7FF] py-0 md:py-2 overflow-hidden"
     >
       {/* Section Title */}
       <motion.div
@@ -266,14 +270,24 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
       </div>
 
       {/* Comments Section */}
-      <div className="w-full min-h-[100svh] py-12 flex flex-col items-center justify-center bg-[#050508]">
+      <div className="relative w-full min-h-[100svh] py-12 flex flex-col items-center justify-center bg-[#050508] overflow-hidden">
+        {/* Background Lottie Animation (Left - Mobile Only) */}
+        <div className="absolute top-1/2 -left-[30px] md:hidden -translate-y-1/2 w-[300px] opacity-90 pointer-events-none z-[1] -scale-x-100">
+          <Lottie animationData={reactionBubbles} loop={true} />
+        </div>
+
+        {/* Background Lottie Animation (Right - All Devices) */}
+        <div className="absolute top-1/2 -right-[30px] md:-right-[50px] lg:-right-[80px] -translate-y-1/2 w-[300px] md:w-[500px] lg:w-[600px] opacity-90 pointer-events-none z-[1]">
+          <Lottie animationData={reactionBubbles} loop={true} />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          className="w-full text-center mb-8 md:mb-12 max-w-2xl px-4 mx-auto relative z-10"
+          className="w-full text-center mb-8 md:mb-12 max-w-2xl px-4 mx-auto relative z-20"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 uppercase mb-2">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 uppercase mb-3 md:mb-4">
             COMMENTS
           </h2>
         </motion.div>
