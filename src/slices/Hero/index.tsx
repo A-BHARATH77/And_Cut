@@ -10,7 +10,6 @@ export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
-  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [isMobileVideoLoaded, setIsMobileVideoLoaded] = useState(false);
 
   useEffect(() => {
@@ -18,29 +17,6 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
     const timer = setTimeout(() => {
       setIsMobileVideoLoaded(true);
     }, 2500);
-
-    const video = mobileVideoRef.current;
-    if (video) {
-      video.defaultMuted = true;
-      video.muted = true;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              video.play().catch(() => {});
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(video);
-
-      return () => {
-        observer.disconnect();
-        clearTimeout(timer);
-      };
-    }
 
     return () => clearTimeout(timer);
   }, []);
@@ -85,20 +61,15 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
         />
 
-        {/* Mobile Background Video */}
-        <video
-          ref={mobileVideoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          onCanPlay={() => setIsMobileVideoLoaded(true)}
-          onLoadedData={() => setIsMobileVideoLoaded(true)}
-          className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
-        >
-          <source src="/ANDCUT_VDS/MobileHero.mp4" type="video/mp4" />
-        </video>
+        {/* Mobile Background Video (Vimeo) */}
+        <iframe
+          src="https://player.vimeo.com/video/1218625128?background=1&autoplay=1&loop=1&byline=0&title=0"
+          onLoad={() => setIsMobileVideoLoaded(true)}
+          className="block md:hidden absolute inset-0 w-full h-full z-0 pointer-events-none"
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
 
         {/* Bottom gradient for text readability */}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
