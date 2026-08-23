@@ -43,7 +43,7 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
       loop
       muted
       playsInline
-      preload="none"
+      preload="auto"
       className={className}
     />
   );

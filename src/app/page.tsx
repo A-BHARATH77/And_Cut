@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ScrollRevealText from "@/components/ScrollRevealText";
+
 export default async function Index() {
   let home;
   try {
@@ -51,7 +53,26 @@ export default async function Index() {
     return 0;
   });
 
+  // Inject our custom scroll reveal section as a mock slice immediately after "hero"
+  const heroIndex = slices.findIndex((s: any) => s.slice_type === "hero");
+  if (heroIndex !== -1) {
+    slices.splice(heroIndex + 1, 0, {
+      slice_type: "scroll_reveal_text",
+      id: "mock-scroll-reveal-text",
+    } as any);
+  } else {
+    slices.unshift({
+      slice_type: "scroll_reveal_text",
+      id: "mock-scroll-reveal-text",
+    } as any);
+  }
+
+  const localComponents = {
+    ...components,
+    scroll_reveal_text: ScrollRevealText,
+  };
+
   return (
-    <SliceZone slices={slices} components={components} />
+    <SliceZone slices={slices} components={localComponents} />
   );
 }
