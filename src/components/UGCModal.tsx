@@ -83,12 +83,12 @@ function SidebarColumn({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={clsx(
-              "shrink-0 w-full rounded-xl overflow-hidden border-2 transition-all cursor-pointer",
+              "shrink-0 w-full rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
               idx === activeIdx
                 ? "border-[#6EE7FF] shadow-[0_0_12px_rgba(110,231,255,0.45)]"
                 : "border-white/15 opacity-50 hover:opacity-80 hover:border-white/30"
             )}
-            style={{ aspectRatio: "9/16", minHeight: "80px" }}
+            style={{ aspectRatio: "9/16", minHeight: "72px" }}
           >
             <VimeoPlayer
               vimeoId={v.vimeoId!}
@@ -117,7 +117,7 @@ function VideoColumn({
   activeVideo: VideoData;
 }) {
   return (
-    <div className="shrink-0 h-full flex items-center justify-center py-4 pr-4">
+    <div className="shrink-0 h-full flex items-center justify-center py-5 pr-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={`main-${activeIdx}`}
@@ -125,8 +125,8 @@ function VideoColumn({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.25 }}
-          className="rounded-2xl overflow-hidden bg-black shadow-[0_20px_60px_-10px_rgba(0,0,0,0.95)] h-full"
-          style={{ aspectRatio: "9/16", maxWidth: "300px" }}
+          className="rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-10px_rgba(0,0,0,0.95)] h-full"
+          style={{ aspectRatio: "9/16", maxWidth: "280px" }}
         >
           <VimeoPlayer
             key={`vp-${activeIdx}`}
@@ -153,7 +153,7 @@ function InfoPanelCard({ onClose }: { onClose: () => void }) {
 
   return (
     /* This IS its own separate card — background, border, rounded corners */
-    <div className="relative flex-1 min-w-0 h-full bg-[#0D0D14] border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] flex flex-col">
+    <div className="relative flex-1 min-w-0 h-full bg-[#0D0D14] border border-white/10 rounded-3xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] flex flex-col">
       {/* Glow decoration */}
       <div className="pointer-events-none absolute top-0 right-0 w-72 h-72 bg-[#6EE7FF]/6 blur-[120px] rounded-full" />
 
@@ -168,7 +168,7 @@ function InfoPanelCard({ onClose }: { onClose: () => void }) {
 
       {/* Scrollable content inside the card */}
       <div
-        className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-7 py-7"
+        className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-10 py-8"
         data-lenis-prevent="true"
       >
         <div className="flex flex-col gap-6">
@@ -412,7 +412,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="hidden md:flex flex-row items-stretch gap-4"
-          style={{ height: "calc(100vh - 32px)", maxWidth: "min(96vw, 1260px)", width: "100%" }}
+          style={{ height: "calc(100vh - 112px)", maxWidth: "min(98vw, 1600px)", width: "100%" }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* A: Sidebar — floats directly on backdrop, no card */}
