@@ -9,6 +9,7 @@ import gsap from "gsap";
 import { FORMATS_DATA } from "@/data/services";
 import VimeoPlayer from "@/components/VimeoPlayer";
 import BeyondVertical from "@/components/Beyond_vertical";
+import UGCModal from "@/components/UGCModal";
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
@@ -24,6 +25,10 @@ const DISPLAY_LABELS: Record<string, string> = {
 
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState("UGC");
+  const [ugcModal, setUgcModal] = useState<{ open: boolean; index: number }>({
+    open: false,
+    index: 0,
+  });
   const trackRef = useRef<HTMLDivElement>(null);
   
   // Keep track of the current horizontal position (translateX)
@@ -152,7 +157,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
           {/* Category tabs */}
           <div
             data-lenis-prevent="true"
-            className="w-fit max-w-full overflow-x-auto hide-scrollbar flex flex-nowrap sm:flex-wrap sm:justify-center items-center gap-1.5 sm:gap-3 mx-auto p-1.5 px-4 sm:px-6 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full select-none"
+            className="w-fit max-w-full overflow-x-auto hide-scrollbar flex flex-nowrap sm:flex-wrap sm:justify-center items-center gap-2.5 sm:gap-3.5 mx-auto p-2.5 sm:p-3 px-6 sm:px-8 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full select-none"
           >
             {TABS.map((tab) => {
               const isActive = tab === activeTab;
@@ -163,7 +168,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                   onClick={() => setActiveTab(tab)}
                   onTouchStart={(e) => { e.preventDefault(); setActiveTab(tab); }}
                   className={clsx(
-                    "px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm md:text-[15px] font-black tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer relative z-20",
+                    "px-5 py-2.5 sm:px-7 sm:py-3 rounded-full text-xs sm:text-sm md:text-[15px] font-black tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer relative z-20",
                     isActive
                       ? "bg-[#6EE7FF] text-[#050508] shadow-[0_0_20px_rgba(110,231,255,0.4)]"
                       : "bg-transparent text-white/70 hover:bg-[#6EE7FF]/20 hover:text-white"
@@ -178,7 +183,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
 
         {/* Infinite Marquee */}
         {loopItems.length > 0 && (
-          <div className="w-full relative mt-12 md:mt-16 overflow-hidden py-4 select-none group/marquee">
+          <div className="w-full relative mt-6 md:mt-8 overflow-hidden py-4 select-none group/marquee">
             {/* Left Arrow */}
             <button
               onClick={() => handleArrowScroll("left")}
@@ -211,14 +216,21 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               >
                 {loopItems.map((video, idx) => {
                   const isWebp = video.videoPath.endsWith(".webp");
+                  // For UGC tab, find the real index in the base (non-looped) array
+                  const realIndex = idx % activeItems.length;
+                  const isUGC = activeTab === "UGC";
                   return (
                     <div
                       key={`${activeTab}-${idx}`}
+                      onClick={() => {
+                        if (isUGC) setUgcModal({ open: true, index: realIndex });
+                      }}
                       className={clsx(
                         "shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-[#0C0C12] border border-white/5 relative shadow-md hover:border-[#6EE7FF]/30 transition-colors duration-300",
                         isHorizontalLayout
                           ? "w-[320px] sm:w-[440px] md:w-[500px] lg:w-[540px] aspect-video"
-                          : "w-[160px] sm:w-[230px] md:w-[250px] lg:w-[278px] lg:h-[496px] aspect-[9/16]"
+                          : "w-[160px] sm:w-[230px] md:w-[250px] lg:w-[278px] lg:h-[496px] aspect-[9/16]",
+                        isUGC && "cursor-pointer"
                       )}
                     >
                       {video.vimeoId ? (
@@ -250,6 +262,16 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                           className="w-full h-full object-cover animate-fade-in"
                         />
                       )}
+                      {/* UGC hover play hint */}
+                      {isUGC && (
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/25 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                          <div className="w-12 h-12 rounded-full bg-black/60 border border-white/25 backdrop-blur-sm flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -259,6 +281,15 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
         )}
       </section>
       <BeyondVertical />
+
+      {/* UGC Modal */}
+      {ugcModal.open && (
+        <UGCModal
+          videos={FORMATS_DATA["UGC"]}
+          initialIndex={ugcModal.index}
+          onClose={() => setUgcModal({ open: false, index: 0 })}
+        />
+      )}
     </>
   );
 };
