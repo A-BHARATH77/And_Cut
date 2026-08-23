@@ -10,21 +10,19 @@ import { VideoData } from "@/data/services";
 /* ─────────────────────────────────────────────────────────────
    Types & constants
 ───────────────────────────────────────────────────────────── */
-interface UGCModalProps {
+interface MicroDramaModalProps {
   videos: VideoData[];
   initialIndex: number;
   onClose: () => void;
 }
 
-const UGC_PACKAGES = [
-  { label: "5 Video Ads",  value: "5" },
-  { label: "10 Video Ads", value: "10" },
-  { label: "20 Video Ads", value: "20" },
+const MICRO_DRAMA_PACKAGES = [
+  { label: "3 Video Ads", value: "3" },
+  { label: "5 Video Ads", value: "5" },
 ];
 
 /* ─────────────────────────────────────────────────────────────
    Sub-component A: Thumbnail Sidebar (desktop only)
-   Matches: hidden md:flex items-start gap-2 xl:gap-4 h-full order-1 min-h-0
 ───────────────────────────────────────────────────────────── */
 function SidebarColumn({
   videos,
@@ -43,7 +41,6 @@ function SidebarColumn({
   useEffect(() => {
     const el = sidebarRef.current;
     if (!el) return;
-    // 120px thumb + 24px gap (gap-6)
     const ITEM_H = 144;
     el.scrollTo({
       top: activeIdx * ITEM_H - el.clientHeight / 2 + ITEM_H / 2,
@@ -75,7 +72,7 @@ function SidebarColumn({
         </button>
       </div>
 
-      {/* Thumbnail list — w-[150px] scrollable column with square thumbs */}
+      {/* Thumbnail list */}
       <div
         ref={sidebarRef}
         className="w-[150px] px-2 shrink-0 flex flex-col gap-6 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 pointer-events-auto scroll-smooth"
@@ -92,7 +89,6 @@ function SidebarColumn({
                 : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
             )}
           >
-            {/* Inner scale-[1.5] to crop/zoom the thumbnail like the HTML */}
             <div className="w-full h-full pointer-events-none overflow-hidden relative">
               <div className="relative w-full h-full scale-[1.5]">
                 <VimeoPlayer
@@ -115,7 +111,6 @@ function SidebarColumn({
 
 /* ─────────────────────────────────────────────────────────────
    Sub-component B: Main Video Player
-   Matches: h-[50vh] sm:h-[60vh] md:h-full ... shrink-0 aspect-[9/16]
 ───────────────────────────────────────────────────────────── */
 function VideoColumn({
   activeIdx,
@@ -155,18 +150,17 @@ function VideoColumn({
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sub-component C: Info Panel (unified mobile + desktop)
-   Matches: shrink-0 order-2 md:order-3 ... h-auto md:h-full w-full md:flex-1
+   Sub-component C: Info Panel
 ───────────────────────────────────────────────────────────── */
 function InfoPanelCard() {
-  const [activePackage, setActivePackage] = useState("5");
+  const [activePackage, setActivePackage] = useState("3");
 
   return (
     <div className="shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden h-auto md:h-full w-full md:flex-1">
       {/* Glow */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
 
-      {/* Scrollable content — pt-12 on mobile gives room for the fixed close button */}
+      {/* Scrollable content */}
       <div
         className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-12 md:pt-4 pb-4 pr-1 hide-scrollbar overflow-y-auto"
         data-lenis-prevent="true"
@@ -176,14 +170,13 @@ function InfoPanelCard() {
           {/* Badge + Headline + Description */}
           <div>
             <div className="inline-block px-4 py-1.5 mb-2 text-xs font-black tracking-widest uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
-              UGC Format
+              Micro Drama Format
             </div>
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
-              People buy from people, not logos.
+              Micro-Dramas bring cinematic production
             </h3>
             <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
-              Authentic videos out-convert polished ads every day. Plus, with 2 unique hooks
-              for every video, you get total freedom to run creative testing and optimize your ad spend.
+              to fast-paced drama and comedy built directly for modern social feeds. It is the ultimate format for direct-to-consumer brands looking to boost audience engagement, build brand affinity, and stand out in crowded digital spaces.
             </p>
           </div>
 
@@ -195,7 +188,7 @@ function InfoPanelCard() {
             {[
               {
                 label: "The Setup:",
-                text: "Shot entirely on the latest iPhone models so the footage feels completely native, relatable, and authentic to the feed.",
+                text: "Shot on professional full-frame cinema gear for crystal-clear 4K quality and a truly high-end finish.",
               },
               {
                 label: "The Talent:",
@@ -218,7 +211,7 @@ function InfoPanelCard() {
               The Packages
             </h4>
             <div className="flex flex-wrap gap-2 mb-3">
-              {UGC_PACKAGES.map((pkg) => (
+              {MICRO_DRAMA_PACKAGES.map((pkg) => (
                 <button
                   key={pkg.value}
                   onClick={() => setActivePackage(pkg.value)}
@@ -241,7 +234,7 @@ function InfoPanelCard() {
               Package Total
             </div>
             <div className="text-3xl md:text-4xl font-black text-white mb-3">
-              ₹{activePackage === "5" ? "95,000" : activePackage === "10" ? "1,80,000" : "3,20,000"}{" "}
+              ₹{activePackage === "3" ? "1,80,000" : "2,80,000"}{" "}
               <span className="text-base text-neutral-400 font-medium">+ GST</span>
             </div>
 
@@ -265,9 +258,9 @@ function InfoPanelCard() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Root: UGCModal
+   Root: MicroDramaModal
 ───────────────────────────────────────────────────────────── */
-export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProps) {
+export default function MicroDramaModal({ videos, initialIndex, onClose }: MicroDramaModalProps) {
   const [activeIdx, setActiveIdx] = useState(initialIndex);
 
   useEffect(() => {
@@ -298,7 +291,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
         className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8"
         onClick={onClose}
       >
-        {/* Close button — fixed top-right, outside layout flow */}
+        {/* Close button */}
         <button
           onClick={onClose}
           className="fixed top-4 right-4 md:top-8 md:right-8 z-[200] text-white/75 hover:text-white transition-all hover:scale-110 p-2.5 md:p-3 rounded-full bg-[#0A0A0F]/80 border border-white/10 backdrop-blur-md hover:bg-[#0A0A0F]"
@@ -307,7 +300,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
           <X className="w-6 h-6 md:w-7 md:h-7" />
         </button>
 
-        {/* ── Main layout container ───────────────────────────────── */}
+        {/* Main layout container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -316,7 +309,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
           className="w-full max-w-[1600px] h-full md:h-[90vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* A: Sidebar (desktop only) */}
+          {/* A: Sidebar */}
           <SidebarColumn
             videos={videos}
             activeIdx={activeIdx}
@@ -329,7 +322,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
             activeVideo={activeVideo}
           />
 
-          {/* C: Info panel (mobile + desktop unified) */}
+          {/* C: Info panel */}
           <InfoPanelCard />
         </motion.div>
       </motion.div>

@@ -10,6 +10,10 @@ import { FORMATS_DATA } from "@/data/services";
 import VimeoPlayer from "@/components/VimeoPlayer";
 import BeyondVertical from "@/components/Beyond_vertical";
 import UGCModal from "@/components/UGCModal";
+import DVCModal from "@/components/DVCModal";
+import MicroDramaModal from "@/components/MicroDramaModal";
+import AdFilmsModal from "@/components/AdFilmsModal";
+import PhotoshootModal from "@/components/PhotoshootModal";
 
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
@@ -26,6 +30,22 @@ const DISPLAY_LABELS: Record<string, string> = {
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState("UGC");
   const [ugcModal, setUgcModal] = useState<{ open: boolean; index: number }>({
+    open: false,
+    index: 0,
+  });
+  const [dvcModal, setDvcModal] = useState<{ open: boolean; index: number }>({
+    open: false,
+    index: 0,
+  });
+  const [microDramaModal, setMicroDramaModal] = useState<{ open: boolean; index: number }>({
+    open: false,
+    index: 0,
+  });
+  const [adFilmsModal, setAdFilmsModal] = useState<{ open: boolean; index: number }>({
+    open: false,
+    index: 0,
+  });
+  const [photoshootModal, setPhotoshootModal] = useState<{ open: boolean; index: number }>({
     open: false,
     index: 0,
   });
@@ -216,21 +236,29 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               >
                 {loopItems.map((video, idx) => {
                   const isWebp = video.videoPath.endsWith(".webp");
-                  // For UGC tab, find the real index in the base (non-looped) array
+                  // For UGC/DVC/Micro Drama/Ad Films/Photoshoot tab, find the real index in the base (non-looped) array
                   const realIndex = idx % activeItems.length;
                   const isUGC = activeTab === "UGC";
+                  const isDVC = activeTab === "DVC";
+                  const isMicroDrama = activeTab === "Micro Drama";
+                  const isAdFilms = activeTab === "Ad films & others";
+                  const isPhotoshoot = activeTab === "Photoshoot";
                   return (
                     <div
                       key={`${activeTab}-${idx}`}
                       onClick={() => {
                         if (isUGC) setUgcModal({ open: true, index: realIndex });
+                        if (isDVC) setDvcModal({ open: true, index: realIndex });
+                        if (isMicroDrama) setMicroDramaModal({ open: true, index: realIndex });
+                        if (isAdFilms) setAdFilmsModal({ open: true, index: realIndex });
+                        if (isPhotoshoot) setPhotoshootModal({ open: true, index: realIndex });
                       }}
                       className={clsx(
                         "shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-[#0C0C12] border border-white/5 relative shadow-md hover:border-[#6EE7FF]/30 transition-colors duration-300",
                         isHorizontalLayout
                           ? "w-[320px] sm:w-[440px] md:w-[500px] lg:w-[540px] aspect-video"
                           : "w-[160px] sm:w-[230px] md:w-[250px] lg:w-[278px] lg:h-[496px] aspect-[9/16]",
-                        isUGC && "cursor-pointer"
+                        (isUGC || isDVC || isMicroDrama || isAdFilms || isPhotoshoot) && "cursor-pointer"
                       )}
                     >
                       {video.vimeoId ? (
@@ -262,8 +290,8 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                           className="w-full h-full object-cover animate-fade-in"
                         />
                       )}
-                      {/* UGC hover play hint */}
-                      {isUGC && (
+                      {/* UGC / DVC / Micro Drama / Ad Films / Photoshoot hover play hint */}
+                      {(isUGC || isDVC || isMicroDrama || isAdFilms || isPhotoshoot) && (
                         <div className="absolute inset-0 bg-black/0 hover:bg-black/25 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
                           <div className="w-12 h-12 rounded-full bg-black/60 border border-white/25 backdrop-blur-sm flex items-center justify-center">
                             <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
@@ -288,6 +316,42 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
           videos={FORMATS_DATA["UGC"]}
           initialIndex={ugcModal.index}
           onClose={() => setUgcModal({ open: false, index: 0 })}
+        />
+      )}
+
+      {/* DVC Modal */}
+      {dvcModal.open && (
+        <DVCModal
+          videos={FORMATS_DATA["DVC"]}
+          initialIndex={dvcModal.index}
+          onClose={() => setDvcModal({ open: false, index: 0 })}
+        />
+      )}
+
+      {/* Micro Drama Modal */}
+      {microDramaModal.open && (
+        <MicroDramaModal
+          videos={FORMATS_DATA["Micro Drama"]}
+          initialIndex={microDramaModal.index}
+          onClose={() => setMicroDramaModal({ open: false, index: 0 })}
+        />
+      )}
+
+      {/* Ad Films Modal */}
+      {adFilmsModal.open && (
+        <AdFilmsModal
+          videos={FORMATS_DATA["Ad films & others"]}
+          initialIndex={adFilmsModal.index}
+          onClose={() => setAdFilmsModal({ open: false, index: 0 })}
+        />
+      )}
+
+      {/* Photoshoot Modal */}
+      {photoshootModal.open && (
+        <PhotoshootModal
+          videos={FORMATS_DATA["Photoshoot"]}
+          initialIndex={photoshootModal.index}
+          onClose={() => setPhotoshootModal({ open: false, index: 0 })}
         />
       )}
     </>
