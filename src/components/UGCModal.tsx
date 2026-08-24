@@ -9,7 +9,7 @@ import { VideoData } from "@/data/services";
 
 /* ─────────────────────────────────────────────────────────────
    Types & constants
-───────────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────────── */
 interface UGCModalProps {
   videos: VideoData[];
   initialIndex: number;
@@ -24,8 +24,7 @@ const UGC_PACKAGES = [
 
 /* ─────────────────────────────────────────────────────────────
    Sub-component A: Thumbnail Sidebar (desktop only)
-   Matches: hidden md:flex items-start gap-2 xl:gap-4 h-full order-1 min-h-0
-───────────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────────── */
 function SidebarColumn({
   videos,
   activeIdx,
@@ -43,7 +42,6 @@ function SidebarColumn({
   useEffect(() => {
     const el = sidebarRef.current;
     if (!el) return;
-    // 120px thumb + 24px gap (gap-6)
     const ITEM_H = 144;
     el.scrollTo({
       top: activeIdx * ITEM_H - el.clientHeight / 2 + ITEM_H / 2,
@@ -75,7 +73,7 @@ function SidebarColumn({
         </button>
       </div>
 
-      {/* Thumbnail list — w-[150px] scrollable column with square thumbs */}
+      {/* Thumbnail list */}
       <div
         ref={sidebarRef}
         className="w-[150px] px-2 shrink-0 flex flex-col gap-6 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 pointer-events-auto scroll-smooth"
@@ -86,21 +84,12 @@ function SidebarColumn({
             key={idx}
             onClick={() => onSelect(idx)}
             className={clsx(
-<<<<<<< HEAD
               "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[120px] h-[120px] aspect-square relative",
-=======
-              "shrink-0 w-full rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
               idx === activeIdx
                 ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105"
                 : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
             )}
-<<<<<<< HEAD
-=======
-            style={{ aspectRatio: "9/16", minHeight: "72px" }}
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
           >
-            {/* Inner scale-[1.5] to crop/zoom the thumbnail like the HTML */}
             <div className="w-full h-full pointer-events-none overflow-hidden relative">
               <div className="relative w-full h-full scale-[1.5]">
                 <VimeoPlayer
@@ -123,8 +112,7 @@ function SidebarColumn({
 
 /* ─────────────────────────────────────────────────────────────
    Sub-component B: Main Video Player
-   Matches: h-[50vh] sm:h-[60vh] md:h-full ... shrink-0 aspect-[9/16]
-───────────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────────── */
 function VideoColumn({
   activeIdx,
   activeVideo,
@@ -133,7 +121,6 @@ function VideoColumn({
   activeVideo: VideoData;
 }) {
   return (
-<<<<<<< HEAD
     <AnimatePresence mode="wait">
       <motion.div
         key={`main-${activeIdx}`}
@@ -160,62 +147,23 @@ function VideoColumn({
         </div>
       </motion.div>
     </AnimatePresence>
-=======
-    <div className="shrink-0 h-full flex items-center justify-center py-5 pr-4">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`main-${activeIdx}`}
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.25 }}
-          className="rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-10px_rgba(0,0,0,0.95)] h-full"
-          style={{ aspectRatio: "9/16", maxWidth: "280px" }}
-        >
-          <VimeoPlayer
-            key={`vp-${activeIdx}`}
-            vimeoId={activeVideo.vimeoId!}
-            playing={true}
-            muted={false}
-            loop={true}
-            controls={true}
-            background={false}
-            quality="auto"
-            className="w-full h-full"
-          />
-        </motion.div>
-      </AnimatePresence>
-    </div>
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
    Sub-component C: Info Panel (unified mobile + desktop)
-   Matches: shrink-0 order-2 md:order-3 ... h-auto md:h-full w-full md:flex-1
-───────────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────────── */
 function InfoPanelCard() {
   const [activePackage, setActivePackage] = useState("5");
 
   return (
-<<<<<<< HEAD
     <div className="shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden h-auto md:h-full w-full md:flex-1">
       {/* Glow */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
-=======
-    /* This IS its own separate card — background, border, rounded corners */
-    <div className="relative flex-1 min-w-0 h-full bg-[#0D0D14] border border-white/10 rounded-3xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] flex flex-col">
-      {/* Glow decoration */}
-      <div className="pointer-events-none absolute top-0 right-0 w-72 h-72 bg-[#6EE7FF]/6 blur-[120px] rounded-full" />
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
 
-      {/* Scrollable content — pt-12 on mobile gives room for the fixed close button */}
+      {/* Scrollable content */}
       <div
-<<<<<<< HEAD
         className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-12 md:pt-4 pb-4 pr-1 hide-scrollbar overflow-y-auto"
-=======
-        className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-10 py-8"
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
         data-lenis-prevent="true"
       >
         <div className="flex flex-col gap-4">
@@ -313,7 +261,7 @@ function InfoPanelCard() {
 
 /* ─────────────────────────────────────────────────────────────
    Root: UGCModal
-───────────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────────── */
 export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProps) {
   const [activeIdx, setActiveIdx] = useState(initialIndex);
 
@@ -360,12 +308,7 @@ export default function UGCModal({ videos, initialIndex, onClose }: UGCModalProp
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-<<<<<<< HEAD
           className="w-full max-w-[1600px] h-full md:h-[90vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0"
-=======
-          className="hidden md:flex flex-row items-stretch gap-4"
-          style={{ height: "calc(100vh - 112px)", maxWidth: "min(98vw, 1600px)", width: "100%" }}
->>>>>>> 35bbf6f2bf8dd45fa65a3038614518f7e248bc02
           onClick={(e) => e.stopPropagation()}
         >
           {/* A: Sidebar (desktop only) */}
