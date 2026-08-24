@@ -43,7 +43,7 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
       loop
       muted
       playsInline
-      preload="none"
+      preload="auto"
       className={className}
     />
   );
@@ -261,7 +261,9 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
               <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => open("v11", VIDEOS.v11, "V")} />
               <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => open("v12", VIDEOS.v12, "V")} />
             </div>
-            <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => open("h5", VIDEOS.h5, "H")} />
+            <div className="lg:hidden w-full">
+              <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => open("h5", VIDEOS.h5, "H")} />
+            </div>
           </div>
 
           {/* Right Column */}

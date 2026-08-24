@@ -102,7 +102,7 @@ export default function Header({}: Props) {
       {/* Full Screen Mobile Menu */}
       <div 
         className={clsx(
-          "fixed inset-0 z-10 bg-[#0A0A0F]/95 backdrop-blur-3xl flex flex-col items-center justify-center transition-all duration-500 ease-in-out md:hidden pointer-events-auto",
+          "fixed inset-0 z-10 bg-[#0A0A0F]/95 backdrop-blur-3xl flex flex-col items-center justify-center transition-all duration-500 ease-in-out md:hidden",
           isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none translate-y-8"
         )}
       >
