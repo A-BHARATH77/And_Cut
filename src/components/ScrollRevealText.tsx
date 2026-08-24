@@ -36,7 +36,7 @@ const wordVariants = {
     transition: {
       duration: 0.7,
       delay: delay,
-      ease: [0.25, 1, 0.5, 1], // Smooth custom easeOut
+      ease: [0.25, 1, 0.5, 1] as any, // Smooth custom easeOut
     },
   }),
 };

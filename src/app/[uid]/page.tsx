@@ -47,19 +47,24 @@ export default async function Page({ params }: { params: Params }) {
 }
 
 export async function generateStaticParams() {
-  const client = createClient();
+  try {
+    const client = createClient();
 
-  /**
-   * Query all Documents from the API, except the homepage.
-   */
-  const pages = await client.getAllByType("page", {
-    predicates: [prismic.filter.not("my.page.uid", "home")],
-  });
+    /**
+     * Query all Documents from the API, except the homepage.
+     */
+    const pages = await client.getAllByType("page", {
+      predicates: [prismic.filter.not("my.page.uid", "home")],
+    });
 
-  /**
-   * Define a path for every Document.
-   */
-  return pages.map((page) => {
-    return { uid: page.uid };
-  });
+    /**
+     * Define a path for every Document.
+     */
+    return pages.map((page) => {
+      return { uid: page.uid };
+    });
+  } catch (error) {
+    console.error("Prismic API offline during static page generation:", error);
+    return [];
+  }
 }
