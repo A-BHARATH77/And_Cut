@@ -100,6 +100,36 @@ export default function VimeoPlayer({
 
   return (
     <div className={`relative w-full h-full ${className}`}>
+      {/* ── Dark loading overlay ───────────────────────────────────────────────
+          Hides the blank white Vimeo loading screen until the player is ready.
+          Fades out smoothly once the "ready" postMessage fires.
+      ──────────────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#0C0C12",
+          zIndex: 2,
+          opacity: isReady ? 0 : 1,
+          transition: "opacity 0.7s ease",
+          pointerEvents: "none",
+        }}
+      >
+        {/* Subtle shimmer to show something is loading */}
+        {!isReady && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(110,231,255,0.04) 50%, transparent 100%)",
+              backgroundSize: "200% 100%",
+              animation: "vimeo-shimmer 2s infinite ease-in-out",
+            }}
+          />
+        )}
+      </div>
+
       <iframe
         ref={iframeRef}
         src={src}
@@ -116,6 +146,14 @@ export default function VimeoPlayer({
           border: "none",
         }}
       />
+
+      {/* Shimmer keyframe — scoped to avoid global CSS conflicts */}
+      <style>{`
+        @keyframes vimeo-shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
     </div>
   );
 }

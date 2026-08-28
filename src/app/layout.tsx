@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import ViewCanvas from "@/components/ViewCanvas";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
+import ServicesPreloader from "@/components/ServicesPreloader";
 import { cn } from "@/lib/utils";
 
 
@@ -49,6 +50,9 @@ export default function RootLayout({
       <body className="overflow-x-hidden bg-[#0A0A0F]">
         <LenisProvider>
           <div id="app-root">
+            {/* ServicesPreloader stays mounted the ENTIRE session — keeps Vimeo iframes
+                warm so carousel videos load instantly instead of showing blank boxes. */}
+            <ServicesPreloader />
             <Preloader />
             <Header />
             <main>

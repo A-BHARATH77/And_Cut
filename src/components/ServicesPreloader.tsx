@@ -3,58 +3,66 @@
 /**
  * ServicesPreloader
  *
- * Mounts as an invisible background element immediately on page load.
- * It has two jobs:
+ * Always mounted in the root layout (layout.tsx) — it stays alive the ENTIRE
+ * page session, not just during the preloader animation.
  *
- * 1. LOCAL MEDIA PRELOAD — injects <link rel="preload"> tags for every .webp
- *    image and .webm/.mp4 video in the services data, so the browser fetches
- *    and caches them before the user ever scrolls to the carousel.
+ * Jobs:
+ * 1. LOCAL MEDIA PRELOAD — injects hidden <video> elements for every .webm/.mp4
+ *    in the services data so the browser fetches, decodes, and caches them before
+ *    the user scrolls to the carousel. <link rel="preload"> is also injected for
+ *    static image assets (.webp / .jpg etc.).
  *
- * 2. VIMEO IFRAME WARM-UP — renders hidden Vimeo iframes for every vimeoId
- *    in the services data with the background=1 query parameter.  Vimeo begins
- *    buffering the first frame immediately on mount.  When the visible carousel
- *    later mounts its own copy, Vimeo's own internal CDN cache means the video
- *    starts nearly instantly.
+ * 2. VIMEO IFRAME WARM-UP — keeps hidden Vimeo iframes in the DOM for every
+ *    vimeoId. Because this component never unmounts, Vimeo maintains its buffered
+ *    connection and CDN segment cache across the full session. When the visible
+ *    carousel mounts its own iframes, Vimeo's CDN cache is already warm and the
+ *    video starts nearly instantly instead of showing a blank box.
  *
- * The whole component is visually hidden (aria-hidden, pointer-events-none,
- * position absolute, size-0 overflow-hidden) so it has zero layout impact.
+ * Visually invisible: aria-hidden, pointer-events-none, position absolute,
+ * size-0, overflow-hidden — zero layout impact.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { FORMATS_DATA } from "@/data/services";
 
-// Collect all unique vimeoIds and all local asset paths across all categories
+// ─── Collect unique assets across all service categories ─────────────────────
+
 const allItems = Object.values(FORMATS_DATA).flat();
 
 const allVimeoIds = Array.from(
   new Set(allItems.map((v) => v.vimeoId).filter(Boolean) as string[])
 );
 
-const allLocalAssets = Array.from(
+const allLocalVideos = Array.from(
   new Set(
     allItems
       .filter((v) => !v.vimeoId)
       .map((v) => v.videoPath)
+      .filter((p) => /\.(webm|mp4|mov)$/i.test(p))
   )
 );
 
-export default function ServicesPreloader() {
-  const containerRef = useRef<HTMLDivElement>(null);
+const allLocalImages = Array.from(
+  new Set(
+    allItems
+      .filter((v) => !v.vimeoId)
+      .map((v) => v.videoPath)
+      .filter((p) => /\.(webp|jpg|jpeg|png)$/i.test(p))
+  )
+);
 
-  // Inject <link rel="preload"> tags into <head> for local media assets
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default function ServicesPreloader() {
+  // Inject <link rel="preload"> for image assets into <head>
   useEffect(() => {
     const injected: HTMLLinkElement[] = [];
 
-    allLocalAssets.forEach((src) => {
-      const ext = src.split(".").pop()?.toLowerCase() ?? "";
-      const asType = ["webp", "jpg", "jpeg", "png", "gif"].includes(ext)
-        ? "image"
-        : "video";
-
+    allLocalImages.forEach((src) => {
       const link = document.createElement("link");
       link.rel = "preload";
       link.href = src;
-      link.as = asType;
+      link.as = "image";
       link.setAttribute("crossorigin", "anonymous");
       document.head.appendChild(link);
       injected.push(link);
@@ -65,11 +73,9 @@ export default function ServicesPreloader() {
     };
   }, []);
 
-  if (allVimeoIds.length === 0) return null;
-
   return (
+    // Zero-size invisible container — no layout impact
     <div
-      ref={containerRef}
       aria-hidden="true"
       style={{
         position: "absolute",
@@ -81,11 +87,35 @@ export default function ServicesPreloader() {
         zIndex: -1,
       }}
     >
+      {/* ── Hidden <video> elements for local assets ─────────────────────
+          preload="auto" tells the browser to fetch + decode the full video.
+          This warms the browser HTTP cache so the visible carousel <video>
+          elements start playing immediately without blank-frame delays.
+      ──────────────────────────────────────────────────────────────────── */}
+      {allLocalVideos.map((src) => (
+        <video
+          key={src}
+          src={src}
+          muted
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          style={{ width: 1, height: 1, display: "block" }}
+        />
+      ))}
+
+      {/* ── Hidden Vimeo iframes ──────────────────────────────────────────
+          These stay alive for the ENTIRE page session (component never
+          unmounts). Vimeo buffers the video segments while the preloader
+          animation plays. By the time the user scrolls to the carousel, the
+          CDN cache is warm and visible iframes load in <1 s.
+      ──────────────────────────────────────────────────────────────────── */}
       {allVimeoIds.map((id) => {
         const src =
           `https://player.vimeo.com/video/${id}` +
           `?autoplay=1&muted=1&loop=1&background=1&controls=0` +
-          `&autopause=0&title=0&byline=0&portrait=0&dnt=1&playsinline=1&quality=360p`;
+          `&autopause=0&title=0&byline=0&portrait=0&dnt=1&playsinline=1&quality=360p` +
+          `&player_id=${encodeURIComponent(`services-preload-${id}`)}`;
 
         return (
           <iframe

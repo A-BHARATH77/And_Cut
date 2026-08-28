@@ -15,6 +15,86 @@ import MicroDramaModal from "@/components/MicroDramaModal";
 import AdFilmsModal from "@/components/AdFilmsModal";
 import PhotoshootModal from "@/components/PhotoshootModal";
 
+/* ──────────────────────────────────────────────────────────────────────────────
+  LazyVimeoMount
+
+  Wraps a VimeoPlayer so its iframe mounts early and never unmounts.
+
+  earlyMount=true  → mounts immediately on first render (during the preloader
+                      animation), so the first 8 visible cards are already
+                      buffering before the user can scroll to the section.
+
+  earlyMount=false → uses IntersectionObserver with a large 1500px bottom margin
+                      so remaining cards start loading well before the section
+                      enters the viewport.
+
+  Once mounted, the iframe NEVER unmounts — Vimeo keeps its buffer warm as the
+  infinite marquee scrolls.
+────────────────────────────────────────────────────────────────────────────── */
+function LazyVimeoMount({
+  vimeoId,
+  className,
+  earlyMount = false,
+}: {
+  vimeoId: string;
+  className?: string;
+  earlyMount?: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  // earlyMount cards start buffering immediately on first render
+  const [mounted, setMounted] = useState(earlyMount);
+
+  useEffect(() => {
+    if (mounted) return; // already mounted, skip observer setup
+    const el = containerRef.current;
+    if (!el) return;
+
+    const check = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMounted(true);
+          check.disconnect(); // never re-fire; never unmount
+        }
+      },
+      {
+        // Large bottom margin: triggers loading ~1500px before the section
+        // scrolls into view, so videos are already buffering on approach.
+        // Large left/right margin: handles cards ahead in the horizontal marquee.
+        rootMargin: "0px 800px 1500px 800px",
+        threshold: 0,
+      }
+    );
+    check.observe(el);
+    return () => check.disconnect();
+  }, [mounted]);
+
+  return (
+    <div ref={containerRef} className="w-full h-full">
+      {mounted ? (
+        <VimeoPlayer
+          vimeoId={vimeoId}
+          playing={true}
+          muted={true}
+          loop={true}
+          controls={false}
+          background={true}
+          quality="360p"
+          className={className ?? "w-full h-full pointer-events-none scale-105"}
+        />
+      ) : (
+        /* Dark placeholder shown until the iframe mounts */
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "#0C0C12",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 
 const TABS = ["UGC", "DVC", "Micro Drama", "Ad films & others", "Photoshoot"];
@@ -262,15 +342,10 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                       )}
                     >
                       {video.vimeoId ? (
-                        <VimeoPlayer
+                        <LazyVimeoMount
                           vimeoId={video.vimeoId}
-                          playing={true}
-                          muted={true}
-                          loop={true}
-                          controls={false}
-                          background={true}
-                          quality="360p"
                           className="w-full h-full pointer-events-none scale-105"
+                          earlyMount={idx < 8}
                         />
                       ) : isWebp ? (
                         <img

@@ -112,8 +112,11 @@ export default function Preloader() {
       try {
         const data = JSON.parse(e.data as string);
         if (data.event === "ready" && data.player_id) {
-          // player_id is formatted as "preload-{vimeoId}"
-          const id = String(data.player_id).replace("preload-", "");
+          // Accept ready events from both our ServicesPreloader iframes
+          // (player_id: "services-preload-{id}") and any other Vimeo player.
+          const id = String(data.player_id)
+            .replace("services-preload-", "")
+            .replace("preload-", "");
           onVimeoReady(id);
         }
       } catch {
@@ -288,44 +291,6 @@ export default function Preloader() {
           </div>
         )}
 
-        {/*
-          Hidden Vimeo pre-buffer iframes — mounted while the loading spinner shows.
-          Each fires a "ready" postMessage, which our effect listens for.
-          They stay mounted here until the Preloader unmounts, keeping Vimeo's
-          buffer warm so the Carousel iframes start instantly.
-        */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            width: 0,
-            height: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-            opacity: 0,
-          }}
-        >
-          {ALL_VIMEO_IDS.map((id) => {
-            const src =
-              `https://player.vimeo.com/video/${id}` +
-              `?autoplay=1&muted=1&loop=1&background=1&controls=0` +
-              `&autopause=0&title=0&byline=0&portrait=0&dnt=1&playsinline=1&quality=360p` +
-              `&player_id=${encodeURIComponent(`preload-${id}`)}`;
-            return (
-              <iframe
-                key={id}
-                src={src}
-                width="1"
-                height="1"
-                allow="autoplay; fullscreen; picture-in-picture"
-                tabIndex={-1}
-                title={`preload-${id}`}
-                style={{ border: "none", display: "block" }}
-                loading="eager"
-              />
-            );
-          })}
-        </div>
       </div>
 
       {/* Animated Logo */}
