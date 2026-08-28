@@ -109,6 +109,16 @@ const DISPLAY_LABELS: Record<string, string> = {
 
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState("UGC");
+  const [mobilePage, setMobilePage] = useState(0);
+
+  // Sync mobile page with active tab
+  useEffect(() => {
+    if (activeTab === "Ad films & others" || activeTab === "Photoshoot") {
+      setMobilePage(1);
+    } else {
+      setMobilePage(0);
+    }
+  }, [activeTab]);
   const [ugcModal, setUgcModal] = useState<{ open: boolean; index: number }>({
     open: false,
     index: 0,
@@ -254,10 +264,10 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
             From the first script to the final edit, we tell your brand&apos;s story across different video formats so it feels authentic and ready to watch.
           </p>
 
-          {/* Category tabs */}
+          {/* Category tabs - Desktop/Tablet */}
           <div
             data-lenis-prevent="true"
-            className="w-fit max-w-full overflow-x-auto hide-scrollbar flex flex-nowrap sm:flex-wrap sm:justify-center items-center gap-2.5 sm:gap-3.5 mx-auto p-2.5 sm:p-3 px-6 sm:px-8 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full select-none"
+            className="hidden sm:flex w-fit max-w-full overflow-x-auto hide-scrollbar flex-nowrap sm:flex-wrap sm:justify-center items-center gap-2.5 sm:gap-3.5 mx-auto p-2.5 sm:p-3 px-6 sm:px-8 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full select-none"
           >
             {TABS.map((tab) => {
               const isActive = tab === activeTab;
@@ -278,6 +288,59 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                 </button>
               );
             })}
+          </div>
+
+          {/* Category tabs - Mobile with pagination arrow */}
+          <div className="flex sm:hidden items-center justify-center gap-2 mx-auto w-fit max-w-full relative z-20">
+            <div
+              data-lenis-prevent="true"
+              className="w-fit max-w-full overflow-x-auto hide-scrollbar flex flex-nowrap items-center gap-2 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full p-2 px-4 select-none"
+            >
+              {(mobilePage === 0 ? ["UGC", "DVC", "Micro Drama"] : ["Ad films & others", "Photoshoot"]).map((tab) => {
+                const isActive = tab === activeTab;
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    onTouchStart={(e) => { e.preventDefault(); setActiveTab(tab); }}
+                    className={clsx(
+                      "px-6 py-2.5 rounded-full text-xs font-black tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer",
+                      isActive
+                        ? "bg-[#6EE7FF] text-[#050508] shadow-[0_0_20px_rgba(110,231,255,0.4)]"
+                        : "bg-transparent text-white/70 hover:bg-[#6EE7FF]/20 hover:text-white"
+                    )}
+                  >
+                    {DISPLAY_LABELS[tab]}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (mobilePage === 0) {
+                  setMobilePage(1);
+                  setActiveTab("Ad films & others");
+                } else {
+                  setMobilePage(0);
+                  setActiveTab("UGC");
+                }
+              }}
+              className="p-2.5 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full text-[#6EE7FF] hover:bg-[#6EE7FF]/20 hover:text-white transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(110,231,255,0.15)]"
+              aria-label={mobilePage === 0 ? "Next Tabs" : "Previous Tabs"}
+            >
+              {mobilePage === 0 ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                </svg>
+              )}
+            </button>
           </div>
         </motion.div>
 
@@ -366,7 +429,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
                         />
                       )}
                       {/* UGC / DVC / Micro Drama / Ad Films / Photoshoot hover play hint */}
-                      {(isUGC || isDVC || isMicroDrama || isAdFilms || isPhotoshoot) && (
+                      {(isUGC || isDVC || isMicroDrama || isAdFilms) && (
                         <div className="absolute inset-0 bg-black/0 hover:bg-black/25 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
                           <div className="w-12 h-12 rounded-full bg-black/60 border border-white/25 backdrop-blur-sm flex items-center justify-center">
                             <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">

@@ -143,7 +143,7 @@ function VideoColumn({
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          "h-[40vh] sm:h-[50vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 mx-auto md:mx-0",
+          "h-[32vh] sm:h-[50vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 mx-auto md:mx-0",
           activeVideo.isHorizontal ? "aspect-video md:w-[42%]" : "aspect-[9/16]"
         )}
       >
@@ -192,13 +192,32 @@ function VideoColumn({
 ───────────────────────────────────────────────────────────── */
 function InfoPanelCard() {
   return (
-    <div className="order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden h-auto md:h-full w-full md:flex-1 min-w-0">
+    <div className="order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden max-h-[48vh] md:max-h-none md:h-full w-full md:flex-1 min-w-0">
+      <style>{`
+        .thin-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .thin-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.25);
+          border-radius: 4px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.45);
+        }
+        .thin-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+        }
+      `}</style>
       {/* Glow */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
 
       {/* Scrollable content */}
       <div
-        className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-12 md:pt-4 pb-4 pr-1 hide-scrollbar overflow-y-auto"
+        className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-2 md:pt-4 pb-4 pr-1 thin-scrollbar overflow-y-auto"
         data-lenis-prevent="true"
       >
         <div className="flex flex-col gap-4">
@@ -211,7 +230,7 @@ function InfoPanelCard() {
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
               Product Shoot
             </h3>
-            <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+            <p className="hidden sm:block text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
               Premium, high-converting visual storytelling designed specifically for Photoshoot placement to drive maximum engagement.
             </p>
           </div>

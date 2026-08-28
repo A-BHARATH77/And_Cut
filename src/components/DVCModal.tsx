@@ -127,7 +127,7 @@ function VideoColumn({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
-        className="h-[50vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
+        className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
           <div className="relative w-full h-full">
@@ -156,13 +156,32 @@ function InfoPanelCard() {
   const [activePackage, setActivePackage] = useState("5");
 
   return (
-    <div className="shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden h-auto md:h-full w-full md:flex-1">
+    <div className="shrink-0 order-2 md:order-3 flex flex-col justify-between rounded-2xl md:rounded-[2rem] bg-[#0A0A0F] border border-white/10 p-5 sm:p-6 md:p-6 relative overflow-hidden max-h-[48vh] md:max-h-none md:h-full w-full md:flex-1">
+      <style>{`
+        .thin-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .thin-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.25);
+          border-radius: 4px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.45);
+        }
+        .thin-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+        }
+      `}</style>
       {/* Glow */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
 
       {/* Scrollable content */}
       <div
-        className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-12 md:pt-4 pb-4 pr-1 hide-scrollbar overflow-y-auto"
+        className="relative z-10 flex-1 min-h-0 flex flex-col gap-3 sm:gap-4 pt-2 md:pt-4 pb-4 pr-1 thin-scrollbar overflow-y-auto"
         data-lenis-prevent="true"
       >
         <div className="flex flex-col gap-4">
@@ -175,7 +194,7 @@ function InfoPanelCard() {
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
               A Digital Video Commercial (DVC)
             </h3>
-            <p className="text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
+            <p className="hidden sm:block text-neutral-300 text-sm sm:text-base md:text-lg leading-relaxed">
               is a high-quality, TV-grade video ad designed specifically for social media and digital screens. DVC gives your brand instant credibility, helps you stop the scroll, win over customers, and get maximum impact out of your marketing budget.
             </p>
           </div>

@@ -288,15 +288,6 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
 
       {/* Comments Section */}
       <div className="relative w-full min-h-[100svh] py-12 flex flex-col items-center justify-center bg-[#050508] overflow-hidden">
-        {/* Background Lottie Animation (Left - Mobile Only) */}
-        <div className="absolute top-1/2 -left-[30px] md:hidden -translate-y-1/2 w-[300px] opacity-90 pointer-events-none z-[1] -scale-x-100">
-          <Lottie animationData={reactionBubbles} loop={true} />
-        </div>
-
-        {/* Background Lottie Animation (Right - All Devices) */}
-        <div className="absolute top-1/2 -right-[30px] md:-right-[50px] lg:-right-[80px] -translate-y-1/2 w-[300px] md:w-[500px] lg:w-[600px] opacity-90 pointer-events-none z-[1]">
-          <Lottie animationData={reactionBubbles} loop={true} />
-        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
