@@ -107,12 +107,12 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 sm:gap-12 md:gap-20 pr-8 sm:pr-12 md:pr-20">
               <img src="/companies_worked_with/7rings.webp" alt="7 Rings" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
-              <img src="/companies_worked_with/archish.webp" alt="Archish" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
-              <img src="/companies_worked_with/bluetea.webp" alt="Blue Tea" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
+              <img src="/companies_worked_with/archish.webp" alt="Archish" loading="lazy" className="h-[36px] sm:h-[44px] md:h-[72px] w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
+              <img src="/companies_worked_with/bluetea.webp" alt="Blue Tea" loading="lazy" className="h-[44px] sm:h-[54px] md:h-[84px] w-auto object-contain scale-x-[1.15] transform-gpu opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
               <img src="/companies_worked_with/cdd.webp" alt="CDD" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
-              <img src="/companies_worked_with/cnbc.webp" alt="CNBC" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
-              <img src="/companies_worked_with/hula.webp" alt="Hula" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
-              <img src="/companies_worked_with/sanfe.webp" alt="Sanfe" loading="lazy" className="h-8 sm:h-10 md:h-16 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
+              <img src="/companies_worked_with/cnbc.webp" alt="CNBC" loading="lazy" className="h-10 sm:h-12 md:h-20 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
+              <img src="/companies_worked_with/hula.webp" alt="Hula" loading="lazy" className="h-10 sm:h-12 md:h-20 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
+              <img src="/companies_worked_with/sanfe.webp" alt="Sanfe" loading="lazy" className="h-6 sm:h-8 md:h-12 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 invert brightness-0" />
             </div>
           ))}
         </div>

@@ -30,7 +30,7 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.2 }
     );
     observer.observe(video);
     return () => observer.disconnect();
@@ -43,8 +43,8 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
       loop
       muted
       playsInline
-      preload="auto"
-      className={className}
+      preload="metadata"
+      className={clsx(className, "transform-gpu will-change-transform")}
     />
   );
 }
@@ -74,7 +74,7 @@ const VideoBlock = ({
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={clsx(
-        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer",
+        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer transform-gpu will-change-transform",
         aspect === "H" ? "w-full aspect-video" : "flex-1 aspect-[9/16]"
       )}
     >
@@ -114,15 +114,15 @@ const VIDEOS = {
 };
 
 const COMMENTS_DATA = [
-  { user: "_faraz___khan", time: "5w", text: "Kya baat hai 😂 Sahi bande dhunda hai marketing ke liye 👏", pos: "top-[-5%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
-  { user: "theaveragemallu", time: "2w", text: "Great ad", pos: "top-[18%] md:top-[25%] -left-[10%] md:-left-[40%] lg:-left-[60%]", rotate: "rotate-[2deg]", delay: 0.2 },
-  { user: "laksakhala111", time: "2w", text: "Bc marketing koi inse seekho 😂", pos: "top-[78%] md:top-[48%] -left-[32%] md:-left-[50%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
-  { user: "yj.lol.haha", time: "2w", text: "Nice marketing ha...", pos: "top-[98%] md:top-[75%] -left-[15%] md:-left-[35%] lg:-left-[55%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
+  { user: "only4scroll", time: "16w", text: "One of the best ad I have ever seen", pos: "top-[-6%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
+  { user: "ab83_official", time: "16w", text: "Damn good ad man, but ho will anyone pay a particular price for gpay or something?", pos: "top-[14%] md:top-[24%] -left-[20%] md:-left-[64%] lg:-left-[85%]", rotate: "rotate-[2deg]", delay: 0.2 },
+  { user: "aasthabahri", time: "18w", text: "what a sickk video 🔥", pos: "top-[72%] md:top-[48%] -left-[32%] md:-left-[55%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
+  { user: "kushal__17", time: "5w", text: "What a crazy way to explain this 😂", pos: "top-[88%] md:top-[72%] -left-[18%] md:-left-[48%] lg:-left-[68%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
   
-  { user: "kapilkhandelwal_kp", time: "2w", text: "Wow...this ad video, smartly executed 🔥", pos: "top-[5%] md:top-[8%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
-  { user: "imgyancho", time: "1w", text: "Ise kehte hai Ad.", pos: "top-[24%] md:top-[32%] -right-[10%] md:-right-[40%] lg:-right-[65%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
-  { user: "itzz_harshil_009", time: "4w", text: "Sahii marketing kar raha hai 😂", pos: "top-[82%] md:top-[55%] -right-[26%] md:-right-[55%] lg:-right-[85%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
-  { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[102%] md:top-[80%] -right-[18%] md:-right-[45%] lg:-right-[70%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
+  { user: "deepanjwanii", time: "18w", text: "This is sooo cooll", pos: "top-[4%] md:top-[12%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
+  { user: "_theyellowskirt_", time: "8w", text: "Haha what a good way to educate & entertain.Love your series.", pos: "top-[24%] md:top-[36%] -right-[20%] md:-right-[64%] lg:-right-[85%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
+  { user: "indianskinblog", time: "15w", text: "This is what i pay mu internet bills for", pos: "top-[80%] md:top-[60%] -right-[38%] md:-right-[68%] lg:-right-[92%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
+  { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[96%] md:top-[84%] -right-[18%] md:-right-[50%] lg:-right-[72%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
 ];
 
 const FloatingComment = ({ data }: { data: any }) => (
@@ -137,7 +137,7 @@ const FloatingComment = ({ data }: { data: any }) => (
     }}
     viewport={{ once: true, margin: "-100px" }}
     className={clsx(
-      "absolute z-30 flex items-center gap-2 md:gap-3 p-2 md:p-3 pr-3 md:pr-5 bg-[#181818]/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-2xl border border-white/10 w-max max-w-[180px] md:max-w-[280px] lg:max-w-[320px] transition-transform hover:scale-[1.02] hover:z-40 cursor-default",
+      "absolute z-30 flex items-center gap-2 md:gap-3 p-2 md:p-3 pr-3 md:pr-5 bg-[#181818]/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-2xl border border-white/10 w-max max-w-[180px] md:max-w-[280px] lg:max-w-[320px] transition-transform hover:scale-[1.02] hover:z-40 cursor-default transform-gpu will-change-transform",
       "scale-[0.75] sm:scale-90 md:scale-100", // Scale down heavily on mobile
       data.pos,
       data.rotate
@@ -288,15 +288,6 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
 
       {/* Comments Section */}
       <div className="relative w-full min-h-[100svh] py-12 flex flex-col items-center justify-center bg-[#050508] overflow-hidden">
-        {/* Background Lottie Animation (Left - Mobile Only) */}
-        <div className="absolute top-1/2 -left-[30px] md:hidden -translate-y-1/2 w-[300px] opacity-90 pointer-events-none z-[1] -scale-x-100">
-          <Lottie animationData={reactionBubbles} loop={true} />
-        </div>
-
-        {/* Background Lottie Animation (Right - All Devices) */}
-        <div className="absolute top-1/2 -right-[30px] md:-right-[50px] lg:-right-[80px] -translate-y-1/2 w-[300px] md:w-[500px] lg:w-[600px] opacity-90 pointer-events-none z-[1]">
-          <Lottie animationData={reactionBubbles} loop={true} />
-        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -317,13 +308,11 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
         >
           <style>{`
             @keyframes phone-gradient {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
+              0% { transform: translate(-50%, -50%) rotate(0deg); }
+              100% { transform: translate(-50%, -50%) rotate(360deg); }
             }
             .animate-phone-gradient {
-              background-size: 200% 200%;
-              animation: phone-gradient 5s ease infinite;
+              animation: phone-gradient 15s linear infinite;
             }
           `}</style>
           
@@ -337,7 +326,10 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
             ))}
 
             {/* CSS Phone Frame (Replaces the watermarked image) */}
-            <div className="relative w-[240px] h-[500px] md:w-[270px] md:h-[560px] rounded-[2.5rem] md:rounded-[3rem] border-[3px] md:border-[4px] border-white/80 overflow-hidden hover:scale-[1.02] transition-transform duration-500 bg-gradient-to-br from-[#6EE7FF] via-[#3B82F6] to-[#6EE7FF] animate-phone-gradient shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(255,255,255,0.3)] flex flex-col z-20">
+            <div className="relative w-[240px] h-[500px] md:w-[270px] md:h-[560px] rounded-[2.5rem] md:rounded-[3rem] border-[3px] md:border-[4px] border-white/80 overflow-hidden hover:scale-[1.02] transition-transform duration-500 shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(255,255,255,0.3)] flex flex-col z-20 transform-gpu will-change-transform">
+              
+              {/* Animated Background (GPU accelerated using transform instead of background-position) */}
+              <div className="absolute top-1/2 left-1/2 w-[650px] h-[650px] bg-gradient-to-br from-[#6EE7FF] via-[#3B82F6] to-[#6EE7FF] animate-phone-gradient z-0 transform-gpu will-change-transform" />
               
               {/* Dynamic Island */}
               <div className="absolute top-3 md:top-4 left-1/2 -translate-x-1/2 w-[80px] h-[24px] bg-black rounded-full border-[2px] border-white/80 z-20 shadow-sm" />
@@ -347,7 +339,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
 
               {/* Inner Content Area for Comments */}
               <div className="flex-1 w-full h-full pt-14 pb-8 px-6 relative z-10 flex flex-col items-center justify-center text-center">
-                <div className="text-6xl md:text-7xl mb-4 md:mb-6 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="hidden md:block text-6xl md:text-7xl mb-4 md:mb-6 animate-bounce" style={{ animationDuration: '3s' }}>
                   🤔
                 </div>
                 <span className="text-[#050508] text-xl md:text-2xl font-bold leading-snug tracking-tight">
