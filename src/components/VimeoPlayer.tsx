@@ -39,7 +39,7 @@ export default function VimeoPlayer({
   onReady,
 }: VimeoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(true); // Start visible — Vimeo background mode is already dark
 
   // Stable unique ID for this player instance — used to match postMessages
   // to exactly this iframe and no other.
@@ -70,12 +70,21 @@ export default function VimeoPlayer({
   // Listen for Vimeo postMessages — filter to only THIS iframe's player_id
   // so multiple instances don't all fire at once.
   useEffect(() => {
+    // Fallback: if Vimeo never fires "ready" (e.g. slow/blocked network), 
+    // force-show the iframe after 1.5s. Because all iframes are pre-mounted in
+    // ServicesPreloader at page load, Vimeo will usually be ready well before this.
+    const fallbackTimer = setTimeout(() => {
+      setIsReady(true);
+      onReady?.();
+    }, 1500);
+
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== "https://player.vimeo.com") return;
       if (iframeRef.current && e.source !== iframeRef.current.contentWindow) return;
       try {
         const data = JSON.parse(e.data as string);
         if (data.event === "ready") {
+          clearTimeout(fallbackTimer);
           setIsReady(true);
           onReady?.();
         }
@@ -84,7 +93,10 @@ export default function VimeoPlayer({
       }
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearTimeout(fallbackTimer);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -100,35 +112,21 @@ export default function VimeoPlayer({
 
   return (
     <div className={`relative w-full h-full ${className}`}>
-      {/* ── Dark loading overlay ───────────────────────────────────────────────
-          Hides the blank white Vimeo loading screen until the player is ready.
-          Fades out smoothly once the "ready" postMessage fires.
-      ──────────────────────────────────────────────────────────────────────── */}
+      {/* Loading overlay — hides the Vimeo white initialisation screen.
+          Fades out once the player fires the "ready" postMessage.
+          Since all iframes mount during the preloader animation (which covers the
+          viewport), this overlay is invisible to users on normal connections. */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "#0C0C12",
+          backgroundColor: "#0C0C12",
           zIndex: 2,
           opacity: isReady ? 0 : 1,
-          transition: "opacity 0.7s ease",
+          transition: "opacity 0.4s ease",
           pointerEvents: "none",
         }}
-      >
-        {/* Subtle shimmer to show something is loading */}
-        {!isReady && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(90deg, transparent 0%, rgba(110,231,255,0.04) 50%, transparent 100%)",
-              backgroundSize: "200% 100%",
-              animation: "vimeo-shimmer 2s infinite ease-in-out",
-            }}
-          />
-        )}
-      </div>
+      />
 
       <iframe
         ref={iframeRef}
@@ -147,13 +145,6 @@ export default function VimeoPlayer({
         }}
       />
 
-      {/* Shimmer keyframe — scoped to avoid global CSS conflicts */}
-      <style>{`
-        @keyframes vimeo-shimmer {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
     </div>
   );
 }

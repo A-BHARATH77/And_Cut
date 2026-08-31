@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "@/components/Header";
@@ -30,21 +30,11 @@ const CRITICAL_VIDEOS = [
   "/ANDCUT_VDS/MobileHero.mp4",
 ];
 
-// Local (non-Vimeo) service assets that can be preloaded via <video> element
+// Local (non-Vimeo) service assets that can be preloaded via fetch
 const SERVICE_LOCAL_VIDEOS = Object.values(FORMATS_DATA)
   .flat()
   .filter((v) => !v.vimeoId)
   .map((v) => v.videoPath);
-
-// All unique Vimeo IDs across every service category
-const ALL_VIMEO_IDS = Array.from(
-  new Set(
-    Object.values(FORMATS_DATA)
-      .flat()
-      .map((v) => v.vimeoId)
-      .filter(Boolean) as string[]
-  )
-);
 
 // Per-asset timeout (ms)
 const ASSET_TIMEOUT_MS = 8000;
@@ -64,16 +54,25 @@ function loadImage(src: string): Promise<void> {
 function loadVideo(src: string): Promise<void> {
   return new Promise((resolve) => {
     const timer = setTimeout(resolve, ASSET_TIMEOUT_MS);
-    const vid = document.createElement("video");
-    vid.muted = true;
-    vid.playsInline = true;
-    vid.preload = "auto";
     const done = () => { clearTimeout(timer); resolve(); };
-    if (vid.readyState >= 3) { done(); return; }
-    vid.addEventListener("canplay", done, { once: true });
-    vid.addEventListener("error", done, { once: true });
-    vid.src = src;
-    vid.load();
+
+    fetch(src)
+      .then((res) => {
+        if (!res.ok) throw new Error("Fetch failed");
+        return res.blob();
+      })
+      .then(() => done())
+      .catch(() => {
+        const vid = document.createElement("video");
+        vid.muted = true;
+        vid.playsInline = true;
+        vid.preload = "auto";
+        if (vid.readyState >= 3) { done(); return; }
+        vid.addEventListener("canplay", done, { once: true });
+        vid.addEventListener("error", done, { once: true });
+        vid.src = src;
+        vid.load();
+      });
   });
 }
 
@@ -81,21 +80,6 @@ export default function Preloader() {
   const [isDone, setIsDone] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Track which Vimeo players have fired the "ready" event
-  const vimeoReadyRef = useRef<Set<string>>(new Set());
-  const resolveVimeoRef = useRef<(() => void) | null>(null);
-
-  // Called by the postMessage handler whenever a Vimeo player signals ready
-  const onVimeoReady = useCallback((id: string) => {
-    vimeoReadyRef.current.add(id);
-    if (
-      vimeoReadyRef.current.size >= ALL_VIMEO_IDS.length &&
-      resolveVimeoRef.current
-    ) {
-      resolveVimeoRef.current();
-    }
-  }, []);
 
   useEffect(() => {
     const hasLoaded = sessionStorage.getItem("hasLoaded-steel");
@@ -106,46 +90,20 @@ export default function Preloader() {
 
     let cancelled = false;
 
-    // Listen for Vimeo "ready" postMessages
-    const handleMessage = (e: MessageEvent) => {
-      if (e.origin !== "https://player.vimeo.com") return;
-      try {
-        const data = JSON.parse(e.data as string);
-        if (data.event === "ready" && data.player_id) {
-          // Accept ready events from both our ServicesPreloader iframes
-          // (player_id: "services-preload-{id}") and any other Vimeo player.
-          const id = String(data.player_id)
-            .replace("services-preload-", "")
-            .replace("preload-", "");
-          onVimeoReady(id);
-        }
-      } catch {
-        // ignore
-      }
-    };
-    window.addEventListener("message", handleMessage);
-
     // Hard ceiling
     const hardTimer = setTimeout(() => {
       if (!cancelled) setAssetsLoaded(true);
     }, HARD_TIMEOUT_MS);
 
-    // Wait for Vimeo iframes to be ready
-    const vimeoPromise = new Promise<void>((resolve) => {
-      resolveVimeoRef.current = resolve;
-      // If there are no vimeo IDs, resolve immediately
-      if (ALL_VIMEO_IDS.length === 0) resolve();
-      // Fallback: if vimeo never ready within timeout, still resolve
-      setTimeout(resolve, ASSET_TIMEOUT_MS);
-    });
-
+    // Wait for critical images and local videos only.
+    // Vimeo iframes are mounted directly inside the Carousel at their
+    // correct display size and have 10-15+ seconds to initialise while
+    // the preloader animation plays and the user scrolls through the hero
+    // and BigText sections before reaching Services.
     Promise.all([
       ...CRITICAL_IMAGES.map(loadImage),
       ...CRITICAL_VIDEOS.map(loadVideo),
-      // Local service videos (webm / webp etc.) preloaded in parallel
       ...SERVICE_LOCAL_VIDEOS.map(loadVideo),
-      // Wait for Vimeo iframes to report ready
-      vimeoPromise,
     ]).then(() => {
       if (!cancelled) {
         clearTimeout(hardTimer);
@@ -156,7 +114,6 @@ export default function Preloader() {
     return () => {
       cancelled = true;
       clearTimeout(hardTimer);
-      window.removeEventListener("message", handleMessage);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
