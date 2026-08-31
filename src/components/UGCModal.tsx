@@ -91,29 +91,17 @@ function SidebarColumn({
             )}
           >
             <div className="w-full h-full pointer-events-none overflow-hidden relative">
-              {v.vimeoId ? (
-                <div className="relative w-full h-full scale-[1.5]">
-                  <VimeoPlayer
-                    vimeoId={v.vimeoId}
-                    playing={false}
-                    muted={true}
-                    loop={false}
-                    background={true}
-                    quality="360p"
-                    className="w-full h-full pointer-events-none"
-                  />
-                </div>
-              ) : (
-                <video
-                  src={v.videoPath}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className="w-full h-full object-cover"
+              <div className="relative w-full h-full scale-[1.5]">
+                <VimeoPlayer
+                  vimeoId={v.vimeoId!}
+                  playing={false}
+                  muted={true}
+                  loop={false}
+                  background={true}
+                  quality="360p"
+                  className="w-full h-full pointer-events-none"
                 />
-              )}
+              </div>
             </div>
           </button>
         ))}
@@ -143,32 +131,19 @@ function VideoColumn({
         className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
-          {activeVideo.vimeoId ? (
-            <div className="relative w-full h-full">
-              <VimeoPlayer
-                key={`vp-${activeIdx}`}
-                vimeoId={activeVideo.vimeoId}
-                playing={true}
-                muted={false}
-                loop={true}
-                controls={true}
-                background={false}
-                quality="auto"
-                className="w-full h-full"
-              />
-            </div>
-          ) : (
-            <video
-              key={`local-${activeIdx}`}
-              src={activeVideo.videoPath}
-              autoPlay
-              loop
-              controls
-              playsInline
-              preload="auto"
-              className="w-full h-full object-contain"
+          <div className="relative w-full h-full">
+            <VimeoPlayer
+              key={`vp-${activeIdx}`}
+              vimeoId={activeVideo.vimeoId!}
+              playing={true}
+              muted={false}
+              loop={true}
+              controls={true}
+              background={false}
+              quality="auto"
+              className="w-full h-full"
             />
-          )}
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>
