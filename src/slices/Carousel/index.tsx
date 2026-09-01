@@ -7,7 +7,9 @@ import { motion } from "motion/react";
 import clsx from "clsx";
 import gsap from "gsap";
 import { FORMATS_DATA } from "@/data/services";
-import VimeoPlayer from "@/components/VimeoPlayer";
+import VimeoFacadeCard from "@/components/VimeoFacadeCard";
+import PreloadedVideo from "@/components/PreloadedVideo";
+import LocalBlobVideoCard from "@/components/LocalBlobVideoCard";
 import BeyondVertical from "@/components/Beyond_vertical";
 import UGCModal from "@/components/UGCModal";
 import DVCModal from "@/components/DVCModal";
@@ -16,50 +18,25 @@ import AdFilmsModal from "@/components/AdFilmsModal";
 import PhotoshootModal from "@/components/PhotoshootModal";
 
 /* ──────────────────────────────────────────────────────────────────────────────
-  EarlyVimeoMount
-
-  Mounts a VimeoPlayer iframe immediately when the component is first rendered.
-  Once mounted it NEVER unmounts — Vimeo keeps its buffer warm across the session.
-
-  For Vimeo cards this mounts at page load (during the preloader animation),
-  giving Vimeo 5-15+ seconds to initialise before the user can scroll to the
-  services section. By the time the user arrives, the video is already playing.
-──────────────────────────────────────────────────────────────────────────────── */
-function EarlyVimeoMount({
-  vimeoId,
-  className,
-}: {
-  vimeoId: string;
-  className?: string;
-}) {
-  return (
-    <VimeoPlayer
-      vimeoId={vimeoId}
-      playing={true}
-      muted={true}
-      loop={true}
-      controls={false}
-      background={true}
-      quality="360p"
-      className={className ?? "w-full h-full pointer-events-none"}
-    />
-  );
-}
-
-/* ──────────────────────────────────────────────────────────────────────────────
   TabMarquee
 
-  Self-contained infinite marquee for ONE tab. Always in the DOM.
-  display:none for inactive tabs keeps their VimeoPlayer iframes alive
-  (they remain mounted and buffering, just visually hidden).
+  Self-contained infinite marquee for ONE tab. Always in the DOM so that
+  display:none on inactive tabs doesn't destroy any iframes (they remain
+  mounted and buffering while hidden).
+
+  Each Vimeo card uses VimeoFacadeCard:
+    • Shows a static Vimeo thumbnail immediately (no blank box ever)
+    • Injects the iframe only when `sectionNearVisible` is true
+    • Cross-fades thumbnail → playing video once Vimeo fires "ready"
 ──────────────────────────────────────────────────────────────────────────────── */
 interface TabMarqueeProps {
   tabKey: string;
   isActive: boolean;
+  sectionNearVisible: boolean;
   onCardClick: (realIndex: number) => void;
 }
 
-function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
+function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMarqueeProps) {
   const activeItems = FORMATS_DATA[tabKey] ?? [];
   const isHorizontalLayout =
     tabKey === "Photoshoot" || tabKey === "Ad films & others";
@@ -72,7 +49,7 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
   ].includes(tabKey);
   const showPlayHint = isClickable && tabKey !== "Photoshoot";
 
-  // Build infinite loop array: at least 12 base items, then doubled
+  // Build infinite loop: at least 12 base items, then doubled
   let baseItems = [...activeItems];
   while (baseItems.length < 12 && activeItems.length > 0) {
     baseItems = [...baseItems, ...activeItems];
@@ -82,24 +59,24 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
   const cardWidth = isHorizontalLayout ? 560 : 298;
   const halfWidth = baseItems.length * cardWidth;
 
-  const xRef = useRef(0);
-  const isAutoScrollingRef = useRef(true);
-  const activeTweenRef = useRef<gsap.core.Tween | null>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const isActiveRef = useRef(isActive);
+  const xRef             = useRef(0);
+  const isAutoScrollRef  = useRef(true);
+  const activeTweenRef   = useRef<gsap.core.Tween | null>(null);
+  const trackRef         = useRef<HTMLDivElement>(null);
+  const isActiveRef      = useRef(isActive);
 
   useEffect(() => { isActiveRef.current = isActive; }, [isActive]);
 
-  // Reset scroll position each time this tab becomes active
+  // Reset scroll position when this tab becomes active
   useEffect(() => {
     if (!isActive) return;
-    if (activeTweenRef.current) activeTweenRef.current.kill();
+    activeTweenRef.current?.kill();
     xRef.current = 0;
-    isAutoScrollingRef.current = true;
+    isAutoScrollRef.current = true;
     if (trackRef.current) trackRef.current.style.transform = "translateX(0px)";
   }, [isActive]);
 
-  // RAF loop — only writes DOM transforms while this tab is active
+  // RAF auto-scroll loop
   useEffect(() => {
     let animId: number;
     let lastTime = performance.now();
@@ -108,12 +85,7 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
     const tick = (now: number) => {
       const delta = now - lastTime;
       lastTime = now;
-      if (
-        trackRef.current &&
-        isAutoScrollingRef.current &&
-        isActiveRef.current &&
-        halfWidth > 0
-      ) {
+      if (trackRef.current && isAutoScrollRef.current && isActiveRef.current && halfWidth > 0) {
         let x = xRef.current - speed * delta;
         if (x <= -halfWidth) x += halfWidth;
         xRef.current = x;
@@ -124,18 +96,17 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
     animId = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(animId);
-      if (activeTweenRef.current) activeTweenRef.current.kill();
+      activeTweenRef.current?.kill();
     };
   }, [halfWidth]);
 
   const handleArrowScroll = (direction: "left" | "right") => {
     if (!trackRef.current || halfWidth <= 0) return;
-    isAutoScrollingRef.current = false;
-    if (activeTweenRef.current) activeTweenRef.current.kill();
+    isAutoScrollRef.current = false;
+    activeTweenRef.current?.kill();
 
-    const shiftAmount = isHorizontalLayout ? 1120 : 596;
-    const targetX =
-      xRef.current + (direction === "left" ? shiftAmount : -shiftAmount);
+    const shift = isHorizontalLayout ? 1120 : 596;
+    const targetX = xRef.current + (direction === "left" ? shift : -shift);
 
     activeTweenRef.current = gsap.to(xRef, {
       current: targetX,
@@ -155,7 +126,7 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
         xRef.current = x;
         if (trackRef.current)
           trackRef.current.style.transform = `translateX(${x}px)`;
-        isAutoScrollingRef.current = true;
+        isAutoScrollRef.current = true;
       },
     });
   };
@@ -194,8 +165,8 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
           style={{ width: "max-content" }}
         >
           {loopItems.map((video, idx) => {
-            const isWebp = video.videoPath.endsWith(".webp");
-            const realIndex = idx % activeItems.length;
+            const isWebp     = video.videoPath.endsWith(".webp");
+            const realIndex  = idx % activeItems.length;
 
             return (
               <div
@@ -209,9 +180,25 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                   isClickable && "cursor-pointer"
                 )}
               >
-                {video.vimeoId ? (
-                  // Mounted at page load — plays for 10-15s before user can arrive
-                  <EarlyVimeoMount vimeoId={video.vimeoId} />
+                {video.useLocalCard ? (
+                  /* ── Local blob card (UGC) ─────────────────────────────────
+                     Thumbnail shows instantly (no black box ever).
+                     Switches to the local mp4 blob once prefetch completes. */
+                  <LocalBlobVideoCard
+                    videoPath={video.videoPath}
+                    thumbnailUrl={video.thumbnailUrl}
+                    className="w-full h-full"
+                  />
+                ) : video.vimeoId ? (
+                  /* ── Vimeo facade (DVC, Micro Drama) ───────────────────────
+                     Phase 1: thumbnail image (immediate, no blank box)
+                     Phase 2: iframe injected when section is ~500px away
+                     Phase 3: thumbnail fades out, video plays seamlessly     */
+                  <VimeoFacadeCard
+                    vimeoId={video.vimeoId}
+                    thumbnailUrl={video.thumbnailUrl}
+                    shouldLoad={sectionNearVisible}
+                  />
                 ) : isWebp ? (
                   <img
                     src={video.videoPath}
@@ -220,19 +207,15 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                     loading="lazy"
                   />
                 ) : (
-                  <video
+                  /* Local .mp4 / .webm — fetched as a Blob for instant gapless playback */
+                  <PreloadedVideo
                     src={video.videoPath}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
                     className="w-full h-full object-cover"
                   />
                 )}
 
                 {showPlayHint && (
-                  <div className="absolute inset-0 bg-black/0 hover:bg-black/25 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                  <div className="absolute inset-0 bg-black/0 hover:bg-black/25 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100 z-10">
                     <div className="w-12 h-12 rounded-full bg-black/60 border border-white/25 backdrop-blur-sm flex items-center justify-center">
                       <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
@@ -258,42 +241,72 @@ export type CarouselProps = SliceComponentProps<Content.CarouselSlice>;
 const TABS = ["UGC", "DVC", "Micro Drama", "Ad films & others", "Photoshoot"];
 
 const DISPLAY_LABELS: Record<string, string> = {
-  "UGC": "UGC",
-  "DVC": "DVC",
-  "Micro Drama": "Micro drama",
-  "Ad films & others": "Ad films & others",
-  "Photoshoot": "Photoshoot",
+  "UGC":              "UGC",
+  "DVC":              "DVC",
+  "Micro Drama":      "Micro drama",
+  "Ad films & others":"Ad films & others",
+  "Photoshoot":       "Photoshoot",
 };
 
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
-  const [activeTab, setActiveTab] = useState("UGC");
-  const [mobilePage, setMobilePage] = useState(0);
+  const [activeTab, setActiveTab]           = useState("UGC");
+  const [mobilePage, setMobilePage]         = useState(0);
+  // True once the #format section is within ~500px of the viewport.
+  // Triggers VimeoFacadeCard to inject iframes (Phase 2 → 3).
+  const [sectionNearVisible, setSectionNearVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // ── IntersectionObserver: trigger iframe loading before section is visible ──
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      // Fallback for environments without IntersectionObserver
+      setSectionNearVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSectionNearVisible(true);
+          observer.disconnect(); // once triggered, never revert
+        }
+      },
+      {
+        // rootMargin: "500px" means we fire 500px BEFORE the section
+        // enters the viewport — giving Vimeo a head-start on loading.
+        rootMargin: "500px 0px",
+        threshold:  0,
+      }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (activeTab === "Ad films & others" || activeTab === "Photoshoot") {
-      setMobilePage(1);
-    } else {
-      setMobilePage(0);
-    }
+    setMobilePage(
+      activeTab === "Ad films & others" || activeTab === "Photoshoot" ? 1 : 0
+    );
   }, [activeTab]);
 
-  const [ugcModal, setUgcModal] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
-  const [dvcModal, setDvcModal] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
+  const [ugcModal,        setUgcModal]        = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
+  const [dvcModal,        setDvcModal]        = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
   const [microDramaModal, setMicroDramaModal] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
-  const [adFilmsModal, setAdFilmsModal] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
+  const [adFilmsModal,    setAdFilmsModal]    = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
   const [photoshootModal, setPhotoshootModal] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
 
   const getCardClickHandler = (tab: string) => (idx: number) => {
-    if (tab === "UGC")                    setUgcModal({ open: true, index: idx });
-    else if (tab === "DVC")               setDvcModal({ open: true, index: idx });
-    else if (tab === "Micro Drama")       setMicroDramaModal({ open: true, index: idx });
+    if      (tab === "UGC")              setUgcModal({ open: true, index: idx });
+    else if (tab === "DVC")              setDvcModal({ open: true, index: idx });
+    else if (tab === "Micro Drama")      setMicroDramaModal({ open: true, index: idx });
     else if (tab === "Ad films & others") setAdFilmsModal({ open: true, index: idx });
-    else if (tab === "Photoshoot")        setPhotoshootModal({ open: true, index: idx });
+    else if (tab === "Photoshoot")       setPhotoshootModal({ open: true, index: idx });
   };
 
   return (
     <>
       <section
+        ref={sectionRef}
         id="format"
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
@@ -372,7 +385,7 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               type="button"
               onClick={() => {
                 if (mobilePage === 0) { setMobilePage(1); setActiveTab("Ad films & others"); }
-                else                  { setMobilePage(0); setActiveTab("UGC"); }
+                else                 { setMobilePage(0); setActiveTab("UGC"); }
               }}
               className="p-2.5 bg-[#0C0C12]/80 border border-white/5 backdrop-blur-md rounded-full text-[#6EE7FF] hover:bg-[#6EE7FF]/20 hover:text-white transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(110,231,255,0.15)]"
               aria-label={mobilePage === 0 ? "Next Tabs" : "Previous Tabs"}
@@ -390,14 +403,15 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
           </div>
         </motion.div>
 
-        {/* All 5 tab marquees mounted simultaneously.
-            display:none for inactive ones keeps iframes alive (buffering). */}
+        {/* All 5 tab marquees always in DOM.
+            display:none on inactive ones keeps components alive. */}
         <div className="mt-6 md:mt-8">
           {TABS.map((tab) => (
             <TabMarquee
               key={tab}
               tabKey={tab}
               isActive={tab === activeTab}
+              sectionNearVisible={sectionNearVisible}
               onCardClick={getCardClickHandler(tab)}
             />
           ))}

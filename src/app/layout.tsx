@@ -38,7 +38,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", alpino.variable)}>
       <head>
-        {/* Critical preloader assets — fetched as early as possible */}
+        {/* ── Vimeo: establish connections before any JS runs ───────────────
+            preconnect = full TCP + TLS handshake (same origin used by iframes)
+            dns-prefetch = DNS lookup only (for domains that may use CORS) */}
+        <link rel="preconnect" href="https://player.vimeo.com" />
+        <link rel="preconnect" href="https://f.vimeocdn.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://i.vimeocdn.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fresnel.vimeocdn.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://vod-progressive.akamaized.net" />
+        <link rel="dns-prefetch" href="https://skyfire.vimeo.com" />
+        <link rel="dns-prefetch" href="https://vimeo.com" />
+
+        {/* ── Critical preloader assets — fetched as early as possible ──── */}
         <link rel="preload" href="/and_cut_logo.webp" as="image" />
         <link rel="preload" href="/preloader1.webp" as="image" />
         <link rel="preload" href="/preloader2.webp" as="image" />

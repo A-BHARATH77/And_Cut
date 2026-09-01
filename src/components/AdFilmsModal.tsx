@@ -85,8 +85,14 @@ function SidebarColumn({
             )}
           >
             <div className="w-full h-full pointer-events-none overflow-hidden relative">
-              <div className="relative w-full h-full scale-[1.5]">
-                {v.vimeoId ? (
+              {v.thumbnailUrl ? (
+                <img
+                  src={v.thumbnailUrl}
+                  alt={v.title}
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+              ) : v.vimeoId ? (
+                <div className="relative w-full h-full scale-[1.5]">
                   <VimeoPlayer
                     vimeoId={v.vimeoId!}
                     playing={false}
@@ -96,15 +102,15 @@ function SidebarColumn({
                     quality="360p"
                     className="w-full h-full pointer-events-none"
                   />
-                ) : (
-                  <video
-                    src={v.videoPath}
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover pointer-events-none"
-                  />
-                )}
-              </div>
+                </div>
+              ) : (
+                <video
+                  src={v.videoPath}
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+              )}
             </div>
           </button>
         ))}

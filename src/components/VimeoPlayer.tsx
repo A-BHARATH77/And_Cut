@@ -97,7 +97,7 @@ export default function VimeoPlayer({
       window.removeEventListener("message", handleMessage);
       clearTimeout(fallbackTimer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Control play / pause via postMessage — zero iframe reload

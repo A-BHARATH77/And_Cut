@@ -3,38 +3,45 @@
 /**
  * ServicesPreloader
  *
- * Mounted in the ROOT LAYOUT — lives for the ENTIRE page session.
+ * Mounted in ROOT LAYOUT — lives the entire page session.
  *
- * This is the single source of truth for preloading ALL service section assets
- * so they are ready BEFORE the user scrolls to the carousel — identical to how
- * Beyond Vertical and Our Work handle their videos.
+ * Responsibilities:
+ * ─────────────────────────────────────────────────────────────────
+ * 1. Calls `prefetchVideos` for all UGC webm files as early as possible
+ *    (both at module evaluation time AND inside useEffect as a safety net).
+ *    This starts 12 × 3 MB Range requests in parallel during the preloader
+ *    animation, so blobs are ready before the user reaches Services.
  *
- * 1. LOCAL VIDEOS (.mp4 / .webm):
- *    Hidden <video preload="auto"> elements — browser downloads & caches them.
+ * 2. Preloads non-UGC local video assets via hidden <video> elements.
  *
- * 2. LOCAL IMAGES (.webp / .jpg):
- *    <link rel="preload" as="image"> injected into <head>.
+ * 3. Injects <link rel="preload" as="image"> for Photoshoot images.
  *
- * 3. VIMEO IFRAMES:
- *    All Vimeo iframes are mounted HERE at page load in a hidden 1×1 container.
- *    Vimeo begins buffering immediately. By the time the user scrolls to the
- *    Services section the videos are already playing — zero blank boxes.
- *    The Carousel's EarlyVimeoMount renders the SAME iframe src, so React/Vimeo
- *    reuses the already-warm session — there is no resize/reload issue because
- *    we keep the iframes here invisible (not moved into the carousel DOM).
+ * Vimeo videos (DVC, Micro Drama) use VimeoFacadeCard:
+ *   Phase 1 — pre-baked thumbnail shown immediately (no blank boxes)
+ *   Phase 2 — iframe injected when section is ~500 px from viewport
+ *   Phase 3 — thumbnail cross-fades out once iframe fires "ready"
  */
 
 import { useEffect } from "react";
 import { FORMATS_DATA } from "@/data/services";
+import { prefetchVideos } from "@/lib/videoCache";
 
 const allItems = Object.values(FORMATS_DATA).flat();
 
-// ─── Local video / image split ───────────────────────────────────────────────
+// UGC local webm paths — partial blob-fetched for zero-buffer in-card playback
+const ugcVideoPaths = Array.from(
+  new Set(
+    (FORMATS_DATA["UGC"] ?? [])
+      .filter((v) => v.useLocalCard)
+      .map((v) => v.videoPath)
+  )
+);
 
-const allLocalVideos = Array.from(
+// Non-UGC local videos (no vimeoId, no useLocalCard) — warm via hidden <video>
+const otherLocalVideos = Array.from(
   new Set(
     allItems
-      .filter((v) => !v.vimeoId)
+      .filter((v) => !v.vimeoId && !v.useLocalCard)
       .map((v) => v.videoPath)
       .filter((p) => /\.(webm|mp4|mov)$/i.test(p))
   )
@@ -49,30 +56,20 @@ const allLocalImages = Array.from(
   )
 );
 
-// ─── All unique Vimeo IDs ─────────────────────────────────────────────────────
-
-const allVimeoIds = Array.from(
-  new Set(
-    allItems
-      .filter((v) => !!v.vimeoId)
-      .map((v) => v.vimeoId as string)
-  )
-);
-
-// Build Vimeo src strings once (autoplay=1 + muted=1 + background=1 so Vimeo
-// starts buffering immediately on mount — exactly what EarlyVimeoMount does).
-function buildVimeoSrc(vimeoId: string) {
-  return (
-    `https://player.vimeo.com/video/${vimeoId}` +
-    `?autoplay=1&muted=1&loop=1&controls=0&background=1` +
-    `&autopause=0&title=0&byline=0&portrait=0&dnt=1&playsinline=1&quality=360p`
-  );
+// ── Fire at module-evaluation time (runs before React renders) ────────────────
+if (typeof window !== "undefined" && ugcVideoPaths.length > 0) {
+  prefetchVideos(ugcVideoPaths);
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function ServicesPreloader() {
-  // Inject <link rel="preload"> for static images
+  // Safety-net: also fire inside useEffect for SSR hydration scenarios
+  useEffect(() => {
+    if (ugcVideoPaths.length > 0) {
+      prefetchVideos(ugcVideoPaths);
+    }
+  }, []);
+
+  // Inject <link rel="preload"> for local images
   useEffect(() => {
     const injected: HTMLLinkElement[] = [];
     allLocalImages.forEach((src) => {
@@ -88,49 +85,28 @@ export default function ServicesPreloader() {
   }, []);
 
   return (
-    /*
-     * aria-hidden + 0-opacity + pointer-events:none + position:fixed + off-screen.
-     * The iframes are INVISIBLE but FULLY MOUNTED so Vimeo buffers in the background.
-     * position:fixed keeps them out of the document flow.
-     */
     <div
       aria-hidden="true"
       style={{
-        position: "fixed",
-        top: "-9999px",
-        left: "-9999px",
-        width: 0,
-        height: 0,
-        overflow: "hidden",
+        position:      "fixed",
+        top:           "-9999px",
+        left:          "-9999px",
+        opacity:       0,
         pointerEvents: "none",
-        opacity: 0,
-        zIndex: -1,
+        zIndex:        -1,
       }}
     >
-      {/* Preload local .mp4 / .webm files */}
-      {allLocalVideos.map((src) => (
+      {/* Non-UGC local videos — hidden autoPlay to warm the HTTP cache */}
+      {otherLocalVideos.map((src) => (
         <video
           key={src}
           src={src}
           muted
+          autoPlay
           playsInline
           preload="auto"
           tabIndex={-1}
           style={{ width: 1, height: 1, display: "block" }}
-        />
-      ))}
-
-      {/* Preload Vimeo iframes — same src pattern as EarlyVimeoMount in the Carousel.
-          Vimeo starts buffering at 360p immediately on page load so by the time
-          the user scrolls to the Services section the videos are already playing. */}
-      {allVimeoIds.map((id) => (
-        <iframe
-          key={`sp-vimeo-${id}`}
-          src={buildVimeoSrc(id)}
-          allow="autoplay; fullscreen; picture-in-picture"
-          tabIndex={-1}
-          title={`vimeo-preload-${id}`}
-          style={{ width: 1, height: 1, border: "none", display: "block" }}
         />
       ))}
     </div>
