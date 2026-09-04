@@ -6,6 +6,24 @@ import { SliceComponentProps } from "@prismicio/react";
 
 export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
+/** Attempt to play a video element, retrying once after a short delay if the
+ *  browser rejects the first call (common on iOS when tab is backgrounded). */
+function tryPlay(vid: HTMLVideoElement) {
+  vid.muted = true;
+  vid
+    .play()
+    .then(() => {
+      // success — nothing to do
+    })
+    .catch(() => {
+      // Retry after a short delay
+      setTimeout(() => {
+        vid.muted = true;
+        vid.play().catch(() => {});
+      }, 600);
+    });
+}
+
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
@@ -17,23 +35,52 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
       setShowScrollIndicator(true);
     }, 2000);
 
-    // Imperatively trigger play on the mobile video after the preloader fades.
-    // Browsers often suspend <video> elements that are covered by another element
-    // during page load. We retry play() after the preloader is gone (~2.5s).
-    const playTimer = setTimeout(() => {
-      const vid = mobileVideoRef.current;
-      if (vid) {
-        vid.muted = true;
-        vid.play().catch(() => {
-          // Second attempt after user interaction or after a longer delay
-          setTimeout(() => vid.play().catch(() => {}), 1000);
-        });
+    const vid = mobileVideoRef.current;
+    if (!vid) {
+      return () => clearTimeout(scrollTimer);
+    }
+
+    // ── Strategy: play as soon as the video has enough data, not on a timer. ──
+    // We listen to multiple events because mobile browsers are unpredictable:
+    //  1. canplay      — fired when browser has enough data to start playing
+    //  2. loadeddata   — fired when first frame is available
+    //  3. visibilitychange — re-attempt when user returns to the tab
+    //  4. pageshow     — handles iOS BFCache restore (back button navigation)
+
+    const onReady = () => tryPlay(vid);
+
+    // If already has enough data (e.g. from cache), play immediately
+    if (vid.readyState >= 3) {
+      tryPlay(vid);
+    } else {
+      vid.addEventListener("canplay", onReady, { once: true });
+      vid.addEventListener("loadeddata", onReady, { once: true });
+      // Start loading explicitly
+      vid.load();
+    }
+
+    // Re-attempt when tab becomes visible (handles backgrounded tabs)
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && vid.paused) {
+        tryPlay(vid);
       }
-    }, 2800);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // Re-attempt on BFCache restore (iOS Safari back-button)
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted && vid.paused) {
+        tryPlay(vid);
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
 
     return () => {
       clearTimeout(scrollTimer);
-      clearTimeout(playTimer);
+      vid.removeEventListener("canplay", onReady);
+      vid.removeEventListener("loadeddata", onReady);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pageshow", onPageShow);
     };
   }, []);
 
@@ -56,9 +103,11 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
         />
 
-        {/* Mobile Background Video — local file for reliable autoplay on iOS/Android.
-            autoPlay alone may not fire if the element was suspended during preloader.
-            We also call .play() imperatively after the preloader fades (see useEffect). */}
+        {/* Mobile Background Video
+            - preload="auto" so the browser buffers aggressively
+            - autoPlay as a hint; imperative .play() is the reliable trigger
+            - x-webkit-airplay / webkit-playsinline attributes ensure iOS Safari
+              plays inline rather than fullscreen */}
         <video
           ref={mobileVideoRef}
           src="/ANDCUT_VDS/MobileHero.mp4"
@@ -67,6 +116,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           muted
           playsInline
           preload="auto"
+          webkit-playsinline="true"
           className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
         />
 
