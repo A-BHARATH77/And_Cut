@@ -7,16 +7,16 @@
  *
  * Responsibilities:
  * ─────────────────────────────────────────────────────────────────
- * 1. Calls `prefetchVideos` for all UGC webm files as early as possible
- *    (both at module evaluation time AND inside useEffect as a safety net).
- *    This starts 12 × 3 MB Range requests in parallel during the preloader
- *    animation, so blobs are ready before the user reaches Services.
+ * 1. Calls `prefetchVideos` for all useLocalCard entries (UGC + DVC webm files)
+ *    as early as possible (both at module evaluation time AND inside useEffect
+ *    as a safety net). This starts Range requests in parallel during the
+ *    preloader animation, so blobs are ready before the user reaches Services.
  *
- * 2. Preloads non-UGC local video assets via hidden <video> elements.
+ * 2. Preloads non-local-card local video assets via hidden <video> elements.
  *
  * 3. Injects <link rel="preload" as="image"> for Photoshoot images.
  *
- * Vimeo videos (DVC, Micro Drama) use VimeoFacadeCard:
+ * Vimeo videos (Micro Drama) use VimeoFacadeCard:
  *   Phase 1 — pre-baked thumbnail shown immediately (no blank boxes)
  *   Phase 2 — iframe injected when section is ~500 px from viewport
  *   Phase 3 — thumbnail cross-fades out once iframe fires "ready"
@@ -28,10 +28,10 @@ import { prefetchVideos } from "@/lib/videoCache";
 
 const allItems = Object.values(FORMATS_DATA).flat();
 
-// UGC local webm paths — partial blob-fetched for zero-buffer in-card playback
-const ugcVideoPaths = Array.from(
+// Local blob-fetch paths — all entries with useLocalCard: true (UGC + DVC)
+const localCardVideoPaths = Array.from(
   new Set(
-    (FORMATS_DATA["UGC"] ?? [])
+    allItems
       .filter((v) => v.useLocalCard)
       .map((v) => v.videoPath)
   )
@@ -57,15 +57,15 @@ const allLocalImages = Array.from(
 );
 
 // ── Fire at module-evaluation time (runs before React renders) ────────────────
-if (typeof window !== "undefined" && ugcVideoPaths.length > 0) {
-  prefetchVideos(ugcVideoPaths);
+if (typeof window !== "undefined" && localCardVideoPaths.length > 0) {
+  prefetchVideos(localCardVideoPaths);
 }
 
 export default function ServicesPreloader() {
   // Safety-net: also fire inside useEffect for SSR hydration scenarios
   useEffect(() => {
-    if (ugcVideoPaths.length > 0) {
-      prefetchVideos(ugcVideoPaths);
+    if (localCardVideoPaths.length > 0) {
+      prefetchVideos(localCardVideoPaths);
     }
   }, []);
 
