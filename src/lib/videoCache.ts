@@ -16,8 +16,8 @@
  *   onBlobReady(path, cb)   — subscribe; callback fires with url when ready
  */
 
-/** How many bytes to fetch per file (3 MB → covers ≥4 s at ≤6 Mbps). */
-const PARTIAL_BYTES = 3 * 1024 * 1024; // 3 MB
+/** How many bytes to fetch per file (750 KB → covers ~3-5 s of webm, ultra-fast download). */
+const PARTIAL_BYTES = 750 * 1024; // 750 KB
 
 type ReadyCallback = (blobUrl: string) => void;
 
@@ -47,11 +47,21 @@ export function onBlobReady(path: string, cb: ReadyCallback): () => void {
 
 /**
  * Start fetching partial blobs for a list of video paths in parallel.
- * Safe to call multiple times — already running/completed paths are skipped.
+ * Returns a Promise that resolves when all requested paths have completed.
+ * Safe to call multiple times — already running/completed paths are re-used.
  */
-export function prefetchVideos(paths: string[]): void {
+export function prefetchVideos(paths: string[]): Promise<void> {
+  const promises: Promise<string | null>[] = [];
+
   for (const path of paths) {
-    if (cache.has(path) || pending.has(path)) continue;
+    if (cache.has(path)) {
+      promises.push(Promise.resolve(cache.get(path)!));
+      continue;
+    }
+    if (pending.has(path)) {
+      promises.push(pending.get(path)!);
+      continue;
+    }
 
     const p = fetch(path, {
       headers: { Range: `bytes=0-${PARTIAL_BYTES - 1}` },
@@ -78,5 +88,8 @@ export function prefetchVideos(paths: string[]): void {
       });
 
     pending.set(path, p);
+    promises.push(p);
   }
+
+  return Promise.all(promises).then(() => {});
 }

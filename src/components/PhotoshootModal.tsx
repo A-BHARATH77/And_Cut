@@ -237,13 +237,13 @@ function InfoPanelCard() {
 
           <div className="h-px bg-gradient-to-r from-white/20 to-transparent my-1" />
 
-          {/* Price Header + Starting At + CTA */}
+          {/* Price Header + Custom Quote + CTA */}
           <div>
             <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">
-              Starting At
+              Price
             </div>
             <div className="text-3xl md:text-4xl font-black text-white mb-4">
-              50,000/-/-
+              Get an custom quote
             </div>
 
             <a
