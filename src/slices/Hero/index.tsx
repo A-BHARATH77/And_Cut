@@ -3,23 +3,37 @@
 import { useRef, useState, useEffect } from "react";
 import { Content } from "@prismicio/client";
 import { SliceComponentProps } from "@prismicio/react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 
 export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
   useEffect(() => {
-    // Show scroll down indicator after 2 seconds
+    // Show scroll indicator after 2 seconds
     const scrollTimer = setTimeout(() => {
       setShowScrollIndicator(true);
     }, 2000);
 
+    // Imperatively trigger play on the mobile video after the preloader fades.
+    // Browsers often suspend <video> elements that are covered by another element
+    // during page load. We retry play() after the preloader is gone (~2.5s).
+    const playTimer = setTimeout(() => {
+      const vid = mobileVideoRef.current;
+      if (vid) {
+        vid.muted = true;
+        vid.play().catch(() => {
+          // Second attempt after user interaction or after a longer delay
+          setTimeout(() => vid.play().catch(() => {}), 1000);
+        });
+      }
+    }, 2800);
+
     return () => {
       clearTimeout(scrollTimer);
+      clearTimeout(playTimer);
     };
   }, []);
 
@@ -42,8 +56,11 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
         />
 
-        {/* Mobile Background Video — local file for reliable autoplay on iOS/Android */}
+        {/* Mobile Background Video — local file for reliable autoplay on iOS/Android.
+            autoPlay alone may not fire if the element was suspended during preloader.
+            We also call .play() imperatively after the preloader fades (see useEffect). */}
         <video
+          ref={mobileVideoRef}
           src="/ANDCUT_VDS/MobileHero.mp4"
           autoPlay
           loop
@@ -72,8 +89,8 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
             showScrollIndicator ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          <span className="text-white/60 text-[9px] tracking-[0.2em] uppercase font-bold">Scroll Down</span>
-          <svg className="w-4 h-4 text-white/60 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ animationDuration: '2s' }}>
+          <span className="text-white/85 text-[9px] tracking-[0.2em] uppercase font-bold">Scroll Down</span>
+          <svg className="w-4 h-4 text-white/85 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" style={{ animationDuration: '2s' }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
