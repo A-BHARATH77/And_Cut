@@ -265,7 +265,7 @@ function InfoPanelCard() {
             <div className="h-px bg-gradient-to-r from-white/20 to-transparent mb-2" />
 
             <div className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">
-              Package Total
+              Starting from
             </div>
             <div className="text-3xl md:text-4xl font-black text-white mb-3">
               ₹{activePackage === "5" ? "1,80,000" : "3,40,000"}{" "}

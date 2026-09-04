@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "@/components/Header";
 import { FORMATS_DATA } from "@/data/services";
+import { prefetchVideos } from "@/lib/videoCache";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRITICAL ASSETS — must be ready before the intro animation plays
@@ -30,11 +31,14 @@ const CRITICAL_VIDEOS = [
   "/ANDCUT_VDS/MobileHero.mp4",
 ];
 
-// Local (non-Vimeo) service assets that can be preloaded via fetch
-const SERVICE_LOCAL_VIDEOS = Object.values(FORMATS_DATA)
-  .flat()
-  .filter((v) => !v.vimeoId)
-  .map((v) => v.videoPath);
+// UGC video previews (750KB clips) to pre-cache into memory during preloader
+const UGC_PREVIEW_VIDEOS = Array.from(
+  new Set(
+    (FORMATS_DATA["UGC"] ?? [])
+      .filter((v) => v.useLocalCard)
+      .map((v) => v.videoPath)
+  )
+);
 
 // Per-asset timeout (ms)
 const ASSET_TIMEOUT_MS = 8000;
@@ -95,15 +99,12 @@ export default function Preloader() {
       if (!cancelled) setAssetsLoaded(true);
     }, HARD_TIMEOUT_MS);
 
-    // Wait for critical images and local videos only.
-    // Vimeo iframes are mounted directly inside the Carousel at their
-    // correct display size and have 10-15+ seconds to initialise while
-    // the preloader animation plays and the user scrolls through the hero
-    // and BigText sections before reaching Services.
+    // Wait for critical images, hero videos, and UGC 750KB video previews.
+    // All 12 UGC video previews are pre-fetched into memory during the intro preloader!
     Promise.all([
       ...CRITICAL_IMAGES.map(loadImage),
       ...CRITICAL_VIDEOS.map(loadVideo),
-      ...SERVICE_LOCAL_VIDEOS.map(loadVideo),
+      prefetchVideos(UGC_PREVIEW_VIDEOS),
     ]).then(() => {
       if (!cancelled) {
         clearTimeout(hardTimer);
