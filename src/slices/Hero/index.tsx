@@ -6,6 +6,10 @@ import { SliceComponentProps } from "@prismicio/react";
 
 export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
+// Vimeo IDs for hero background videos
+const DESKTOP_VIMEO_ID = "1223934273";
+const MOBILE_VIMEO_ID  = "1218625128";
+
 /** Attempt to play a video element, retrying once after a short delay if the
  *  browser rejects the first call (common on iOS when tab is backgrounded). */
 function tryPlay(vid: HTMLVideoElement) {
@@ -24,64 +28,39 @@ function tryPlay(vid: HTMLVideoElement) {
     });
 }
 
+/** Build a Vimeo background-mode iframe src for a given video ID.
+ *  background=1 + autoplay=1 starts buffering the instant the iframe mounts. */
+function vimeoBgSrc(id: string): string {
+  return (
+    `https://player.vimeo.com/video/${id}` +
+    `?background=1` +
+    `&autoplay=1` +
+    `&muted=1` +
+    `&loop=1` +
+    `&autopause=0` +
+    `&controls=0` +
+    `&title=0` +
+    `&byline=0` +
+    `&portrait=0` +
+    `&dnt=1` +
+    `&playsinline=1` +
+    `&quality=auto`
+  );
+}
+
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
-  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+
+  // Vimeo iframe srcs — built once, never change, so iframes never reload.
+  const desktopVimeoSrc = vimeoBgSrc(DESKTOP_VIMEO_ID);
+  const mobileVimeoSrc  = vimeoBgSrc(MOBILE_VIMEO_ID);
+
 
   useEffect(() => {
     // Show scroll indicator after 2 seconds
-    const scrollTimer = setTimeout(() => {
-      setShowScrollIndicator(true);
-    }, 2000);
-
-    const vid = mobileVideoRef.current;
-    if (!vid) {
-      return () => clearTimeout(scrollTimer);
-    }
-
-    // ── Strategy: play as soon as the video has enough data, not on a timer. ──
-    // We listen to multiple events because mobile browsers are unpredictable:
-    //  1. canplay      — fired when browser has enough data to start playing
-    //  2. loadeddata   — fired when first frame is available
-    //  3. visibilitychange — re-attempt when user returns to the tab
-    //  4. pageshow     — handles iOS BFCache restore (back button navigation)
-
-    const onReady = () => tryPlay(vid);
-
-    // If already has enough data (e.g. from cache), play immediately
-    if (vid.readyState >= 3) {
-      tryPlay(vid);
-    } else {
-      vid.addEventListener("canplay", onReady, { once: true });
-      vid.addEventListener("loadeddata", onReady, { once: true });
-      // Start loading explicitly
-      vid.load();
-    }
-
-    // Re-attempt when tab becomes visible (handles backgrounded tabs)
-    const onVisibility = () => {
-      if (document.visibilityState === "visible" && vid.paused) {
-        tryPlay(vid);
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-
-    // Re-attempt on BFCache restore (iOS Safari back-button)
-    const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted && vid.paused) {
-        tryPlay(vid);
-      }
-    };
-    window.addEventListener("pageshow", onPageShow);
-
-    return () => {
-      clearTimeout(scrollTimer);
-      vid.removeEventListener("canplay", onReady);
-      vid.removeEventListener("loadeddata", onReady);
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pageshow", onPageShow);
-    };
+    const scrollTimer = setTimeout(() => setShowScrollIndicator(true), 2000);
+    return () => clearTimeout(scrollTimer);
   }, []);
 
   return (
@@ -92,33 +71,51 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Desktop Background Video */}
-        <video
-          src="/ANDCUT_VDS/Header.webm"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
-        />
+        {/* Desktop Background — Vimeo iframe in background mode.
+            Mounts at page load so Vimeo buffers during the preloader animation. */}
+        <div className="hidden md:block absolute inset-0 w-full h-full z-0">
+          <iframe
+            src={desktopVimeoSrc}
+            allow="autoplay; fullscreen; picture-in-picture"
+            loading="eager"
+            title="Hero background video"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "177.78vh",
+              height: "56.25vw",
+              minWidth: "100%",
+              minHeight: "100%",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
 
-        {/* Mobile Background Video
-            - preload="auto" so the browser buffers aggressively
-            - autoPlay as a hint; imperative .play() is the reliable trigger
-            - x-webkit-airplay / webkit-playsinline attributes ensure iOS Safari
-              plays inline rather than fullscreen */}
-        <video
-          ref={mobileVideoRef}
-          src="/ANDCUT_VDS/MobileHero.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          webkit-playsinline="true"
-          className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
-        />
+        {/* Mobile Background — Vimeo iframe in background mode.
+            Same approach: mounts at load, buffers during preloader, plays seamlessly. */}
+        <div className="block md:hidden absolute inset-0 w-full h-full z-0">
+          <iframe
+            src={mobileVimeoSrc}
+            allow="autoplay; fullscreen; picture-in-picture"
+            loading="eager"
+            title="Hero mobile background video"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "177.78vh",
+              height: "56.25vw",
+              minWidth: "100%",
+              minHeight: "100%",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
 
         {/* Bottom gradient for text readability */}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
