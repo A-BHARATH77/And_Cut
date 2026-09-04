@@ -25,15 +25,14 @@ const CRITICAL_IMAGES = [
   "/companies_worked_with/sanfe.webp",
 ];
 
-// On desktop we preload all three. On mobile we skip the heavy Cloudinary
-// showreel (desktop-only) and only preload the local mobile hero video.
+// On desktop we preload all three. On mobile we skip everything heavy —
+// the mobile hero video is buffered by the browser natively via the <video>
+// element's own preload="auto" attribute; fetching it here wastes memory.
 const CRITICAL_VIDEOS_DESKTOP = [
   "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
   "/ANDCUT_VDS/Header.webm",
 ];
-const CRITICAL_VIDEOS_MOBILE = [
-  "/ANDCUT_VDS/MobileHero.mp4",
-];
+const CRITICAL_VIDEOS_MOBILE: string[] = [];
 
 // UGC video previews (750KB clips) to pre-cache into memory during preloader
 const UGC_PREVIEW_VIDEOS = Array.from(
@@ -61,27 +60,22 @@ function loadImage(src: string): Promise<void> {
 }
 
 function loadVideo(src: string): Promise<void> {
+  // Use a lightweight <video> probe instead of fetch() — fetch downloads the
+  // entire file into memory as a detached blob that the actual <video> element
+  // in Hero cannot reuse. The probe just waits for enough data to play.
   return new Promise((resolve) => {
     const timer = setTimeout(resolve, ASSET_TIMEOUT_MS);
     const done = () => { clearTimeout(timer); resolve(); };
 
-    fetch(src)
-      .then((res) => {
-        if (!res.ok) throw new Error("Fetch failed");
-        return res.blob();
-      })
-      .then(() => done())
-      .catch(() => {
-        const vid = document.createElement("video");
-        vid.muted = true;
-        vid.playsInline = true;
-        vid.preload = "auto";
-        if (vid.readyState >= 3) { done(); return; }
-        vid.addEventListener("canplay", done, { once: true });
-        vid.addEventListener("error", done, { once: true });
-        vid.src = src;
-        vid.load();
-      });
+    const vid = document.createElement("video");
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = "auto";
+    if (vid.readyState >= 3) { done(); return; }
+    vid.addEventListener("canplay", done, { once: true });
+    vid.addEventListener("error", done, { once: true });
+    vid.src = src;
+    vid.load();
   });
 }
 
@@ -104,10 +98,10 @@ export default function Preloader() {
       if (!cancelled) setAssetsLoaded(true);
     }, HARD_TIMEOUT_MS);
 
-    // On mobile, skip the large desktop-only Cloudinary showreel.
-    // On desktop, preload everything including the showreel.
+    // On mobile, skip all video preloading — the Hero <video> element buffers
+    // itself via preload="auto". On desktop, preload the showreel + header.
     const mobile = isMobileDevice();
-    const criticalVideos = mobile ? CRITICAL_VIDEOS_MOBILE : [...CRITICAL_VIDEOS_DESKTOP, "/ANDCUT_VDS/MobileHero.mp4"];
+    const criticalVideos = mobile ? CRITICAL_VIDEOS_MOBILE : CRITICAL_VIDEOS_DESKTOP;
 
     Promise.all([
       ...CRITICAL_IMAGES.map(loadImage),
@@ -275,6 +269,7 @@ export default function Preloader() {
           <img src="/preloader2.webp" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="intro-img hero-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform bg-black">
+          {/* Showreel only on desktop — on mobile it wastes bandwidth/decode resources */}
           <video
             src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm"
             poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp"
@@ -283,7 +278,7 @@ export default function Preloader() {
             muted
             playsInline
             preload="auto"
-            className="w-full h-full object-cover"
+            className="hidden md:block w-full h-full object-cover"
           />
         </div>
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
