@@ -102,7 +102,10 @@ function SidebarColumn({
                     <img
                       src={v.videoPath}
                       alt={v.title}
-                      className="w-full h-full object-cover pointer-events-none"
+                      className={clsx(
+                        "w-full h-full pointer-events-none",
+                        v.isHorizontal === false ? "object-contain bg-black" : "object-cover"
+                      )}
                     />
                   ) : (
                     <video

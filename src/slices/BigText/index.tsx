@@ -114,14 +114,14 @@ const VIDEOS = {
 };
 
 const COMMENTS_DATA = [
-  { user: "only4scroll", time: "16w", text: "One of the best ad I have ever seen", pos: "top-[-6%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
-  { user: "ab83_official", time: "16w", text: "Damn good ad man, but ho will anyone pay a particular price for gpay or something?", pos: "top-[14%] md:top-[24%] -left-[20%] md:-left-[64%] lg:-left-[85%]", rotate: "rotate-[2deg]", delay: 0.2 },
-  { user: "aasthabahri", time: "18w", text: "what a sickk video 🔥", pos: "top-[72%] md:top-[48%] -left-[32%] md:-left-[55%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
-  { user: "kushal__17", time: "5w", text: "What a crazy way to explain this 😂", pos: "top-[88%] md:top-[72%] -left-[18%] md:-left-[48%] lg:-left-[68%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
+  { user: "only4scroll", avatar: "/Comments/only4scroll.PNG", time: "16w", text: "One of the best ad I have ever seen", pos: "top-[-6%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
+  { user: "ab83_official", avatar: "/Comments/ab_83.PNG", time: "16w", text: "Damn good ad man, but ho will anyone pay a particular price for gpay or something?", pos: "top-[14%] md:top-[24%] -left-[20%] md:-left-[64%] lg:-left-[85%]", rotate: "rotate-[2deg]", delay: 0.2 },
+  { user: "aasthabahri", avatar: "/Comments/aasatha.PNG", time: "18w", text: "what a sickk video 🔥", pos: "top-[72%] md:top-[48%] -left-[32%] md:-left-[55%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
+  { user: "kushal__17", avatar: "/Comments/kushal.PNG", time: "5w", text: "What a crazy way to explain this 😂", pos: "top-[88%] md:top-[72%] -left-[18%] md:-left-[48%] lg:-left-[68%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
   
-  { user: "deepanjwanii", time: "18w", text: "This is sooo cooll", pos: "top-[4%] md:top-[12%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
-  { user: "_theyellowskirt_", time: "8w", text: "Haha what a good way to educate & entertain.Love your series.", pos: "top-[24%] md:top-[36%] -right-[20%] md:-right-[64%] lg:-right-[85%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
-  { user: "indianskinblog", time: "15w", text: "This is what i pay mu internet bills for", pos: "top-[80%] md:top-[60%] -right-[38%] md:-right-[68%] lg:-right-[92%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
+  { user: "deepanjwanii", avatar: "/Comments/deepan.PNG", time: "18w", text: "This is sooo cooll", pos: "top-[4%] md:top-[12%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
+  { user: "_theyellowskirt_", avatar: "/Comments/yellow_skirt.PNG", time: "8w", text: "Haha what a good way to educate & entertain.Love your series.", pos: "top-[24%] md:top-[36%] -right-[20%] md:-right-[64%] lg:-right-[85%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
+  { user: "indianskinblog", avatar: "/Comments/indianskinblog.png", time: "15w", text: "This is what i pay mu internet bills for", pos: "top-[80%] md:top-[60%] -right-[38%] md:-right-[68%] lg:-right-[92%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
   { user: "aeishady", time: "1w", text: "Holy shit that's nice marketing 😩", pos: "top-[96%] md:top-[84%] -right-[18%] md:-right-[50%] lg:-right-[72%]", rotate: "-rotate-[4deg]", delay: 0.7, authorLiked: true },
 ];
 
@@ -145,7 +145,7 @@ const FloatingComment = ({ data }: { data: any }) => (
     style={{ transformOrigin: data.pos.includes('left') ? 'right center' : 'left center' }}
   >
     <img 
-      src={`https://ui-avatars.com/api/?name=${data.user}&background=random&color=fff&size=100`} 
+      src={data.avatar || `https://ui-avatars.com/api/?name=${data.user}&background=random&color=fff&size=100`} 
       className="w-6 h-6 md:w-9 md:h-9 rounded-full object-cover shrink-0 border border-white/20" 
       alt={data.user}
     />

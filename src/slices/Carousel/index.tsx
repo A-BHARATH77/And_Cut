@@ -56,8 +56,11 @@ function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMa
   }
   const loopItems = [...baseItems, ...baseItems];
 
-  const cardWidth = isHorizontalLayout ? 560 : 298;
-  const halfWidth = baseItems.length * cardWidth;
+  const getItemWidth = (v: typeof activeItems[0]) => {
+    if (v.isHorizontal === false) return 170; // vertical photoshoot card matching row height
+    return isHorizontalLayout ? 560 : 298;
+  };
+  const halfWidth = baseItems.reduce((acc, v) => acc + getItemWidth(v), 0);
 
   const xRef             = useRef(0);
   const isAutoScrollRef  = useRef(true);
@@ -174,9 +177,11 @@ function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMa
                 onClick={() => isClickable && onCardClick(realIndex)}
                 className={clsx(
                   "shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-[#0C0C12] border border-white/5 relative shadow-md hover:border-[#6EE7FF]/30 transition-colors duration-300",
-                  isHorizontalLayout
-                    ? "w-[320px] sm:w-[440px] md:w-[500px] lg:w-[540px] aspect-video"
-                    : "w-[160px] sm:w-[230px] md:w-[250px] lg:w-[278px] lg:h-[496px] aspect-[9/16]",
+                  video.isHorizontal === false
+                    ? "h-[180px] sm:h-[247px] md:h-[281px] lg:h-[303px] aspect-[9/16]"
+                    : isHorizontalLayout
+                      ? "w-[320px] sm:w-[440px] md:w-[500px] lg:w-[540px] aspect-video"
+                      : "w-[160px] sm:w-[230px] md:w-[250px] lg:w-[278px] lg:h-[496px] aspect-[9/16]",
                   isClickable && "cursor-pointer"
                 )}
               >
