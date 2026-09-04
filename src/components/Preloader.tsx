@@ -228,7 +228,11 @@ export default function Preloader() {
       opacity: 0,
       duration: 0.7,
       ease: "power2.inOut",
-      onComplete: () => setIsDone(true)
+      onComplete: () => {
+        // Signal the Hero section's mobile video to play now that it is visible.
+        window.dispatchEvent(new CustomEvent("preloader:done"));
+        setIsDone(true);
+      }
     }, finalDelay);
   }, { scope: containerRef, dependencies: [assetsLoaded] });
 
@@ -236,32 +240,6 @@ export default function Preloader() {
 
   return (
     <div ref={containerRef} className="fixed inset-0 z-[99999] bg-[#050508] font-sans w-full h-[100svh] overflow-hidden text-white">
-
-      {/* Mobile Vimeo warm-up iframe — sits BEHIND the preloader at z-index -1.
-          It is NOT inside any GSAP-transformed container, so mobile browsers
-          (iOS Safari / Android Chrome) respect the muted autoplay policy and
-          start buffering immediately. This is the same video shown in the
-          Hero mobile section; by the time the preloader fades, it's playing. */}
-      <iframe
-        src="https://player.vimeo.com/video/1218625128?background=1&autoplay=1&muted=1&loop=1&autopause=0&controls=0&dnt=1&playsinline=1&quality=auto"
-        allow="autoplay; fullscreen; picture-in-picture"
-        loading="eager"
-        title="Mobile hero warmup"
-        className="block md:hidden"
-        style={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          width: "177.78vh",
-          height: "56.25vw",
-          minWidth: "100%",
-          minHeight: "100%",
-          transform: "translate(-50%, -50%)",
-          border: "none",
-          pointerEvents: "none",
-          zIndex: -1, // behind the preloader overlay
-        }}
-      />
 
       {/* FOUC Overlay */}
       <div className="fouc-overlay absolute inset-0 z-[100] bg-[#050508] flex items-center justify-center">
