@@ -25,9 +25,13 @@ const CRITICAL_IMAGES = [
   "/companies_worked_with/sanfe.webp",
 ];
 
-const CRITICAL_VIDEOS = [
+// On desktop we preload all three. On mobile we skip the heavy Cloudinary
+// showreel (desktop-only) and only preload the local mobile hero video.
+const CRITICAL_VIDEOS_DESKTOP = [
   "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
   "/ANDCUT_VDS/Header.webm",
+];
+const CRITICAL_VIDEOS_MOBILE = [
   "/ANDCUT_VDS/MobileHero.mp4",
 ];
 
@@ -40,10 +44,11 @@ const UGC_PREVIEW_VIDEOS = Array.from(
   )
 );
 
-// Per-asset timeout (ms)
-const ASSET_TIMEOUT_MS = 8000;
+// Per-asset timeout — shorter on mobile to avoid blocking on slow connections
+const isMobileDevice = () => typeof window !== "undefined" && window.innerWidth < 768;
+const ASSET_TIMEOUT_MS = isMobileDevice() ? 3000 : 8000;
 // Hard ceiling — unblock even if nothing loads
-const HARD_TIMEOUT_MS = 20000;
+const HARD_TIMEOUT_MS = isMobileDevice() ? 8000 : 20000;
 
 function loadImage(src: string): Promise<void> {
   return new Promise((resolve) => {
@@ -99,11 +104,14 @@ export default function Preloader() {
       if (!cancelled) setAssetsLoaded(true);
     }, HARD_TIMEOUT_MS);
 
-    // Wait for critical images, hero videos, and UGC 750KB video previews.
-    // All 12 UGC video previews are pre-fetched into memory during the intro preloader!
+    // On mobile, skip the large desktop-only Cloudinary showreel.
+    // On desktop, preload everything including the showreel.
+    const mobile = isMobileDevice();
+    const criticalVideos = mobile ? CRITICAL_VIDEOS_MOBILE : [...CRITICAL_VIDEOS_DESKTOP, "/ANDCUT_VDS/MobileHero.mp4"];
+
     Promise.all([
       ...CRITICAL_IMAGES.map(loadImage),
-      ...CRITICAL_VIDEOS.map(loadVideo),
+      ...criticalVideos.map(loadVideo),
       prefetchVideos(UGC_PREVIEW_VIDEOS),
     ]).then(() => {
       if (!cancelled) {

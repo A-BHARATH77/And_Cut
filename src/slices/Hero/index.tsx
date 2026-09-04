@@ -10,22 +10,15 @@ export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
-  const [isMobileVideoLoaded, setIsMobileVideoLoaded] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
   useEffect(() => {
-    // Fallback to hide loader on mobile after 2.5s in case events don't fire
-    const timer = setTimeout(() => {
-      setIsMobileVideoLoaded(true);
-    }, 2500);
-
     // Show scroll down indicator after 2 seconds
     const scrollTimer = setTimeout(() => {
       setShowScrollIndicator(true);
     }, 2000);
 
     return () => {
-      clearTimeout(timer);
       clearTimeout(scrollTimer);
     };
   }, []);
@@ -38,27 +31,6 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Mobile Loader Overlay */}
-        <div 
-          className={`block md:hidden absolute inset-0 z-30 bg-[#050508] flex items-center justify-center transition-opacity duration-500 ${isMobileVideoLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-        >
-          <div className="flex flex-col items-center gap-4 transition-opacity duration-300 mt-32 md:mt-40">
-             <style>{`
-               @keyframes hero-loading-slide {
-                 0% { transform: translateX(-150%); }
-                 100% { transform: translateX(250%); }
-               }
-             `}</style>
-             <div className="w-24 h-[2px] bg-white/10 rounded-full overflow-hidden relative">
-               <div
-                 className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#6EE7FF] rounded-full"
-                 style={{ animation: "hero-loading-slide 1.5s infinite ease-in-out" }}
-               />
-             </div>
-             <p className="text-white/40 text-[9px] tracking-widest uppercase font-bold animate-pulse">Loading Experience</p>
-          </div>
-        </div>
-
         {/* Desktop Background Video */}
         <video
           src="/ANDCUT_VDS/Header.webm"
@@ -70,14 +42,15 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           className="hidden md:block absolute inset-0 w-full h-full object-cover z-0"
         />
 
-        {/* Mobile Background Video (Vimeo) */}
-        <iframe
-          src="https://player.vimeo.com/video/1218625128?background=1&autoplay=1&loop=1&byline=0&title=0"
-          onLoad={() => setIsMobileVideoLoaded(true)}
-          className="block md:hidden absolute inset-0 w-full h-full z-0 pointer-events-none"
-          frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
+        {/* Mobile Background Video — local file for reliable autoplay on iOS/Android */}
+        <video
+          src="/ANDCUT_VDS/MobileHero.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
         />
 
         {/* Bottom gradient for text readability */}
