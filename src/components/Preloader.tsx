@@ -25,12 +25,12 @@ const CRITICAL_IMAGES = [
   "/companies_worked_with/sanfe.webp",
 ];
 
-// On desktop we preload all three. On mobile we skip everything heavy —
-// the mobile hero video is buffered by the browser natively via the <video>
-// element's own preload="auto" attribute; fetching it here wastes memory.
+// Desktop hero now uses Vimeo (ID 1223932662) which buffers itself —
+// we only preload the showreel that plays INSIDE the preloader animation.
+// On mobile we skip all video preloading; MobileHero.mp4 buffers via its
+// own <video preload="auto"> element in Hero.
 const CRITICAL_VIDEOS_DESKTOP = [
   "https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm",
-  "/ANDCUT_VDS/Header.webm",
 ];
 const CRITICAL_VIDEOS_MOBILE: string[] = [];
 
@@ -269,7 +269,7 @@ export default function Preloader() {
           <img src="/preloader2.webp" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="intro-img hero-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform bg-black">
-          {/* Showreel only on desktop — on mobile it wastes bandwidth/decode resources */}
+          {/* Desktop: Cloudinary showreel */}
           <video
             src="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webm"
             poster="https://res.cloudinary.com/dxz4iwsv8/video/upload/f_auto,q_auto:best/v1781069499/showreel_ey580t.webp"
@@ -279,6 +279,27 @@ export default function Preloader() {
             playsInline
             preload="auto"
             className="hidden md:block w-full h-full object-cover"
+          />
+          {/* Mobile: Vimeo 1218625128 — same iframe as the Hero mobile bg,
+              so by the time the preloader ends it's already buffered & playing */}
+          <iframe
+            src="https://player.vimeo.com/video/1218625128?background=1&autoplay=1&muted=1&loop=1&autopause=0&controls=0&dnt=1&playsinline=1&quality=auto"
+            allow="autoplay; fullscreen; picture-in-picture"
+            loading="eager"
+            title="Mobile hero preloader video"
+            className="block md:hidden"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "177.78vh",
+              height: "56.25vw",
+              minWidth: "100%",
+              minHeight: "100%",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
           />
         </div>
         <div className="intro-img absolute top-0 left-0 w-full h-full overflow-hidden rounded-[2.5rem] origin-center will-change-transform">
