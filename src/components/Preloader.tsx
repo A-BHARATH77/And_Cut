@@ -118,7 +118,7 @@ export default function Preloader() {
       cancelled = true;
       clearTimeout(hardTimer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useGSAP(() => {
