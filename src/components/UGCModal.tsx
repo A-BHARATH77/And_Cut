@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import clsx from "clsx";
-import VimeoPlayer from "@/components/VimeoPlayer";
 import { VideoData } from "@/data/services";
 
 /* ─────────────────────────────────────────────────────────────
@@ -97,25 +96,13 @@ function SidebarColumn({
                   alt={v.title}
                   className="w-full h-full object-cover pointer-events-none"
                 />
-              ) : v.vimeoId ? (
-                <div className="relative w-full h-full scale-[1.5]">
-                  <VimeoPlayer
-                    vimeoId={v.vimeoId!}
-                    playing={false}
-                    muted={true}
-                    loop={false}
-                    background={true}
-                    quality="360p"
-                    className="w-full h-full pointer-events-none"
-                  />
-                </div>
               ) : (
-                <video
-                  src={v.videoPath}
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover pointer-events-none"
-                />
+                /* Fallback: dark bg with play icon if no thumbnail */
+                <div className="w-full h-full bg-[#0C0C12] flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
               )}
             </div>
           </button>
@@ -135,6 +122,25 @@ function VideoColumn({
   activeIdx: number;
   activeVideo: VideoData;
 }) {
+  // Convert Bunny CDN player.mediadelivery.net/play/LIB/ID
+  // → iframe.mediadelivery.net/embed/LIB/ID?autoplay=true&loop=true
+  // The /play/ URL is a standalone watch page (cannot be embedded).
+  // The /embed/ URL is the correct Bunny Stream iframe endpoint.
+  const bunnySrc = (() => {
+    const playMatch = activeVideo.videoPath.match(
+      /player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i
+    );
+    if (playMatch) {
+      const [, libId, videoId] = playMatch;
+      return `https://iframe.mediadelivery.net/embed/${libId}/${videoId}?autoplay=true&loop=true&muted=false&preload=true`;
+    }
+    // Fallback: use as-is with params appended
+    return activeVideo.videoPath.includes("?")
+      ? `${activeVideo.videoPath}&autoplay=true&loop=true&muted=false`
+      : `${activeVideo.videoPath}?autoplay=true&loop=true&muted=false`;
+  })();
+
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -146,19 +152,30 @@ function VideoColumn({
         className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
-          <div className="relative w-full h-full">
-            <VimeoPlayer
-              key={`vp-${activeIdx}`}
-              vimeoId={activeVideo.vimeoId!}
-              playing={true}
-              muted={false}
-              loop={true}
-              controls={true}
-              background={false}
-              quality="auto"
-              className="w-full h-full"
+          {/* Thumbnail shown while iframe loads */}
+          {activeVideo.thumbnailUrl && (
+            <img
+              src={activeVideo.thumbnailUrl}
+              alt={activeVideo.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 1 }}
             />
-          </div>
+          )}
+          {/* Bunny CDN iframe — autoplay with audio, loop */}
+          <iframe
+            key={`ugc-iframe-${activeIdx}`}
+            src={bunnySrc}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+              zIndex: 2,
+            }}
+          />
         </div>
       </motion.div>
     </AnimatePresence>

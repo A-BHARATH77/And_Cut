@@ -1,92 +1,92 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { FORMATS_DATA, VideoData } from "@/data/services";
 
-function HorizontalVideoCard({
+/**
+ * Convert player.mediadelivery.net/play/LIB/ID
+ *       → iframe.mediadelivery.net/embed/LIB/ID?params
+ *
+ * The /play/ URL is a Bunny Stream standalone watch page — it CANNOT be used
+ * in a <video src="..."> or embedded as an iframe. The /embed/ URL is the
+ * correct Bunny Stream iframe endpoint that supports autoplay, loop, muted.
+ */
+function toBunnyEmbed(url: string, params = "autoplay=true&loop=true&muted=true&preload=true") {
+  const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
+  // Already an embed URL or unknown — append params
+  return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+}
+
+/* ─── BunnyCard: thumbnail facade that cross-fades to live iframe ──────────── */
+function BunnyCard({
   video,
   onClick,
 }: {
   video: VideoData;
   onClick: () => void;
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    let inView = false;
-    const tryPlay = () => {
-      if (inView) el.play().catch(() => {});
-    };
-
-  const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          inView = entry.isIntersecting;
-          if (entry.isIntersecting) {
-            el.load();
-            el.addEventListener("canplay", tryPlay, { once: true });
-          } else {
-            el.pause();
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "300px 0px" }
-    );
-
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      inView = false;
-    };
-  }, [video.videoPath]);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const embedSrc = toBunnyEmbed(video.videoPath);
 
   return (
     <div
       className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 relative cursor-pointer hover:border-white/20 transition-all duration-500 group"
       onClick={onClick}
     >
-      <video
-        ref={videoRef}
-        src={video.videoPath}
-        loop
-        muted
-        playsInline
-        preload="none"
-        poster="/preloader1.webp"
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      {/* Thumbnail facade — visible immediately while iframe boots */}
+      {video.thumbnailUrl && (
+        <img
+          src={video.thumbnailUrl}
+          alt={video.title}
+          draggable={false}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 1,
+            opacity: iframeLoaded ? 0 : 1,
+            transition: "opacity 0.8s ease",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Bunny embed iframe — muted autoplay loop for background preview */}
+      <iframe
+        src={embedSrc}
+        allow="autoplay; fullscreen"
+        allowFullScreen
+        onLoad={() => setIframeLoaded(true)}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          border: "none",
+          zIndex: 2,
+          opacity: iframeLoaded ? 1 : 0,
+          transition: "opacity 0.8s ease",
+          pointerEvents: "none", // card click passes through
+        }}
       />
-      {/* Tap to unmute hint on mobile */}
-      <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
-        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 opacity-0 group-hover:opacity-100 transition-all">
-          <svg
-            className="w-5 h-5 md:w-8 md:h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.907L5.586 15z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
-            />
+
+      {/* Play hint overlay */}
+      <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all duration-300 flex items-center justify-center z-10">
+        <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-black/50 backdrop-blur-md border border-white/25 flex items-center justify-center text-white/80 opacity-0 group-hover:opacity-100 transition-all">
+          <svg className="w-6 h-6 md:w-8 md:h-8 ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
           </svg>
         </div>
       </div>
-      {/* Text Overlay */}
+
+      {/* Text overlay */}
       {!video.videoPath.includes("/UGC/") && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col sm:flex-row sm:items-end justify-between gap-2 z-10">
           <div>
             <div className="inline-block px-2 py-0.5 mb-2 text-[9px] md:text-[10px] font-bold tracking-wider uppercase bg-[#6EE7FF]/10 text-[#6EE7FF] rounded-full border border-[#6EE7FF]/20">
               Horizontal Format
@@ -102,18 +102,7 @@ function HorizontalVideoCard({
 }
 
 export default function BeyondVertical() {
-  const [simpleVideoSrc, setSimpleVideoSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (simpleVideoSrc) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [simpleVideoSrc]);
+  const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
 
   return (
     <>
@@ -146,29 +135,29 @@ export default function BeyondVertical() {
         <div className="w-full max-w-[1600px] px-3 sm:px-6 md:px-12 lg:px-20 relative z-10 flex flex-col gap-4 md:gap-8">
           {FORMATS_DATA["Horizontal"]?.map((video, idx) => (
             <div key={`horizontal-${idx}`} className="w-full relative group">
-              <HorizontalVideoCard
+              <BunnyCard
                 video={video}
-                onClick={() => setSimpleVideoSrc(video.videoPath)}
+                onClick={() => setActiveVideo(video)}
               />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Simple Full Screen Lightbox for Beyond Vertical */}
+      {/* Full-screen lightbox modal */}
       <AnimatePresence>
-        {simpleVideoSrc && (
+        {activeVideo && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92 backdrop-blur-md p-3 sm:p-6 md:p-12 cursor-pointer"
-            onClick={() => setSimpleVideoSrc(null)}
+            onClick={() => setActiveVideo(null)}
           >
             <button
               className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 z-50 transition-colors"
-              onClick={() => setSimpleVideoSrc(null)}
+              onClick={() => setActiveVideo(null)}
             >
               <X size={28} />
             </button>
@@ -177,12 +166,24 @@ export default function BeyondVertical() {
               className="relative w-full max-w-[95vw] md:max-w-[1100px] aspect-video overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default"
               onClick={(e) => e.stopPropagation()}
             >
-              <video
-                src={simpleVideoSrc}
-                autoPlay
-                controls
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
+              {/* Thumbnail while iframe loads */}
+              {activeVideo.thumbnailUrl && (
+                <img
+                  src={activeVideo.thumbnailUrl}
+                  alt={activeVideo.title}
+                  className="absolute inset-0 w-full h-full object-cover z-[1]"
+                />
+              )}
+              {/* Bunny embed with audio enabled for the modal */}
+              <iframe
+                key={activeVideo.videoPath}
+                src={toBunnyEmbed(
+                  activeVideo.videoPath,
+                  "autoplay=true&loop=true&muted=false&preload=true"
+                )}
+                allow="autoplay; fullscreen"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full border-0 z-[2]"
               />
             </motion.div>
           </motion.div>

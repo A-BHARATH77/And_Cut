@@ -30,7 +30,6 @@ function vimeoBgSrc(id: string): string {
 
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
-  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
   const desktopVimeoSrc = vimeoBgSrc(DESKTOP_VIMEO_ID);
@@ -38,63 +37,9 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
   useEffect(() => {
     // Show scroll indicator after 2 seconds
     const scrollTimer = setTimeout(() => setShowScrollIndicator(true), 2000);
-
-    // ── Mobile video strategy ─────────────────────────────────────────────────
-    // Same-origin <video muted playsInline> CAN autoplay even when visually
-    // covered by the preloader (unlike cross-origin Vimeo iframes which are
-    // suspended by mobile browsers when not in the visible stacking layer).
-    //
-    // We play on three triggers:
-    //  1. canplay  — browser has buffered enough to start
-    //  2. preloader:done custom event — dispatched when preloader fades out,
-    //     guaranteeing a play() call after the video is fully revealed
-    //  3. visibilitychange — handles tab-switch resume
-    // ─────────────────────────────────────────────────────────────────────────
-    const vid = mobileVideoRef.current;
-
-    const doPlay = () => {
-      if (!vid) return;
-      vid.muted = true;
-      vid.play().catch(() => {
-        setTimeout(() => vid.play().catch(() => {}), 400);
-      });
-    };
-
-    if (vid) {
-      // If already buffered (e.g. cached), play immediately
-      if (vid.readyState >= 3) {
-        doPlay();
-      } else {
-        vid.addEventListener("canplay", doPlay, { once: true });
-        vid.load();
-      }
-
-      // Re-trigger when preloader finishes and the section is actually visible
-      window.addEventListener("preloader:done" as keyof WindowEventMap, doPlay, { once: true });
-
-      // Re-trigger when user returns to the tab
-      const onVisibility = () => {
-        if (document.visibilityState === "visible" && vid.paused) doPlay();
-      };
-      document.addEventListener("visibilitychange", onVisibility);
-
-      // iOS BFCache restore
-      const onPageShow = (e: PageTransitionEvent) => {
-        if (e.persisted && vid.paused) doPlay();
-      };
-      window.addEventListener("pageshow", onPageShow);
-
-      return () => {
-        clearTimeout(scrollTimer);
-        vid.removeEventListener("canplay", doPlay);
-        window.removeEventListener("preloader:done" as keyof WindowEventMap, doPlay);
-        document.removeEventListener("visibilitychange", onVisibility);
-        window.removeEventListener("pageshow", onPageShow);
-      };
-    }
-
     return () => clearTimeout(scrollTimer);
   }, []);
+
 
   return (
     <>
@@ -135,23 +80,35 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           />
         </div>
 
-        {/* Mobile Background — local video file.
-            Same-origin <video muted playsInline autoPlay> CAN autoplay behind
-            the preloader overlay (unlike cross-origin Vimeo iframes which are
-            suspended by iOS/Android when not the topmost visible element).
-            Playback is also triggered imperatively via the preloader:done event. */}
-        <video
-          ref={mobileVideoRef}
-          src="https://player.mediadelivery.net/play/747536/ab6863db-823c-4023-aeb4-dd91613c24e1"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          poster="/preloader1.webp"
-          webkit-playsinline="true"
-          className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
-        />
+        {/* Mobile Background — Bunny CDN iframe embed.
+            Uses iframe.mediadelivery.net/embed/ (the correct Bunny Stream iframe endpoint).
+            The /play/ URL is a standalone watch page and CANNOT be used as a video src. */}
+        <div className="block md:hidden absolute inset-0 w-full h-full z-0 bg-black"
+          style={{
+            backgroundImage: "url('/preloader1.webp')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <iframe
+            src="https://iframe.mediadelivery.net/embed/747536/ab6863db-823c-4023-aeb4-dd91613c24e1?autoplay=true&loop=true&muted=true&preload=true"
+            allow="autoplay; fullscreen"
+            loading="eager"
+            title="Hero mobile background video"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "177.78vh",
+              height: "56.25vw",
+              minWidth: "100%",
+              minHeight: "100%",
+              transform: "translate(-50%, -50%)",
+              border: "none",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
 
         {/* Bottom gradient for text readability */}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
