@@ -9,7 +9,6 @@ import Header from "@/components/Header";
 import ViewCanvas from "@/components/ViewCanvas";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
-import ServicesPreloader from "@/components/ServicesPreloader";
 import { cn } from "@/lib/utils";
 
 
@@ -38,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", alpino.variable)}>
       <head>
-        {/* ── Vimeo: establish connections before any JS runs ───────────────
+        {/* ── Vimeo: establish connections before any JS runs ─────────────────────
             preconnect = full TCP + TLS handshake (same origin used by iframes)
             dns-prefetch = DNS lookup only (for domains that may use CORS) */}
         <link rel="preconnect" href="https://player.vimeo.com" />
@@ -48,6 +47,8 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vod-progressive.akamaized.net" />
         <link rel="dns-prefetch" href="https://skyfire.vimeo.com" />
         <link rel="dns-prefetch" href="https://vimeo.com" />
+        {/* ── Bunny CDN: establish connection early for video streaming ──── */}
+        <link rel="preconnect" href="https://player.mediadelivery.net" crossOrigin="anonymous" />
 
         {/* ── Critical preloader assets — fetched as early as possible ──── */}
         <link rel="preload" href="/and_cut_logo.webp" as="image" />
@@ -61,9 +62,6 @@ export default function RootLayout({
       <body className="overflow-x-hidden bg-[#0A0A0F]">
         <LenisProvider>
           <div id="app-root">
-            {/* ServicesPreloader stays mounted the ENTIRE session — keeps Vimeo iframes
-                warm so carousel videos load instantly instead of showing blank boxes. */}
-            <ServicesPreloader />
             <Preloader />
             <Header />
             <main>

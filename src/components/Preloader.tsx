@@ -4,8 +4,6 @@ import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "@/components/Header";
-import { FORMATS_DATA } from "@/data/services";
-import { prefetchVideos } from "@/lib/videoCache";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRITICAL ASSETS — must be ready before the intro animation plays
@@ -34,18 +32,9 @@ const CRITICAL_VIDEOS_DESKTOP = [
 ];
 const CRITICAL_VIDEOS_MOBILE: string[] = [];
 
-// UGC video previews (750KB clips) to pre-cache into memory during preloader
-const UGC_PREVIEW_VIDEOS = Array.from(
-  new Set(
-    (FORMATS_DATA["UGC"] ?? [])
-      .filter((v) => v.useLocalCard)
-      .map((v) => v.videoPath)
-  )
-);
-
 // Per-asset timeout — shorter on mobile to avoid blocking on slow connections
 const isMobileDevice = () => typeof window !== "undefined" && window.innerWidth < 768;
-const ASSET_TIMEOUT_MS = isMobileDevice() ? 3000 : 8000;
+const ASSET_TIMEOUT_MS = isMobileDevice() ? 3000 : 4000;
 // Hard ceiling — unblock even if nothing loads
 const HARD_TIMEOUT_MS = isMobileDevice() ? 8000 : 20000;
 
@@ -106,7 +95,6 @@ export default function Preloader() {
     Promise.all([
       ...CRITICAL_IMAGES.map(loadImage),
       ...criticalVideos.map(loadVideo),
-      prefetchVideos(UGC_PREVIEW_VIDEOS),
     ]).then(() => {
       if (!cancelled) {
         clearTimeout(hardTimer);

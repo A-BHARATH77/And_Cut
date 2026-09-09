@@ -7,9 +7,6 @@ import { motion } from "motion/react";
 import clsx from "clsx";
 import gsap from "gsap";
 import { FORMATS_DATA } from "@/data/services";
-import VimeoFacadeCard from "@/components/VimeoFacadeCard";
-import PreloadedVideo from "@/components/PreloadedVideo";
-import LocalBlobVideoCard from "@/components/LocalBlobVideoCard";
 import BeyondVertical from "@/components/Beyond_vertical";
 import UGCModal from "@/components/UGCModal";
 import DVCModal from "@/components/DVCModal";
@@ -32,11 +29,10 @@ import PhotoshootModal from "@/components/PhotoshootModal";
 interface TabMarqueeProps {
   tabKey: string;
   isActive: boolean;
-  sectionNearVisible: boolean;
   onCardClick: (realIndex: number) => void;
 }
 
-function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMarqueeProps) {
+function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
   const activeItems = FORMATS_DATA[tabKey] ?? [];
   const isHorizontalLayout =
     tabKey === "Photoshoot" || tabKey === "Ad films & others";
@@ -185,26 +181,8 @@ function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMa
                   isClickable && "cursor-pointer"
                 )}
               >
-                {video.useLocalCard ? (
-                  /* ── Local blob card (UGC) ─────────────────────────────────
-                     Thumbnail shows instantly (no black box ever).
-                     Switches to the local mp4 blob once prefetch completes. */
-                  <LocalBlobVideoCard
-                    videoPath={video.videoPath}
-                    thumbnailUrl={video.thumbnailUrl}
-                    className="w-full h-full"
-                  />
-                ) : video.vimeoId ? (
-                  /* ── Vimeo facade (DVC, Micro Drama) ───────────────────────
-                     Phase 1: thumbnail image (immediate, no blank box)
-                     Phase 2: iframe injected when section is ~500px away
-                     Phase 3: thumbnail fades out, video plays seamlessly     */
-                  <VimeoFacadeCard
-                    vimeoId={video.vimeoId}
-                    thumbnailUrl={video.thumbnailUrl}
-                    shouldLoad={sectionNearVisible}
-                  />
-                ) : isWebp ? (
+                {isWebp ? (
+                  /* ── Photoshoot images ─────────────────────────── */
                   <img
                     src={video.videoPath}
                     alt={video.title}
@@ -212,9 +190,16 @@ function TabMarquee({ tabKey, isActive, sectionNearVisible, onCardClick }: TabMa
                     loading="lazy"
                   />
                 ) : (
-                  /* Local .mp4 / .webm — fetched as a Blob for instant gapless playback */
-                  <PreloadedVideo
+                  /* ── Bunny CDN stream video ────────────────────────────────
+                     Simple <video> autoPlay — Bunny delivers HLS/MP4 from the
+                     nearest edge PoP. No blob prefetch needed. */
+                  <video
                     src={video.videoPath}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -254,39 +239,9 @@ const DISPLAY_LABELS: Record<string, string> = {
 };
 
 const Carousel = ({ slice }: CarouselProps): JSX.Element => {
-  const [activeTab, setActiveTab]           = useState("UGC");
-  const [mobilePage, setMobilePage]         = useState(0);
-  // True once the #format section is within ~500px of the viewport.
-  // Triggers VimeoFacadeCard to inject iframes (Phase 2 → 3).
-  const [sectionNearVisible, setSectionNearVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("UGC");
+  const [mobilePage, setMobilePage] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
-
-  // ── IntersectionObserver: trigger iframe loading before section is visible ──
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") {
-      // Fallback for environments without IntersectionObserver
-      setSectionNearVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setSectionNearVisible(true);
-          observer.disconnect(); // once triggered, never revert
-        }
-      },
-      {
-        // rootMargin: "500px" means we fire 500px BEFORE the section
-        // enters the viewport — giving Vimeo a head-start on loading.
-        rootMargin: "500px 0px",
-        threshold:  0,
-      }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     setMobilePage(
@@ -416,7 +371,6 @@ const Carousel = ({ slice }: CarouselProps): JSX.Element => {
               key={tab}
               tabKey={tab}
               isActive={tab === activeTab}
-              sectionNearVisible={sectionNearVisible}
               onCardClick={getCardClickHandler(tab)}
             />
           ))}

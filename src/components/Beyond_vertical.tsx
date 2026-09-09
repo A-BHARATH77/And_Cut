@@ -23,7 +23,7 @@ function HorizontalVideoCard({
       if (inView) el.play().catch(() => {});
     };
 
-    const observer = new IntersectionObserver(
+  const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           inView = entry.isIntersecting;
@@ -35,7 +35,7 @@ function HorizontalVideoCard({
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.15, rootMargin: "300px 0px" }
     );
 
     observer.observe(el);
@@ -56,7 +56,8 @@ function HorizontalVideoCard({
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
+        poster="/preloader1.webp"
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       {/* Tap to unmute hint on mobile */}
