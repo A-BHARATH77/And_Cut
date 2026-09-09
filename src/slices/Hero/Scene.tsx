@@ -244,7 +244,7 @@ export default function Scene() {
                 opacity: 0.9,
               }}>
                 <video
-                  src="/ANDCUT_VDS/4_comp.webm"
+                  src="https://player.mediadelivery.net/play/747536/912530c7-3894-46d0-875c-f223b7917503"
                   autoPlay
                   muted
                   loop

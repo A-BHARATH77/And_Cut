@@ -24,7 +24,7 @@ function vimeoBgSrc(id: string): string {
     `&portrait=0` +
     `&dnt=1` +
     `&playsinline=1` +
-    `&quality=auto`
+    `&quality=360p`
   );
 }
 
@@ -105,8 +105,16 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-variation={slice.variation}
       >
         {/* Desktop Background — Vimeo iframe in background mode.
-            Mounts at page load so Vimeo buffers during the preloader animation. */}
-        <div className="hidden md:block absolute inset-0 w-full h-full z-0">
+            Mounts at page load so Vimeo buffers during the preloader animation.
+            A poster background-image ensures no black flash while Vimeo buffers. */}
+        <div
+          className="hidden md:block absolute inset-0 w-full h-full z-0"
+          style={{
+            backgroundImage: "url('/preloader1.webp')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           <iframe
             src={desktopVimeoSrc}
             allow="autoplay; fullscreen; picture-in-picture"
@@ -134,12 +142,13 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
             Playback is also triggered imperatively via the preloader:done event. */}
         <video
           ref={mobileVideoRef}
-          src="/ANDCUT_VDS/MobileHero.mp4"
+          src="https://player.mediadelivery.net/play/747536/ab6863db-823c-4023-aeb4-dd91613c24e1"
           autoPlay
           loop
           muted
           playsInline
           preload="auto"
+          poster="/preloader1.webp"
           webkit-playsinline="true"
           className="block md:hidden absolute inset-0 w-full h-full object-cover z-0"
         />
