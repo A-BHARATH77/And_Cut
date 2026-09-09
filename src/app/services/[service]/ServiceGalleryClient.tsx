@@ -14,6 +14,19 @@ const isLocalVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
 const isBunnyEmbed = (path: string) =>
   path.includes("player.mediadelivery.net") || path.includes("iframe.mediadelivery.net");
 
+/**
+ * Convert a Bunny CDN watch-page URL to the embeddable iframe URL.
+ *   player.mediadelivery.net/play/LIB/ID  →  iframe.mediadelivery.net/embed/LIB/ID
+ * The /play/ URL is a standalone watch page — it renders blank inside an iframe.
+ * The /embed/ URL is the correct Bunny Stream iframe endpoint.
+ */
+function toBunnyEmbedUrl(url: string, params: string): string {
+  const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
+  // Already an embed URL or unknown format — append params
+  return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+}
+
 interface Props {
   formatName: string | null;
   activeVideos: VideoData[];
@@ -312,11 +325,9 @@ function VideoCard({
 
   if (!video) return null;
 
-  // Build Bunny autoplay src for the active card
+  // Build Bunny embeddable iframe src (converts /play/ → /embed/ URL)
   const bunnyIframeSrc = isBunnyEmbed(video.videoPath)
-    ? video.videoPath.includes("?")
-      ? `${video.videoPath}&autoplay=true&loop=true&muted=true&preload=true`
-      : `${video.videoPath}?autoplay=true&loop=true&muted=true&preload=true`
+    ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true")
     : null;
 
   return (

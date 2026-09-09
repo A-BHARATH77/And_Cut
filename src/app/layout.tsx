@@ -47,8 +47,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vod-progressive.akamaized.net" />
         <link rel="dns-prefetch" href="https://skyfire.vimeo.com" />
         <link rel="dns-prefetch" href="https://vimeo.com" />
-        {/* ── Bunny CDN: establish connection early for video streaming ──── */}
+        {/* ── Bunny CDN: establish connections early for video streaming ──── */}
+        <link rel="preconnect" href="https://iframe.mediadelivery.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://player.mediadelivery.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.mediadelivery.net" />
 
         {/* ── Critical preloader assets — fetched as early as possible ──── */}
         <link rel="preload" href="/and_cut_logo.webp" as="image" />
