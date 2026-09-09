@@ -7,7 +7,12 @@ import clsx from "clsx";
 import Link from "next/link";
 import { FORMAT_PRICES, VideoData } from "@/data/services";
 
-const isVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
+/** True when the path is a native video file (local .mp4/.webm/.mov) */
+const isLocalVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
+
+/** True when the path is a Bunny CDN stream player embed URL */
+const isBunnyEmbed = (path: string) =>
+  path.includes("player.mediadelivery.net") || path.includes("iframe.mediadelivery.net");
 
 interface Props {
   formatName: string | null;
@@ -287,12 +292,13 @@ function VideoCard({
   isActive?: boolean;
 }) {
   const [isMuted, setIsMuted] = useState(true);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // When this card becomes the active (main) video, play it
+  // When this card becomes the active (main) video, play it (local video only)
   useEffect(() => {
     if (isActive && videoRef.current) {
-      videoRef.current.muted = true; // keep muted to satisfy autoplay policy
+      videoRef.current.muted = true;
       setIsMuted(true);
       videoRef.current.load();
       videoRef.current.play().catch(() => {});
@@ -305,6 +311,13 @@ function VideoCard({
   }, [isActive, isThumbnail]);
 
   if (!video) return null;
+
+  // Build Bunny autoplay src for the active card
+  const bunnyIframeSrc = isBunnyEmbed(video.videoPath)
+    ? video.videoPath.includes("?")
+      ? `${video.videoPath}&autoplay=true&loop=true&muted=true&preload=true`
+      : `${video.videoPath}?autoplay=true&loop=true&muted=true&preload=true`
+    : null;
 
   return (
     <div
@@ -320,13 +333,64 @@ function VideoCard({
           : clsx("w-full bg-black/20 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
       )}
       onClick={() => {
-        if (isActive && isVideo(video.videoPath) && videoRef.current) {
+        if (isActive && isLocalVideo(video.videoPath) && videoRef.current) {
           videoRef.current.muted = !videoRef.current.muted;
           setIsMuted(videoRef.current.muted);
         }
       }}
     >
-      {isVideo(video.videoPath) ? (
+      {isBunnyEmbed(video.videoPath) ? (
+        /* ── Bunny CDN stream: thumbnail facade + iframe (active only) ─────────
+           videoPath is a Bunny embed page URL — cannot be used in <video>.
+           Thumbnails: show thumbnailUrl as a static image (or fallback icon).
+           Active card: thumbnail fades out once the iframe reports loaded. */
+        <div className="relative w-full h-full" style={{ backgroundColor: "#0C0C12" }}>
+          {/* Thumbnail / facade image — shown at all times until iframe is ready */}
+          {video.thumbnailUrl ? (
+            <img
+              src={video.thumbnailUrl}
+              alt={video.title}
+              draggable={false}
+              className={clsx(
+                "absolute inset-0 w-full h-full object-cover transition-all duration-700",
+                isThumbnail && "opacity-70 group-hover:opacity-100"
+              )}
+              style={{
+                zIndex: 1,
+                opacity: isActive && iframeLoaded ? 0 : undefined,
+                transition: isActive ? "opacity 0.8s ease" : undefined,
+                pointerEvents: "none",
+              }}
+            />
+          ) : (
+            /* Fallback play-icon placeholder */
+            <div className="absolute inset-0 bg-[#0C0C12] flex items-center justify-center" style={{ zIndex: 1 }}>
+              <svg className="w-8 h-8 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          )}
+          {/* Iframe — only mounted for the active main card */}
+          {isActive && bunnyIframeSrc && (
+            <iframe
+              src={bunnyIframeSrc}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              onLoad={() => setIframeLoaded(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                border: "none",
+                zIndex: 2,
+                opacity: iframeLoaded ? 1 : 0,
+                transition: "opacity 0.8s ease",
+              }}
+            />
+          )}
+        </div>
+      ) : isLocalVideo(video.videoPath) ? (
         <video
           ref={videoRef}
           src={video.videoPath}
@@ -353,8 +417,8 @@ function VideoCard({
         />
       )}
 
-      {/* Mute/unmute button for active video */}
-      {isActive && isVideo(video.videoPath) && (
+      {/* Mute/unmute button for active local video */}
+      {isActive && isLocalVideo(video.videoPath) && (
         <button
           onClick={(e) => {
             e.stopPropagation();
