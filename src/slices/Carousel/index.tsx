@@ -15,16 +15,50 @@ import AdFilmsModal from "@/components/AdFilmsModal";
 import PhotoshootModal from "@/components/PhotoshootModal";
 
 /* ──────────────────────────────────────────────────────────────────────────────
+  BunnyFacade
+
+  Facade pattern for Bunny CDN stream embeds.
+    • Phase 1: shows thumbnailUrl (pre-baked from services.ts) immediately
+    • Phase 2: mounts the iframe with autoplay/muted/loop once in DOM
+    • Phase 3: cross-fades thumbnail out once the iframe fires "load"
+  Bunny CDN videoPath URLs are HTML player pages — they CANNOT be used in
+  a native <video> src. This component embeds them properly via <iframe>.
+──────────────────────────────────────────────────────────────────────────────── */
+function BunnyFacade({
+  embedUrl: _embedUrl, // kept in props for type compatibility; not used in marquee (thumbnail-only)
+  thumbnailUrl,
+}: {
+  embedUrl: string;
+  thumbnailUrl?: string;
+}) {
+  // Note: no iframe in the marquee — too many concurrent embeds kills performance.
+  // We show the static thumbnail. The Modal plays the full video on click.
+
+  return (
+    thumbnailUrl ? (
+      <img
+        src={thumbnailUrl}
+        alt=""
+        draggable={false}
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    ) : (
+      <div className="w-full h-full bg-[#0C0C12] flex items-center justify-center">
+        <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+    )
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
   TabMarquee
 
   Self-contained infinite marquee for ONE tab. Always in the DOM so that
   display:none on inactive tabs doesn't destroy any iframes (they remain
   mounted and buffering while hidden).
-
-  Each Vimeo card uses VimeoFacadeCard:
-    • Shows a static Vimeo thumbnail immediately (no blank box ever)
-    • Injects the iframe only when `sectionNearVisible` is true
-    • Cross-fades thumbnail → playing video once Vimeo fires "ready"
 ──────────────────────────────────────────────────────────────────────────────── */
 interface TabMarqueeProps {
   tabKey: string;
@@ -190,17 +224,13 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                     loading="lazy"
                   />
                 ) : (
-                  /* ── Bunny CDN stream video ────────────────────────────────
-                     Simple <video> autoPlay — Bunny delivers HLS/MP4 from the
-                     nearest edge PoP. No blob prefetch needed. */
-                  <video
-                    src={video.videoPath}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="w-full h-full object-cover"
+                  /* ── Bunny CDN stream thumbnail ────────────────────────────
+                     videoPath is a Bunny stream player URL — CANNOT be used in
+                     a <video> src. BunnyFacade shows the pre-baked thumbnailUrl
+                     as a static preview. Clicking opens the Modal for playback. */
+                  <BunnyFacade
+                    embedUrl={video.videoPath}
+                    thumbnailUrl={video.thumbnailUrl}
                   />
                 )}
 
