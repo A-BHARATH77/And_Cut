@@ -21,9 +21,10 @@ function toBunnyEmbed(
       "player.mediadelivery.net/play/",
       "iframe.mediadelivery.net/embed/"
     );
+    // Append full params (autoplay, loop, muted, controls=false, etc.)
     return upgraded.includes("?")
-      ? `${upgraded}&disableRum=true`
-      : `${upgraded}?disableRum=true`;
+      ? `${upgraded}&${params}`
+      : `${upgraded}?${params}`;
   }
   return url;
 }
