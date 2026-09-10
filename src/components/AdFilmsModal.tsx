@@ -200,6 +200,7 @@ function VideoColumn({
                   height: "100%",
                   border: "none",
                   zIndex: 2,
+                  pointerEvents: "none",
                 }}
               />
             </>

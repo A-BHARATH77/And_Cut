@@ -180,7 +180,7 @@ function VideoColumn({
                   style={{ zIndex: 1 }}
                 />
               )}
-              {/* Bunny CDN iframe — autoplay with audio, loop */}
+              {/* Bunny CDN iframe — autoplay, muted, loop, no controls */}
               <iframe
                 key={`ugc-iframe-${activeIdx}`}
                 src={bunnySrc}
@@ -192,6 +192,7 @@ function VideoColumn({
                   height: "100%",
                   border: "none",
                   zIndex: 2,
+                  pointerEvents: "none",
                 }}
               />
             </>

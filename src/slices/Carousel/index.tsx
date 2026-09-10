@@ -14,42 +14,78 @@ import MicroDramaModal from "@/components/MicroDramaModal";
 import AdFilmsModal from "@/components/AdFilmsModal";
 import PhotoshootModal from "@/components/PhotoshootModal";
 
+/* ─── Bunny embed URL builder (same logic as BigText/works section) ─────── */
+function toBunnyEmbedUrl(url: string): string {
+  const params = "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true";
+  const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
+  if (url.includes("mediadelivery.net")) {
+    return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+  }
+  return url;
+}
+
 /* ──────────────────────────────────────────────────────────────────────────────
   BunnyFacade
 
-  Facade pattern for Bunny CDN stream embeds.
-    • Phase 1: shows thumbnailUrl (pre-baked from services.ts) immediately
-    • Phase 2: mounts the iframe with autoplay/muted/loop once in DOM
-    • Phase 3: cross-fades thumbnail out once the iframe fires "load"
-  Bunny CDN videoPath URLs are HTML player pages — they CANNOT be used in
-  a native <video> src. This component embeds them properly via <iframe>.
+  Autoplay embed for Bunny CDN stream cards — mirrors the hero/works section:
+    • Always shows thumbnailUrl as an instant visible frame (no black flash)
+    • When the tab is active, mounts the iframe with autoplay/muted/loop/no-controls
+    • iframe sits on top (z-index 2) so the video replaces the thumbnail once loaded
+    • pointerEvents: none prevents the Bunny player UI from appearing on hover
+  When the tab is inactive, only the thumbnail is shown (no concurrent iframes).
 ──────────────────────────────────────────────────────────────────────────────── */
 function BunnyFacade({
-  embedUrl: _embedUrl, // kept in props for type compatibility; not used in marquee (thumbnail-only)
+  embedUrl,
   thumbnailUrl,
+  isActive,
 }: {
   embedUrl: string;
   thumbnailUrl?: string;
+  isActive: boolean;
 }) {
-  // Note: no iframe in the marquee — too many concurrent embeds kills performance.
-  // We show the static thumbnail. The Modal plays the full video on click.
+  const iframeSrc = isActive ? toBunnyEmbedUrl(embedUrl) : null;
 
   return (
-    thumbnailUrl ? (
-      <img
-        src={thumbnailUrl}
-        alt=""
-        draggable={false}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
-    ) : (
-      <div className="w-full h-full bg-[#0C0C12] flex items-center justify-center">
-        <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </div>
-    )
+    <div className="relative w-full h-full bg-[#0C0C12]">
+      {/* Thumbnail — instant visible frame, sits beneath the iframe */}
+      {thumbnailUrl && (
+        <img
+          src={thumbnailUrl}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 1 }}
+          loading="lazy"
+        />
+      )}
+
+      {/* Autoplay iframe — only mounted when this tab is active */}
+      {iframeSrc && (
+        <iframe
+          src={iframeSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Fallback icon when no thumbnail and tab inactive */}
+      {!thumbnailUrl && !iframeSrc && (
+        <div className="w-full h-full flex items-center justify-center">
+          <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -231,6 +267,7 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                   <BunnyFacade
                     embedUrl={video.videoPath}
                     thumbnailUrl={video.thumbnailUrl}
+                    isActive={isActive}
                   />
                 )}
 
