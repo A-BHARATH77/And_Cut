@@ -169,7 +169,7 @@ export default function VimeoFacadeCard({
         <iframe
           ref={iframeRef}
           src={buildVimeoSrc(vimeoId)}
-          allow="autoplay; fullscreen; picture-in-picture"
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
           tabIndex={-1}
           title={`vimeo-${vimeoId}`}
           style={{

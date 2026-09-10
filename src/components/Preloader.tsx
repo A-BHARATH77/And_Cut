@@ -282,7 +282,7 @@ export default function Preloader() {
               so by the time the preloader ends it's already buffered & playing */}
           <iframe
             src="https://player.vimeo.com/video/1218625128?background=1&autoplay=1&muted=1&loop=1&autopause=0&controls=0&dnt=1&playsinline=1&quality=auto"
-            allow="autoplay; fullscreen; picture-in-picture"
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
             loading="eager"
             title="Mobile hero preloader video"
             className="block md:hidden"

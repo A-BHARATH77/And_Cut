@@ -62,7 +62,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         >
           <iframe
             src={desktopVimeoSrc}
-            allow="autoplay; fullscreen; picture-in-picture"
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
             loading="eager"
             title="Hero background video"
             style={{
@@ -92,7 +92,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         >
           <iframe
             src="https://iframe.mediadelivery.net/embed/747536/ab6863db-823c-4023-aeb4-dd91613c24e1?autoplay=true&loop=true&muted=true&preload=true"
-            allow="autoplay; fullscreen"
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
             loading="eager"
             title="Hero mobile background video"
             style={{
