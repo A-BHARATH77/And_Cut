@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import clsx from "clsx";
+import VimeoPlayer from "@/components/VimeoPlayer";
 import { VideoData } from "@/data/services";
 
 /* ─────────────────────────────────────────────────────────────
@@ -122,10 +123,13 @@ function VideoColumn({
   activeIdx: number;
   activeVideo: VideoData;
 }) {
-  // Convert Bunny CDN player.mediadelivery.net/play/LIB/ID
-  // → iframe.mediadelivery.net/embed/LIB/ID?autoplay=true&loop=true
-  // The /play/ URL is a standalone watch page (cannot be embedded).
-  // The /embed/ URL is the correct Bunny Stream iframe endpoint.
+  const [useVimeo, setUseVimeo] = useState(false);
+
+  // Reset to default player on card change
+  useEffect(() => {
+    setUseVimeo(false);
+  }, [activeIdx]);
+
   const bunnySrc = (() => {
     const playMatch = activeVideo.videoPath.match(
       /player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i
@@ -143,7 +147,6 @@ function VideoColumn({
     return base.includes("?") ? `${base}&${params.toString()}` : `${base}?${params.toString()}`;
   })();
 
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -152,33 +155,71 @@ function VideoColumn({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
-        className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
+        className="h-[40vh] sm:h-[60vh] md:h-full flex flex-col items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
-          {/* Thumbnail shown while iframe loads */}
-          {activeVideo.thumbnailUrl && (
-            <img
-              src={activeVideo.thumbnailUrl}
-              alt={activeVideo.title}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 1 }}
+          {useVimeo && activeVideo.vimeoId ? (
+            <VimeoPlayer
+              key={`vimeo-${activeIdx}`}
+              vimeoId={activeVideo.vimeoId}
+              playing={true}
+              muted={false}
+              loop={true}
+              controls={true}
+              quality="auto"
+              className="w-full h-full"
             />
+          ) : (
+            <>
+              {/* Thumbnail shown while iframe loads */}
+              {activeVideo.thumbnailUrl && (
+                <img
+                  src={activeVideo.thumbnailUrl}
+                  alt={activeVideo.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ zIndex: 1 }}
+                />
+              )}
+              {/* Bunny CDN iframe — autoplay with audio, loop */}
+              <iframe
+                key={`ugc-iframe-${activeIdx}`}
+                src={bunnySrc}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  zIndex: 2,
+                }}
+              />
+            </>
           )}
-          {/* Bunny CDN iframe — autoplay with audio, loop */}
-          <iframe
-            key={`ugc-iframe-${activeIdx}`}
-            src={bunnySrc}
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-              zIndex: 2,
-            }}
-          />
         </div>
+
+        {/* Player controls overlay: Toggle Vimeo option / Open in Vimeo */}
+        {activeVideo.vimeoId && (
+          <div className="absolute bottom-3 left-3 z-30 flex items-center gap-2">
+            <button
+              onClick={() => setUseVimeo(!useVimeo)}
+              className="px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-white text-xs font-semibold hover:bg-black/90 hover:border-[#6EE7FF] transition-all backdrop-blur-md shadow-md"
+            >
+              {useVimeo ? "Switch to Bunny CDN" : "Play with Vimeo Player"}
+            </button>
+            <a
+              href={`https://vimeo.com/${activeVideo.vimeoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded-full bg-black/75 border border-white/20 text-white/80 hover:text-white hover:border-[#6EE7FF] transition-all backdrop-blur-md"
+              title="Open on Vimeo.com"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
+              </svg>
+            </a>
+          </div>
+        )}
       </motion.div>
     </AnimatePresence>
   );

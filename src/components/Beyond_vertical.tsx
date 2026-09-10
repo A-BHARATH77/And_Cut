@@ -192,6 +192,19 @@ export default function BeyondVertical() {
                 allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
                 className="absolute inset-0 w-full h-full border-0 z-[2]"
               />
+              {activeVideo.vimeoId && (
+                <a
+                  href={`https://vimeo.com/${activeVideo.vimeoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-4 left-4 z-30 px-3.5 py-2 rounded-full bg-black/75 border border-white/20 text-white text-xs font-semibold hover:bg-black/90 hover:border-[#6EE7FF] transition-all backdrop-blur-md flex items-center gap-2 shadow-lg"
+                >
+                  <svg className="w-4 h-4 text-[#6EE7FF]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
+                  </svg>
+                  <span>Watch on Vimeo</span>
+                </a>
+              )}
             </motion.div>
           </motion.div>
         )}
