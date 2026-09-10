@@ -126,16 +126,12 @@ const VideoBlock = ({
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      {/* Subtle hover cue — fades in on hover to signal it's clickable */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center z-10">
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-2">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
-            {/* Vimeo icon */}
-            <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
-            </svg>
-          </div>
-          <span className="text-white/90 text-[10px] md:text-xs font-semibold tracking-wide">Watch on Vimeo</span>
+      {/* Play button — appears on hover, plain circle like Hero section */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center z-10 pointer-events-none">
+        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-90 group-hover:scale-100">
+          <svg className="w-5 h-5 md:w-7 md:h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
         </div>
       </div>
     </motion.div>
