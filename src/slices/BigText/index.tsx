@@ -3,23 +3,37 @@
 import { Content } from "@prismicio/client";
 import { SliceComponentProps } from "@prismicio/react";
 import clsx from "clsx";
-import { useRef, useEffect } from "react";
-import { motion } from "motion/react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { X } from "lucide-react";
 
 export type BigTextProps = SliceComponentProps<Content.BigTextSlice>;
 
-function toBunnyEmbed(url: string, params = "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"): string {
+/* ─── Bunny embed helper ──────────────────────────────────────────────────── */
+function toBunnyEmbed(
+  url: string,
+  params = "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+): string {
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
   if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
   if (url.includes("mediadelivery.net")) {
-    const upgraded = url.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
-    return upgraded.includes("?") ? `${upgraded}&disableRum=true` : `${upgraded}?disableRum=true`;
+    const upgraded = url.replace(
+      "player.mediadelivery.net/play/",
+      "iframe.mediadelivery.net/embed/"
+    );
+    return upgraded.includes("?")
+      ? `${upgraded}&disableRum=true`
+      : `${upgraded}?disableRum=true`;
   }
   return url;
 }
 
+/* ─── Bunny silent autoplay iframe ───────────────────────────────────────── */
 function BunnyIframe({ src, className }: { src: string; className?: string }) {
-  const embedSrc = toBunnyEmbed(src, "autoplay=true&loop=true&muted=true&preload=true&disableRum=true");
+  const embedSrc = toBunnyEmbed(
+    src,
+    "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+  );
   return (
     <iframe
       src={embedSrc}
@@ -30,6 +44,7 @@ function BunnyIframe({ src, className }: { src: string; className?: string }) {
   );
 }
 
+/* ─── Local video lazy-play helper ───────────────────────────────────────── */
 function LocalLazyVideo({ src, className }: { src: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
 
@@ -66,6 +81,7 @@ function LocalLazyVideo({ src, className }: { src: string; className?: string })
   );
 }
 
+/* ─── Decides which renderer to use for preview ──────────────────────────── */
 function LazyVideo({ src, className }: { src: string; className?: string }) {
   if (src.includes("mediadelivery.net")) {
     return <BunnyIframe src={src} className={className} />;
@@ -73,6 +89,7 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
   return <LocalLazyVideo src={src} className={className} />;
 }
 
+/* ─── Single video block in the grid ─────────────────────────────────────── */
 const VideoBlock = ({
   src,
   aspect,
@@ -98,29 +115,40 @@ const VideoBlock = ({
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={clsx(
-        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer transform-gpu will-change-transform",
+        "relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-900 shadow-sm border border-white/5 cursor-pointer transform-gpu will-change-transform group",
         aspect === "H" ? "w-full aspect-video" : "flex-1 aspect-[9/16]"
       )}
     >
+      {/* Bunny silent autoplay — no controls, no UI, pure preview */}
       {src && (
         <LazyVideo
           src={src}
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      {/* No play overlay — pure autoplay preview like Hero, click opens Vimeo */}
+      {/* Subtle hover cue — fades in on hover to signal it's clickable */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center z-10">
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-2">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
+            {/* Vimeo icon */}
+            <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
+            </svg>
+          </div>
+          <span className="text-white/90 text-[10px] md:text-xs font-semibold tracking-wide">Watch on Vimeo</span>
+        </div>
+      </div>
     </motion.div>
   );
 };
 
+/* ─── Video data ──────────────────────────────────────────────────────────── */
 const VIDEOS = {
-  // Horizontal (wide) videos — Bunny CDN streams
-  h1: "https://iframe.mediadelivery.net/embed/747536/5bece3c3-1d8a-4272-a7cb-ea56eb57a45f", // Seven Ring Air Music Video
-  h2: "https://iframe.mediadelivery.net/embed/747536/d1281b9b-d4ee-4961-b344-c84e4bbf32d4", // CNBC
-  h3: "https://iframe.mediadelivery.net/embed/747536/c1980c89-bce6-4af5-8848-b9d8d398b1e0", // 0730(5)
-  h4: "https://iframe.mediadelivery.net/embed/747536/a36e1700-3790-4983-8a39-0df74f0d32af", // 0730(6)
-  h5: "https://iframe.mediadelivery.net/embed/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96", // CDD Testimonial
-  // Vertical (portrait) videos — Bunny CDN streams
+  h1: "https://iframe.mediadelivery.net/embed/747536/5bece3c3-1d8a-4272-a7cb-ea56eb57a45f",
+  h2: "https://iframe.mediadelivery.net/embed/747536/d1281b9b-d4ee-4961-b344-c84e4bbf32d4",
+  h3: "https://iframe.mediadelivery.net/embed/747536/c1980c89-bce6-4af5-8848-b9d8d398b1e0",
+  h4: "https://iframe.mediadelivery.net/embed/747536/a36e1700-3790-4983-8a39-0df74f0d32af",
+  h5: "https://iframe.mediadelivery.net/embed/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96",
   v1:  "https://iframe.mediadelivery.net/embed/747536/ebbefeb4-2b92-4085-bc81-be8e1c617b24",
   v2:  "https://iframe.mediadelivery.net/embed/747536/8dbdf502-27aa-4ed5-88c5-ee125371bd03",
   v3:  "https://iframe.mediadelivery.net/embed/747536/89eeb916-b2c2-4d18-b265-1f676c35876a",
@@ -135,7 +163,7 @@ const VIDEOS = {
   v12: "https://iframe.mediadelivery.net/embed/747536/ce5438f3-2aa0-48ff-b209-440403823070",
 };
 
-/** Vimeo IDs mapped to each video key — clicking opens the video on Vimeo */
+/** Vimeo IDs — each key matches a VIDEOS key above */
 const VIMEO_IDS: Record<string, string> = {
   h1: "1216461255",
   h2: "1216461171",
@@ -156,18 +184,12 @@ const VIMEO_IDS: Record<string, string> = {
   v12: "1216461266",
 };
 
-/** Opens the Vimeo page for the given video key in a new tab */
-function openVimeo(id: string) {
-  const vimeoId = VIMEO_IDS[id];
-  if (vimeoId) window.open(`https://vimeo.com/${vimeoId}`, "_blank", "noopener,noreferrer");
-}
-
+/* ─── Comments data ───────────────────────────────────────────────────────── */
 const COMMENTS_DATA = [
   { user: "only4scroll", avatar: "/Comments/only4scroll.PNG", time: "16w", text: "One of the best ad I have ever seen", pos: "top-[-6%] md:top-[2%] -left-[30%] md:-left-[55%] lg:-left-[85%]", rotate: "-rotate-[4deg]", delay: 0 },
   { user: "ab83_official", avatar: "/Comments/ab_83.PNG", time: "16w", text: "Damn good ad man, but ho will anyone pay a particular price for gpay or something?", pos: "top-[14%] md:top-[24%] -left-[20%] md:-left-[64%] lg:-left-[85%]", rotate: "rotate-[2deg]", delay: 0.2 },
   { user: "aasthabahri", avatar: "/Comments/aasatha.PNG", time: "18w", text: "what a sickk video 🔥", pos: "top-[72%] md:top-[48%] -left-[32%] md:-left-[55%] lg:-left-[80%]", rotate: "-rotate-[6deg]", delay: 0.4, authorLiked: true },
   { user: "kushal__17", avatar: "/Comments/kushal.PNG", time: "5w", text: "What a crazy way to explain this 😂", pos: "top-[88%] md:top-[72%] -left-[18%] md:-left-[48%] lg:-left-[68%]", rotate: "rotate-[3deg]", delay: 0.6, authorLiked: true },
-  
   { user: "deepanjwanii", avatar: "/Comments/deepan.PNG", time: "18w", text: "This is sooo cooll", pos: "top-[4%] md:top-[12%] -right-[28%] md:-right-[60%] lg:-right-[90%]", rotate: "rotate-[5deg]", delay: 0.1, authorLiked: true },
   { user: "_theyellowskirt_", avatar: "/Comments/yellow_skirt.PNG", time: "8w", text: "Haha what a good way to educate & entertain.Love your series.", pos: "top-[24%] md:top-[36%] -right-[20%] md:-right-[64%] lg:-right-[85%]", rotate: "-rotate-[2deg]", delay: 0.3, authorLiked: true },
   { user: "indianskinblog", avatar: "/Comments/indianskinblog.png", time: "15w", text: "This is what i pay mu internet bills for", pos: "top-[80%] md:top-[60%] -right-[38%] md:-right-[68%] lg:-right-[92%]", rotate: "rotate-[7deg]", delay: 0.5, authorLiked: true },
@@ -187,7 +209,7 @@ const FloatingComment = ({ data }: { data: any }) => (
     viewport={{ once: true, margin: "-100px" }}
     className={clsx(
       "absolute z-30 flex items-center gap-2 md:gap-3 p-2 md:p-3 pr-3 md:pr-5 bg-[#181818]/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-2xl border border-white/10 w-max max-w-[180px] md:max-w-[280px] lg:max-w-[320px] transition-transform hover:scale-[1.02] hover:z-40 cursor-default transform-gpu will-change-transform",
-      "scale-[0.75] sm:scale-90 md:scale-100", // Scale down heavily on mobile
+      "scale-[0.75] sm:scale-90 md:scale-100",
       data.pos,
       data.rotate
     )}
@@ -214,7 +236,77 @@ const FloatingComment = ({ data }: { data: any }) => (
   </motion.div>
 );
 
+/* ─── Vimeo lightbox modal ────────────────────────────────────────────────── */
+function VimeoLightbox({
+  vimeoId,
+  aspect,
+  onClose,
+}: {
+  vimeoId: string;
+  aspect: "H" | "V";
+  onClose: () => void;
+}) {
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const vimeoSrc =
+    `https://player.vimeo.com/video/${vimeoId}` +
+    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92 backdrop-blur-md p-3 sm:p-6 md:p-12 cursor-pointer"
+      onClick={onClose}
+    >
+      <button
+        className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 z-50 transition-colors"
+        onClick={onClose}
+      >
+        <X size={28} />
+      </button>
+
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.92, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={clsx(
+          "relative overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default",
+          aspect === "H"
+            ? "w-full max-w-[95vw] md:max-w-[1100px] aspect-video"
+            : "h-[80vh] max-h-[700px] aspect-[9/16]"
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <iframe
+          src={vimeoSrc}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full border-0"
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ─── Main BigText component ──────────────────────────────────────────────── */
 const BigText = ({ slice }: BigTextProps): JSX.Element => {
+  const [activeVimeo, setActiveVimeo] = useState<{ id: string; aspect: "H" | "V" } | null>(null);
+
+  const openVimeo = (key: string, aspect: "H" | "V") => {
+    const vimeoId = VIMEO_IDS[key];
+    if (vimeoId) setActiveVimeo({ id: vimeoId, aspect });
+  };
+
+  const closeVimeo = () => setActiveVimeo(null);
 
   return (
     <section
@@ -241,88 +333,74 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
       {/* Video Grid */}
       <div className="max-w-[1300px] mx-auto px-3 sm:px-4 md:px-8 pb-4">
 
-        {/* 📱 MOBILE layout (< md) 📱 */}
+        {/* 📱 MOBILE layout (< md) */}
         <div className="flex flex-col gap-3 md:hidden">
-          {/* Wide */}
-          <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1")} />
-          {/* 2 portrait */}
+          <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1")} />
-            <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2")} />
+            <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1", "V")} />
+            <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2", "V")} />
           </div>
-          
-          {/* Wide */}
-          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2")} />
-          {/* 2 portrait */}
+          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3")} />
-            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4")} />
+            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3", "V")} />
+            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4", "V")} />
           </div>
-          
-          {/* Wide */}
-          <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3")} />
-          {/* 2 portrait */}
+          <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5")} />
-            <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6")} />
+            <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5", "V")} />
+            <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6", "V")} />
           </div>
-          
-          {/* Wide */}
-          <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4")} />
-          {/* 2 portrait */}
+          <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7")} />
-            <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8")} />
+            <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7", "V")} />
+            <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8", "V")} />
           </div>
-
-          {/* Wide */}
-          <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5")} />
-          {/* 2 portrait */}
+          <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v9" src={VIDEOS.v9} aspect="V" onClick={() => openVimeo("v9")} />
-            <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10")} />
+            <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVimeo("v9",  "V")} />
+            <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10", "V")} />
           </div>
         </div>
 
-        {/* ── DESKTOP layout (md+) ── */}
+        {/* 🖥️ DESKTOP layout (md+) */}
         <div className="hidden md:flex gap-6 w-full">
           {/* Left Column */}
           <div className="flex flex-col gap-6 w-1/2">
-            <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1")} />
+            <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1")} />
-              <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2")} />
+              <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1", "V")} />
+              <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2", "V")} />
             </div>
             <div className="flex gap-6">
-              <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3")} />
-              <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4")} />
+              <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3", "V")} />
+              <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4", "V")} />
             </div>
-            <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2")} />
+            <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => openVimeo("v11")} />
-              <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => openVimeo("v12")} />
+              <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => openVimeo("v11", "V")} />
+              <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => openVimeo("v12", "V")} />
             </div>
             <div className="lg:hidden w-full">
-              <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5")} />
+              <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5", "H")} />
             </div>
           </div>
 
           {/* Right Column */}
           <div className="flex flex-col gap-6 w-1/2">
             <div className="flex gap-6">
-              <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5")} />
-              <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6")} />
+              <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5", "V")} />
+              <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6", "V")} />
             </div>
-            <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3")} />
+            <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7")} />
-              <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8")} />
+              <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7", "V")} />
+              <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8", "V")} />
             </div>
             <div className="flex gap-6">
-              <VideoBlock id="v9" src={VIDEOS.v9} aspect="V" onClick={() => openVimeo("v9")} />
-              <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10")} />
+              <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVimeo("v9",  "V")} />
+              <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10", "V")} />
             </div>
-            <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4")} />
+            <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4", "H")} />
           </div>
         </div>
       </div>
@@ -366,10 +444,10 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
               <FloatingComment key={i} data={comment} />
             ))}
 
-            {/* CSS Phone Frame (Replaces the watermarked image) */}
+            {/* CSS Phone Frame */}
             <div className="relative w-[240px] h-[500px] md:w-[270px] md:h-[560px] rounded-[2.5rem] md:rounded-[3rem] border-[3px] md:border-[4px] border-white/80 overflow-hidden hover:scale-[1.02] transition-transform duration-500 shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5),inset_0_0_20px_rgba(255,255,255,0.3)] flex flex-col z-20 transform-gpu will-change-transform">
               
-              {/* Animated Background (GPU accelerated using transform instead of background-position) */}
+              {/* Animated Background */}
               <div className="absolute top-1/2 left-1/2 w-[650px] h-[650px] bg-gradient-to-br from-[#6EE7FF] via-[#3B82F6] to-[#6EE7FF] animate-phone-gradient z-0 transform-gpu will-change-transform" />
               
               {/* Dynamic Island */}
@@ -378,7 +456,7 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
               {/* Home Indicator */}
               <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 w-[100px] h-[4px] bg-white/80 rounded-full z-20" />
 
-              {/* Inner Content Area for Comments */}
+              {/* Inner Content */}
               <div className="flex-1 w-full h-full pt-14 pb-8 px-6 relative z-10 flex flex-col items-center justify-center text-center">
                 <div className="hidden md:block text-6xl md:text-7xl mb-4 md:mb-6 animate-bounce" style={{ animationDuration: '3s' }}>
                   🤔
@@ -392,7 +470,16 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
         </motion.div>
       </div>
 
-      {/* No lightbox — clicks open Vimeo in a new tab */}
+      {/* Vimeo Lightbox — renders in-page when a video is clicked */}
+      <AnimatePresence>
+        {activeVimeo && (
+          <VimeoLightbox
+            vimeoId={activeVimeo.id}
+            aspect={activeVimeo.aspect}
+            onClose={closeVimeo}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 };
