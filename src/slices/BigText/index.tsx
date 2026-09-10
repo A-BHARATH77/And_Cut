@@ -23,20 +23,19 @@ function toBunnyEmbed(url: string, params = "autoplay=true&loop=true&muted=true&
   return url;
 }
 
-function LazyVideo({ src, className }: { src: string; className?: string }) {
-  const isBunny = src.includes("mediadelivery.net");
-  if (isBunny) {
-    const embedSrc = toBunnyEmbed(src, "autoplay=true&loop=true&muted=true&preload=true&disableRum=true");
-    return (
-      <iframe
-        src={embedSrc}
-        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-        style={{ pointerEvents: "none" }}
-        className={clsx(className, "border-0 w-full h-full absolute inset-0")}
-      />
-    );
-  }
+function BunnyIframe({ src, className }: { src: string; className?: string }) {
+  const embedSrc = toBunnyEmbed(src, "autoplay=true&loop=true&muted=true&preload=true&disableRum=true");
+  return (
+    <iframe
+      src={embedSrc}
+      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+      style={{ pointerEvents: "none" }}
+      className={clsx(className, "border-0 w-full h-full absolute inset-0")}
+    />
+  );
+}
 
+function LocalLazyVideo({ src, className }: { src: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -70,6 +69,13 @@ function LazyVideo({ src, className }: { src: string; className?: string }) {
       className={clsx(className, "transform-gpu will-change-transform")}
     />
   );
+}
+
+function LazyVideo({ src, className }: { src: string; className?: string }) {
+  if (src.includes("mediadelivery.net")) {
+    return <BunnyIframe src={src} className={className} />;
+  }
+  return <LocalLazyVideo src={src} className={className} />;
 }
 
 const VideoBlock = ({
