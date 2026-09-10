@@ -12,26 +12,10 @@ const nextConfig = {
   // Add proper HTTP headers for video streaming and caching
   async headers() {
     return [
-      // ── Global security + iframe permissions ─────────────────────────────
-      // frame-src: allows Vimeo and Bunny CDN iframes embedded in the site.
-      // Without this, Vercel's default headers may block cross-origin iframes.
+      // ── Permissions Policy (Allows autoplay and fullscreen globally) ───────
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vimeo.com https://*.vimeocdn.com https://*.mediadelivery.net https://*.bunnycdn.com https://*.bunnyinfra.net",
-              "style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.mediadelivery.net",
-              "font-src 'self' https://*.gstatic.com",
-              "img-src 'self' data: blob: https: http: https://*.bunnyinfra.net https://*.mediadelivery.net",
-              "media-src 'self' blob: https: https://*.mediadelivery.net",
-              "frame-src 'self' https://*.vimeo.com https://*.mediadelivery.net",
-              "connect-src 'self' https://*.vimeo.com https://*.vimeocdn.com https://*.mediadelivery.net https://*.bunnycdn.com https://*.bunnyinfra.net wss:",
-              "worker-src 'self' blob:",
-            ].join("; "),
-          },
           {
             key: "Permissions-Policy",
             value: "autoplay=*, fullscreen=*",
@@ -113,4 +97,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-

@@ -32,7 +32,7 @@ export default function SmartVimeoGridItem({
       {/* Rendered immediately on mount (NOT lazy-mounted) so streaming starts in background */}
       <iframe
         src={embedUrl}
-        allow="autoplay; fullscreen; picture-in-picture"
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
         tabIndex={-1}
         title={`Vimeo ${videoId}`}
         className="absolute inset-0 w-full h-full border-none pointer-events-none"
