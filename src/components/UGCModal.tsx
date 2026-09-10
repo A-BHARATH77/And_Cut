@@ -165,8 +165,7 @@ function VideoColumn({
           <iframe
             key={`ugc-iframe-${activeIdx}`}
             src={bunnySrc}
-            allow="autoplay; fullscreen"
-            allowFullScreen
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
             style={{
               position: "absolute",
               inset: 0,

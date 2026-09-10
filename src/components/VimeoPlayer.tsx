@@ -131,8 +131,7 @@ export default function VimeoPlayer({
       <iframe
         ref={iframeRef}
         src={src}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
         loading="eager"
         title={`Vimeo ${vimeoId}`}
         style={{

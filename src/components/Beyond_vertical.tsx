@@ -59,8 +59,7 @@ function BunnyCard({
       {/* Bunny embed iframe — muted autoplay loop for background preview */}
       <iframe
         src={embedSrc}
-        allow="autoplay; fullscreen"
-        allowFullScreen
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
         onLoad={() => setIframeLoaded(true)}
         style={{
           position: "absolute",
@@ -181,8 +180,7 @@ export default function BeyondVertical() {
                   activeVideo.videoPath,
                   "autoplay=true&loop=true&muted=false&preload=true"
                 )}
-                allow="autoplay; fullscreen"
-                allowFullScreen
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
                 className="absolute inset-0 w-full h-full border-0 z-[2]"
               />
             </motion.div>

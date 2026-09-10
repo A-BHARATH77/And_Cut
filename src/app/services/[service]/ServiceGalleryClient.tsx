@@ -385,8 +385,7 @@ function VideoCard({
           {isActive && bunnyIframeSrc && (
             <iframe
               src={bunnyIframeSrc}
-              allow="autoplay; fullscreen"
-              allowFullScreen
+              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
               onLoad={() => setIframeLoaded(true)}
               style={{
                 position: "absolute",
