@@ -13,7 +13,30 @@ const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export type BigTextProps = SliceComponentProps<Content.BigTextSlice>;
 
+function toBunnyEmbed(url: string, params = "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"): string {
+  const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
+  if (url.includes("mediadelivery.net")) {
+    const upgraded = url.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
+    return upgraded.includes("?") ? `${upgraded}&disableRum=true` : `${upgraded}?disableRum=true`;
+  }
+  return url;
+}
+
 function LazyVideo({ src, className }: { src: string; className?: string }) {
+  const isBunny = src.includes("mediadelivery.net");
+  if (isBunny) {
+    const embedSrc = toBunnyEmbed(src, "autoplay=true&loop=true&muted=true&preload=true&disableRum=true");
+    return (
+      <iframe
+        src={embedSrc}
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+        style={{ pointerEvents: "none" }}
+        className={clsx(className, "border-0 w-full h-full absolute inset-0")}
+      />
+    );
+  }
+
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -95,24 +118,24 @@ const VideoBlock = ({
 
 const VIDEOS = {
   // Horizontal (wide) videos — previously raw 20–90 MB files, now Bunny CDN streams
-  h1: "https://player.mediadelivery.net/play/747536/5bece3c3-1d8a-4272-a7cb-ea56eb57a45f", // Seven Ring Air Music Video
-  h2: "https://player.mediadelivery.net/play/747536/d1281b9b-d4ee-4961-b344-c84e4bbf32d4", // CNBC
-  h3: "https://player.mediadelivery.net/play/747536/c1980c89-bce6-4af5-8848-b9d8d398b1e0", // 0730(5)
-  h4: "https://player.mediadelivery.net/play/747536/a36e1700-3790-4983-8a39-0df74f0d32af", // 0730(6)
-  h5: "https://player.mediadelivery.net/play/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96", // CDD Testimonial
+  h1: "https://iframe.mediadelivery.net/embed/747536/5bece3c3-1d8a-4272-a7cb-ea56eb57a45f", // Seven Ring Air Music Video
+  h2: "https://iframe.mediadelivery.net/embed/747536/d1281b9b-d4ee-4961-b344-c84e4bbf32d4", // CNBC
+  h3: "https://iframe.mediadelivery.net/embed/747536/c1980c89-bce6-4af5-8848-b9d8d398b1e0", // 0730(5)
+  h4: "https://iframe.mediadelivery.net/embed/747536/a36e1700-3790-4983-8a39-0df74f0d32af", // 0730(6)
+  h5: "https://iframe.mediadelivery.net/embed/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96", // CDD Testimonial
   // Vertical (portrait) videos — Bunny CDN streams
-  v1:  "https://player.mediadelivery.net/play/747536/ebbefeb4-2b92-4085-bc81-be8e1c617b24", // 1.webm
-  v2:  "https://player.mediadelivery.net/play/747536/8dbdf502-27aa-4ed5-88c5-ee125371bd03", // 2.webm
-  v3:  "https://player.mediadelivery.net/play/747536/89eeb916-b2c2-4d18-b265-1f676c35876a", // 3.webm
-  v4:  "https://player.mediadelivery.net/play/747536/2953533c-cda7-4d52-9f13-320cdf7a3b90", // 5.webm
-  v5:  "https://player.mediadelivery.net/play/747536/d4193ee4-661e-495b-b39d-357297bef282", // 6.webm
-  v6:  "https://player.mediadelivery.net/play/747536/a78d6e9d-dce1-4fd6-925d-8b2149b527db", // 7.webm
-  v7:  "https://player.mediadelivery.net/play/747536/d6defcbb-c816-4167-b763-df90787f7f5a", // 9.webm
-  v8:  "https://player.mediadelivery.net/play/747536/3e90d4fb-ba39-4b42-bcfc-50d4f6659218", // 8.webm
-  v9:  "https://player.mediadelivery.net/play/747536/afc11f2b-6bec-4a71-a6d2-7c8cbd3d80ba", // 10.webm
-  v10: "https://player.mediadelivery.net/play/747536/201422b8-a963-476f-ae96-7ce683a615ff", // 11.webm
-  v11: "https://player.mediadelivery.net/play/747536/2acbec4e-bd8b-4232-9342-5922bd0a178b", // 13.webm
-  v12: "https://player.mediadelivery.net/play/747536/ce5438f3-2aa0-48ff-b209-440403823070", // 14.webm
+  v1:  "https://iframe.mediadelivery.net/embed/747536/ebbefeb4-2b92-4085-bc81-be8e1c617b24", // 1.webm
+  v2:  "https://iframe.mediadelivery.net/embed/747536/8dbdf502-27aa-4ed5-88c5-ee125371bd03", // 2.webm
+  v3:  "https://iframe.mediadelivery.net/embed/747536/89eeb916-b2c2-4d18-b265-1f676c35876a", // 3.webm
+  v4:  "https://iframe.mediadelivery.net/embed/747536/2953533c-cda7-4d52-9f13-320cdf7a3b90", // 5.webm
+  v5:  "https://iframe.mediadelivery.net/embed/747536/d4193ee4-661e-495b-b39d-357297bef282", // 6.webm
+  v6:  "https://iframe.mediadelivery.net/embed/747536/a78d6e9d-dce1-4fd6-925d-8b2149b527db", // 7.webm
+  v7:  "https://iframe.mediadelivery.net/embed/747536/d6defcbb-c816-4167-b763-df90787f7f5a", // 9.webm
+  v8:  "https://iframe.mediadelivery.net/embed/747536/3e90d4fb-ba39-4b42-bcfc-50d4f6659218", // 8.webm
+  v9:  "https://iframe.mediadelivery.net/embed/747536/afc11f2b-6bec-4a71-a6d2-7c8cbd3d80ba", // 10.webm
+  v10: "https://iframe.mediadelivery.net/embed/747536/201422b8-a963-476f-ae96-7ce683a615ff", // 11.webm
+  v11: "https://iframe.mediadelivery.net/embed/747536/2acbec4e-bd8b-4232-9342-5922bd0a178b", // 13.webm
+  v12: "https://iframe.mediadelivery.net/embed/747536/ce5438f3-2aa0-48ff-b209-440403823070", // 14.webm
 };
 
 const COMMENTS_DATA = [
@@ -382,13 +405,21 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
               onClick={(e) => e.stopPropagation()}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              <video
-                src={selectedSrc}
-                autoPlay
-                controls
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              {selectedSrc.includes("mediadelivery.net") ? (
+                <iframe
+                  src={toBunnyEmbed(selectedSrc, "autoplay=true&loop=true&muted=false&preload=true&disableRum=true")}
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                  className="absolute inset-0 w-full h-full border-0"
+                />
+              ) : (
+                <video
+                  src={selectedSrc}
+                  autoPlay
+                  controls
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
             </motion.div>
           </motion.div>
         )}

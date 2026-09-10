@@ -21,10 +21,19 @@ const isBunnyEmbed = (path: string) =>
  * The /embed/ URL is the correct Bunny Stream iframe endpoint.
  */
 function toBunnyEmbedUrl(url: string, params: string): string {
+  let base = url;
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
-  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
-  // Already an embed URL or unknown format — append params
-  return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+  if (m) {
+    base = `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}`;
+  } else if (url.includes("player.mediadelivery.net")) {
+    base = url.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
+  }
+
+  const paramObj = new URLSearchParams(params);
+  paramObj.set("disableRum", "true");
+  const queryStr = paramObj.toString();
+
+  return base.includes("?") ? `${base}&${queryStr}` : `${base}?${queryStr}`;
 }
 
 interface Props {

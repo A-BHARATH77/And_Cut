@@ -14,10 +14,19 @@ import { FORMATS_DATA, VideoData } from "@/data/services";
  * correct Bunny Stream iframe endpoint that supports autoplay, loop, muted.
  */
 function toBunnyEmbed(url: string, params = "autoplay=true&loop=true&muted=true&preload=true") {
+  let base = url;
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
-  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
-  // Already an embed URL or unknown — append params
-  return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+  if (m) {
+    base = `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}`;
+  } else if (url.includes("player.mediadelivery.net")) {
+    base = url.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
+  }
+
+  const paramObj = new URLSearchParams(params);
+  paramObj.set("disableRum", "true");
+  const queryStr = paramObj.toString();
+
+  return base.includes("?") ? `${base}&${queryStr}` : `${base}?${queryStr}`;
 }
 
 /* ─── BunnyCard: thumbnail facade that cross-fades to live iframe ──────────── */

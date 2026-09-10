@@ -243,13 +243,11 @@ export default function Scene() {
                 boxShadow: '0px 20px 50px rgba(0,0,0,0.6)',
                 opacity: 0.9,
               }}>
-                <video
-                  src="https://player.mediadelivery.net/play/747536/912530c7-3894-46d0-875c-f223b7917503"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                <iframe
+                  src="https://iframe.mediadelivery.net/embed/747536/912530c7-3894-46d0-875c-f223b7917503?autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                  title="3D Marquee Horizontal Video"
+                  style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }}
                 />
               </div>
             </Html>

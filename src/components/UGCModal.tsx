@@ -130,14 +130,17 @@ function VideoColumn({
     const playMatch = activeVideo.videoPath.match(
       /player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i
     );
+    let base = activeVideo.videoPath;
     if (playMatch) {
       const [, libId, videoId] = playMatch;
-      return `https://iframe.mediadelivery.net/embed/${libId}/${videoId}?autoplay=true&loop=true&muted=false&preload=true`;
+      base = `https://iframe.mediadelivery.net/embed/${libId}/${videoId}`;
+    } else if (activeVideo.videoPath.includes("player.mediadelivery.net")) {
+      base = activeVideo.videoPath.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
     }
-    // Fallback: use as-is with params appended
-    return activeVideo.videoPath.includes("?")
-      ? `${activeVideo.videoPath}&autoplay=true&loop=true&muted=false`
-      : `${activeVideo.videoPath}?autoplay=true&loop=true&muted=false`;
+
+    const params = new URLSearchParams("autoplay=true&loop=true&muted=false&preload=true");
+    params.set("disableRum", "true");
+    return base.includes("?") ? `${base}&${params.toString()}` : `${base}?${params.toString()}`;
   })();
 
 
