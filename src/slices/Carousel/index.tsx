@@ -28,13 +28,17 @@ function toBunnyEmbedUrl(url: string): string {
 /* ──────────────────────────────────────────────────────────────────────────────
   BunnyFacade
 
-  Autoplay embed for Bunny CDN stream cards — mirrors the hero/works section:
-    • Always shows thumbnailUrl as an instant visible frame (no black flash)
-    • When the tab is active, mounts the iframe with autoplay/muted/loop/no-controls
-    • iframe sits on top (z-index 2) so the video replaces the thumbnail once loaded
-    • pointerEvents: none prevents the Bunny player UI from appearing on hover
-  When the tab is inactive, only the thumbnail is shown (no concurrent iframes).
+  Thumbnail-first strategy to eliminate Bunny player controls flash & buffering:
+    • Thumbnail is shown immediately as the visible frame (z-index 2, on top)
+    • iframe is mounted right away but stays invisible (opacity 0) underneath
+    • After REVEAL_DELAY ms the iframe fades in (opacity → 1) and thumbnail
+      fades out — by then the first ~2 s of video has already buffered so
+      playback is instant and controls never flash through
+    • When the tab is inactive the iframe is unmounted to free resources and
+      thumbnail snaps back to full opacity for the next activation
 ──────────────────────────────────────────────────────────────────────────────── */
+const REVEAL_DELAY = 2200; // ms to hold thumbnail before revealing video
+
 function BunnyFacade({
   embedUrl,
   thumbnailUrl,
@@ -44,23 +48,39 @@ function BunnyFacade({
   thumbnailUrl?: string;
   isActive: boolean;
 }) {
+  // videoReady: true = cross-fade complete, show video; false = show thumbnail
+  const [videoReady, setVideoReady] = useState(false);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!isActive) {
+      // Tab became inactive — reset so next activation starts fresh
+      setVideoReady(false);
+      if (revealTimerRef.current) {
+        clearTimeout(revealTimerRef.current);
+        revealTimerRef.current = null;
+      }
+      return;
+    }
+
+    // Tab became active — start the buffer window then reveal
+    revealTimerRef.current = setTimeout(() => {
+      setVideoReady(true);
+    }, REVEAL_DELAY);
+
+    return () => {
+      if (revealTimerRef.current) {
+        clearTimeout(revealTimerRef.current);
+        revealTimerRef.current = null;
+      }
+    };
+  }, [isActive]);
+
   const iframeSrc = isActive ? toBunnyEmbedUrl(embedUrl) : null;
 
   return (
     <div className="relative w-full h-full bg-[#0C0C12]">
-      {/* Thumbnail — instant visible frame, sits beneath the iframe */}
-      {thumbnailUrl && (
-        <img
-          src={thumbnailUrl}
-          alt=""
-          draggable={false}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ zIndex: 1 }}
-          loading="lazy"
-        />
-      )}
-
-      {/* Autoplay iframe — only mounted when this tab is active */}
+      {/* ── Iframe: mounted immediately but invisible until videoReady ── */}
       {iframeSrc && (
         <iframe
           src={iframeSrc}
@@ -71,13 +91,32 @@ function BunnyFacade({
             width: "100%",
             height: "100%",
             border: "none",
-            zIndex: 2,
+            zIndex: 1,
             pointerEvents: "none",
+            opacity: videoReady ? 1 : 0,
+            transition: "opacity 0.6s ease",
           }}
         />
       )}
 
-      {/* Fallback icon when no thumbnail and tab inactive */}
+      {/* ── Thumbnail: on top, fades out once video is ready ── */}
+      {thumbnailUrl && (
+        <img
+          src={thumbnailUrl}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            zIndex: 2,
+            opacity: videoReady ? 0 : 1,
+            transition: "opacity 0.6s ease",
+            pointerEvents: "none",
+          }}
+          loading="lazy"
+        />
+      )}
+
+      {/* ── Fallback icon when no thumbnail and tab is inactive ── */}
       {!thumbnailUrl && !iframeSrc && (
         <div className="w-full h-full flex items-center justify-center">
           <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
