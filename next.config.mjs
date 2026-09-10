@@ -22,14 +22,14 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://player.vimeo.com https://f.vimeocdn.com https://player.mediadelivery.net https://iframe.mediadelivery.net",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://player.vimeo.com https://f.vimeocdn.com https://*.mediadelivery.net https://*.bunnycdn.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https: http:",
+              "img-src 'self' data: blob: https: http: https://*.bunnyinfra.net",
               "media-src 'self' blob: https:",
               // frame-src: the critical one — allows Vimeo + Bunny CDN iframes
-              "frame-src 'self' https://player.vimeo.com https://vimeo.com https://iframe.mediadelivery.net https://player.mediadelivery.net",
-              "connect-src 'self' https://player.vimeo.com https://fresnel.vimeocdn.com https://vod-progressive.akamaized.net https://iframe.mediadelivery.net https://player.mediadelivery.net https://cdn.mediadelivery.net wss:",
+              "frame-src 'self' https://player.vimeo.com https://vimeo.com https://*.mediadelivery.net",
+              "connect-src 'self' https://player.vimeo.com https://fresnel.vimeocdn.com https://vod-progressive.akamaized.net https://*.mediadelivery.net https://*.bunnycdn.com https://*.bunnyinfra.net wss:",
               "worker-src 'self' blob:",
             ].join("; "),
           },
