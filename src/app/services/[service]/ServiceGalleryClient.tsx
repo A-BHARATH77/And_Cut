@@ -353,6 +353,11 @@ function VideoCard({
           : clsx("w-full bg-black/20 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
       )}
       onClick={() => {
+        // Active Bunny video: open Vimeo in new tab on click
+        if (isActive && isBunnyEmbed(video.videoPath) && video.vimeoId) {
+          window.open(`https://vimeo.com/${video.vimeoId}`, "_blank", "noopener,noreferrer");
+        }
+        // Active local video: toggle mute
         if (isActive && isLocalVideo(video.videoPath) && videoRef.current) {
           videoRef.current.muted = !videoRef.current.muted;
           setIsMuted(videoRef.current.muted);
@@ -405,8 +410,23 @@ function VideoCard({
                 zIndex: 2,
                 opacity: iframeLoaded ? 1 : 0,
                 transition: "opacity 0.8s ease",
+                pointerEvents: "none", // allow outer div click to bubble up
               }}
             />
+          )}
+          {/* Vimeo click cue — shown on hover for active Bunny cards with vimeoId */}
+          {isActive && isBunnyEmbed(video.videoPath) && video.vimeoId && (
+            <div
+              className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all duration-300 flex items-end justify-start p-4 z-10 cursor-pointer opacity-0 hover:opacity-100"
+              style={{ zIndex: 10 }}
+            >
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-md">
+                <svg className="w-3.5 h-3.5 text-[#6EE7FF]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
+                </svg>
+                Watch on Vimeo
+              </div>
+            </div>
           )}
         </div>
       ) : isLocalVideo(video.videoPath) ? (

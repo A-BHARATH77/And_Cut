@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { FORMATS_DATA, VideoData } from "@/data/services";
 
 /**
@@ -83,14 +82,7 @@ function BunnyCard({
         }}
       />
 
-      {/* Play hint overlay */}
-      <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all duration-300 flex items-center justify-center z-10">
-        <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-black/50 backdrop-blur-md border border-white/25 flex items-center justify-center text-white/80 opacity-0 group-hover:opacity-100 transition-all">
-          <svg className="w-6 h-6 md:w-8 md:h-8 ml-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </div>
-      </div>
+      {/* No play overlay — pure autoplay preview, click opens Vimeo */}
 
       {/* Text overlay */}
       {!video.videoPath.includes("/UGC/") && (
@@ -110,8 +102,6 @@ function BunnyCard({
 }
 
 export default function BeyondVertical() {
-  const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
-
   return (
     <>
       <section
@@ -139,76 +129,22 @@ export default function BeyondVertical() {
           </p>
         </motion.div>
 
-        {/* Horizontal video cards */}
+        {/* Horizontal video cards — click opens Vimeo in a new tab */}
         <div className="w-full max-w-[1600px] px-3 sm:px-6 md:px-12 lg:px-20 relative z-10 flex flex-col gap-4 md:gap-8">
           {FORMATS_DATA["Horizontal"]?.map((video, idx) => (
             <div key={`horizontal-${idx}`} className="w-full relative group">
               <BunnyCard
                 video={video}
-                onClick={() => setActiveVideo(video)}
+                onClick={() => {
+                  if (video.vimeoId) {
+                    window.open(`https://vimeo.com/${video.vimeoId}`, "_blank", "noopener,noreferrer");
+                  }
+                }}
               />
             </div>
           ))}
         </div>
       </section>
-
-      {/* Full-screen lightbox modal */}
-      <AnimatePresence>
-        {activeVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/92 backdrop-blur-md p-3 sm:p-6 md:p-12 cursor-pointer"
-            onClick={() => setActiveVideo(null)}
-          >
-            <button
-              className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 z-50 transition-colors"
-              onClick={() => setActiveVideo(null)}
-            >
-              <X size={28} />
-            </button>
-
-            <motion.div
-              className="relative w-full max-w-[95vw] md:max-w-[1100px] aspect-video overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Thumbnail while iframe loads */}
-              {activeVideo.thumbnailUrl && (
-                <img
-                  src={activeVideo.thumbnailUrl}
-                  alt={activeVideo.title}
-                  className="absolute inset-0 w-full h-full object-cover z-[1]"
-                />
-              )}
-              {/* Bunny embed with audio enabled for the modal */}
-              <iframe
-                key={activeVideo.videoPath}
-                src={toBunnyEmbed(
-                  activeVideo.videoPath,
-                  "autoplay=true&loop=true&muted=false&preload=true"
-                )}
-                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-                className="absolute inset-0 w-full h-full border-0 z-[2]"
-              />
-              {activeVideo.vimeoId && (
-                <a
-                  href={`https://vimeo.com/${activeVideo.vimeoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute bottom-4 left-4 z-30 px-3.5 py-2 rounded-full bg-black/75 border border-white/20 text-white text-xs font-semibold hover:bg-black/90 hover:border-[#6EE7FF] transition-all backdrop-blur-md flex items-center gap-2 shadow-lg"
-                >
-                  <svg className="w-4 h-4 text-[#6EE7FF]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
-                  </svg>
-                  <span>Watch on Vimeo</span>
-                </a>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
