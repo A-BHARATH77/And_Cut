@@ -12,7 +12,7 @@ export type BigTextProps = SliceComponentProps<Content.BigTextSlice>;
 /* ─── Bunny embed helper ──────────────────────────────────────────────────── */
 function toBunnyEmbed(
   url: string,
-  params = "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+  params = "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true"
 ): string {
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
   if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
@@ -32,7 +32,7 @@ function toBunnyEmbed(
 function BunnyIframe({ src, className }: { src: string; className?: string }) {
   const embedSrc = toBunnyEmbed(
     src,
-    "autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+    "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true"
   );
   return (
     <iframe

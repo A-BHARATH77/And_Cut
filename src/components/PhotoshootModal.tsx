@@ -157,9 +157,9 @@ function VideoColumn({
                 key={`vp-${activeIdx}`}
                 vimeoId={activeVideo.vimeoId!}
                 playing={true}
-                muted={false}
+                muted={true}
                 loop={true}
-                controls={true}
+                controls={false}
                 background={false}
                 quality="auto"
                 className="w-full h-full"
@@ -178,7 +178,6 @@ function VideoColumn({
                 autoPlay
                 loop
                 muted
-                controls
                 playsInline
                 className="w-full h-full object-contain"
               />

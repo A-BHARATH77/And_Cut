@@ -11,7 +11,7 @@ import { FORMATS_DATA, VideoData } from "@/data/services";
  */
 function toBunnyEmbed(
   url: string,
-  params = "autoplay=true&loop=true&muted=true&preload=true"
+  params = "autoplay=true&loop=true&muted=true&preload=true&controls=false"
 ) {
   let base = url;
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);

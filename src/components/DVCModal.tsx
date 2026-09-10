@@ -153,7 +153,7 @@ function VideoColumn({
       base = activeVideo.videoPath.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
     }
 
-    const params = new URLSearchParams("autoplay=true&loop=true&muted=false&preload=true");
+    const params = new URLSearchParams("autoplay=true&loop=true&muted=true&preload=true&controls=false");
     params.set("disableRum", "true");
     return base.includes("?") ? `${base}&${params.toString()}` : `${base}?${params.toString()}`;
   })();
@@ -174,9 +174,9 @@ function VideoColumn({
               key={`vp-${activeIdx}`}
               vimeoId={activeVideo.vimeoId}
               playing={true}
-              muted={false}
+              muted={true}
               loop={true}
-              controls={true}
+              controls={false}
               background={false}
               quality="auto"
               className="w-full h-full"
@@ -208,28 +208,7 @@ function VideoColumn({
           ) : null}
         </div>
 
-        {/* Player controls overlay: Toggle player / Open in Vimeo */}
-        {activeVideo.vimeoId && bunnySrc && (
-          <div className="absolute bottom-3 left-3 z-30 flex items-center gap-2">
-            <button
-              onClick={() => setUseVimeo(!useVimeo)}
-              className="px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-white text-xs font-semibold hover:bg-black/90 hover:border-[#6EE7FF] transition-all backdrop-blur-md shadow-md"
-            >
-              {useVimeo ? "Switch to Bunny CDN" : "Play with Vimeo Player"}
-            </button>
-            <a
-              href={`https://vimeo.com/${activeVideo.vimeoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-1.5 rounded-full bg-black/75 border border-white/20 text-white/80 hover:text-white hover:border-[#6EE7FF] transition-all backdrop-blur-md"
-              title="Open on Vimeo.com"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
-              </svg>
-            </a>
-          </div>
-        )}
+        {/* No player controls — videos play silently like the hero section */}
       </motion.div>
     </AnimatePresence>
   );

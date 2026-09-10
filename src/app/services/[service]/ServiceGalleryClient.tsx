@@ -396,7 +396,6 @@ function VideoCard({
   isActive?: boolean;
   onVimeoClick?: () => void;
 }) {
-  const [isMuted, setIsMuted] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -404,13 +403,11 @@ function VideoCard({
   useEffect(() => {
     if (isActive && videoRef.current) {
       videoRef.current.muted = true;
-      setIsMuted(true);
       videoRef.current.load();
       videoRef.current.play().catch(() => {});
     }
     if (isThumbnail && videoRef.current) {
       videoRef.current.muted = true;
-      setIsMuted(true);
       videoRef.current.pause();
     }
   }, [isActive, isThumbnail]);
@@ -419,7 +416,7 @@ function VideoCard({
 
   // Bunny silent-autoplay src (muted, no controls)
   const bunnyIframeSrc = isBunnyEmbed(video.videoPath)
-    ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true")
+    ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
     : null;
 
   return (
@@ -435,13 +432,6 @@ function VideoCard({
           ? clsx("w-full bg-black/40 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
           : clsx("w-full bg-black/20 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
       )}
-      onClick={() => {
-        // Active local video: toggle mute on click
-        if (isActive && isLocalVideo(video.videoPath) && videoRef.current) {
-          videoRef.current.muted = !videoRef.current.muted;
-          setIsMuted(videoRef.current.muted);
-        }
-      }}
     >
       {isBunnyEmbed(video.videoPath) ? (
         <div className="relative w-full h-full" style={{ backgroundColor: "#0C0C12" }}>
@@ -516,7 +506,7 @@ function VideoCard({
           src={video.videoPath}
           autoPlay
           loop
-          muted={isMuted}
+          muted
           playsInline
           preload={isThumbnail ? "metadata" : "auto"}
           className={clsx(
@@ -537,30 +527,7 @@ function VideoCard({
         />
       )}
 
-      {/* Mute/unmute for active local video */}
-      {isActive && isLocalVideo(video.videoPath) && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (videoRef.current) {
-              videoRef.current.muted = !videoRef.current.muted;
-              setIsMuted(videoRef.current.muted);
-            }
-          }}
-          className="absolute bottom-3 right-3 md:bottom-4 md:right-4 z-30 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white transition-all"
-        >
-          {isMuted ? (
-            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.907L5.586 15z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.907L5.586 15z" />
-            </svg>
-          )}
-        </button>
-      )}
+      {/* No mute/unmute controls — videos play silently like the hero section */}
 
       {/* Title overlay for non-thumbnail cards */}
       {!isThumbnail && !video.videoPath.includes("/UGC/") && (

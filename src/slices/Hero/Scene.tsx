@@ -244,7 +244,7 @@ export default function Scene() {
                 opacity: 0.9,
               }}>
                 <iframe
-                  src="https://iframe.mediadelivery.net/embed/747536/912530c7-3894-46d0-875c-f223b7917503?autoplay=true&loop=true&muted=true&preload=true&disableRum=true"
+                  src="https://iframe.mediadelivery.net/embed/747536/912530c7-3894-46d0-875c-f223b7917503?autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true"
                   allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
                   title="3D Marquee Horizontal Video"
                   style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }}
