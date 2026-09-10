@@ -99,7 +99,22 @@ function BunnyFacade({
         />
       )}
 
-      {/* ── Thumbnail: on top, fades out once video is ready ── */}
+      {/* ── Dark cover: sits above the iframe at all times while loading,
+           blocks any Bunny player controls/spinners from bleeding through.
+           Fades out together with the thumbnail once videoReady. ── */}
+      {iframeSrc && !videoReady && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "#0C0C12",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* ── Thumbnail: on top of the dark cover, fades out once video is ready ── */}
       {thumbnailUrl && (
         <img
           src={thumbnailUrl}
@@ -107,7 +122,7 @@ function BunnyFacade({
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            zIndex: 2,
+            zIndex: 4,
             opacity: videoReady ? 0 : 1,
             transition: "opacity 0.6s ease",
             pointerEvents: "none",
