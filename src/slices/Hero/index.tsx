@@ -6,33 +6,9 @@ import { SliceComponentProps } from "@prismicio/react";
 
 export type HeroProps = SliceComponentProps<Content.HeroSlice>;
 
-// Vimeo ID for the desktop hero background
-const DESKTOP_VIMEO_ID = "1223934273";
-
-/** Build a Vimeo background-mode iframe src. */
-function vimeoBgSrc(id: string): string {
-  return (
-    `https://player.vimeo.com/video/${id}` +
-    `?background=1` +
-    `&autoplay=1` +
-    `&muted=1` +
-    `&loop=1` +
-    `&autopause=0` +
-    `&controls=0` +
-    `&title=0` +
-    `&byline=0` +
-    `&portrait=0` +
-    `&dnt=1` +
-    `&playsinline=1` +
-    `&quality=360p`
-  );
-}
-
 const Hero = ({ slice }: HeroProps): JSX.Element => {
   const container = useRef<HTMLDivElement>(null);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
-
-  const desktopVimeoSrc = vimeoBgSrc(DESKTOP_VIMEO_ID);
 
   useEffect(() => {
     // Show scroll indicator after 2 seconds
@@ -49,9 +25,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
       >
-        {/* Desktop Background — Vimeo iframe in background mode.
-            Mounts at page load so Vimeo buffers during the preloader animation.
-            A poster background-image ensures no black flash while Vimeo buffers. */}
+        {/* Desktop Background — Bunny Direct MP4 */}
         <div
           className="hidden md:block absolute inset-0 w-full h-full z-0"
           style={{
@@ -60,22 +34,17 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
             backgroundPosition: "center",
           }}
         >
-          <iframe
-            src={desktopVimeoSrc}
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-            loading="eager"
-            title="Hero background video"
+          <video
+            src="https://vz-1878a866-25c.b-cdn.net/7b536505-f9f6-4948-85e2-be488b4e5c60/play_360p.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
             style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: "177.78vh",
-              height: "56.25vw",
-              minWidth: "100%",
-              minHeight: "100%",
-              transform: "translate(-50%, -50%)",
-              border: "none",
-              pointerEvents: "none",
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
             }}
           />
         </div>
