@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import clsx from "clsx";
+import VimeoPlayer from "@/components/VimeoPlayer";
 import { VideoData } from "@/data/services";
 
 /* ─────────────────────────────────────────────────────────────
@@ -122,24 +123,29 @@ function VideoColumn({
   activeIdx: number;
   activeVideo: VideoData;
 }) {
-  // Convert Bunny CDN player.mediadelivery.net/play/LIB/ID
-  // → iframe.mediadelivery.net/embed/LIB/ID?autoplay=true&loop=true
-  // The /play/ URL is a standalone watch page (cannot be embedded).
-  // The /embed/ URL is the correct Bunny Stream iframe endpoint.
+  const [useVimeo, setUseVimeo] = useState(false);
+
+  // Reset to default player on card change
+  useEffect(() => {
+    setUseVimeo(false);
+  }, [activeIdx]);
+
   const bunnySrc = (() => {
     const playMatch = activeVideo.videoPath.match(
       /player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i
     );
+    let base = activeVideo.videoPath;
     if (playMatch) {
       const [, libId, videoId] = playMatch;
-      return `https://iframe.mediadelivery.net/embed/${libId}/${videoId}?autoplay=true&loop=true&muted=false&preload=true`;
+      base = `https://iframe.mediadelivery.net/embed/${libId}/${videoId}`;
+    } else if (activeVideo.videoPath.includes("player.mediadelivery.net")) {
+      base = activeVideo.videoPath.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
     }
-    // Fallback: use as-is with params appended
-    return activeVideo.videoPath.includes("?")
-      ? `${activeVideo.videoPath}&autoplay=true&loop=true&muted=false`
-      : `${activeVideo.videoPath}?autoplay=true&loop=true&muted=false`;
-  })();
 
+    const params = new URLSearchParams("autoplay=true&loop=true&muted=true&preload=true&controls=false");
+    params.set("disableRum", "true");
+    return base.includes("?") ? `${base}&${params.toString()}` : `${base}?${params.toString()}`;
+  })();
 
   return (
     <AnimatePresence mode="wait">
@@ -149,33 +155,51 @@ function VideoColumn({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
-        className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
+        className="h-[40vh] sm:h-[60vh] md:h-full flex flex-col items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
-          {/* Thumbnail shown while iframe loads */}
-          {activeVideo.thumbnailUrl && (
-            <img
-              src={activeVideo.thumbnailUrl}
-              alt={activeVideo.title}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 1 }}
+          {useVimeo && activeVideo.vimeoId ? (
+            <VimeoPlayer
+              key={`vimeo-${activeIdx}`}
+              vimeoId={activeVideo.vimeoId}
+              playing={true}
+              muted={true}
+              loop={true}
+              controls={false}
+              quality="auto"
+              className="w-full h-full"
             />
+          ) : (
+            <>
+              {/* Thumbnail shown while iframe loads */}
+              {activeVideo.thumbnailUrl && (
+                <img
+                  src={activeVideo.thumbnailUrl}
+                  alt={activeVideo.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ zIndex: 1 }}
+                />
+              )}
+              {/* Bunny CDN iframe — autoplay, muted, loop, no controls */}
+              <iframe
+                key={`ugc-iframe-${activeIdx}`}
+                src={bunnySrc}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  zIndex: 2,
+                  pointerEvents: "none",
+                }}
+              />
+            </>
           )}
-          {/* Bunny CDN iframe — autoplay with audio, loop */}
-          <iframe
-            key={`ugc-iframe-${activeIdx}`}
-            src={bunnySrc}
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-              zIndex: 2,
-            }}
-          />
         </div>
+
+        {/* No player controls — videos play silently like the hero section */}
       </motion.div>
     </AnimatePresence>
   );

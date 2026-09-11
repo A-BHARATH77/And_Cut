@@ -14,42 +14,132 @@ import MicroDramaModal from "@/components/MicroDramaModal";
 import AdFilmsModal from "@/components/AdFilmsModal";
 import PhotoshootModal from "@/components/PhotoshootModal";
 
+/* ─── Bunny embed URL builder (same logic as BigText/works section) ─────── */
+function toBunnyEmbedUrl(url: string): string {
+  const params = "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true";
+  const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+  if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
+  if (url.includes("mediadelivery.net")) {
+    return url.includes("?") ? `${url}&${params}` : `${url}?${params}`;
+  }
+  return url;
+}
+
 /* ──────────────────────────────────────────────────────────────────────────────
   BunnyFacade
 
-  Facade pattern for Bunny CDN stream embeds.
-    • Phase 1: shows thumbnailUrl (pre-baked from services.ts) immediately
-    • Phase 2: mounts the iframe with autoplay/muted/loop once in DOM
-    • Phase 3: cross-fades thumbnail out once the iframe fires "load"
-  Bunny CDN videoPath URLs are HTML player pages — they CANNOT be used in
-  a native <video> src. This component embeds them properly via <iframe>.
+  Thumbnail-first strategy to eliminate Bunny player controls flash & buffering:
+    • Thumbnail is shown immediately as the visible frame (z-index 2, on top)
+    • iframe is mounted right away but stays invisible (opacity 0) underneath
+    • After REVEAL_DELAY ms the iframe fades in (opacity → 1) and thumbnail
+      fades out — by then the first ~2 s of video has already buffered so
+      playback is instant and controls never flash through
+    • When the tab is inactive the iframe is unmounted to free resources and
+      thumbnail snaps back to full opacity for the next activation
 ──────────────────────────────────────────────────────────────────────────────── */
+const REVEAL_DELAY = 2200; // ms to hold thumbnail before revealing video
+
 function BunnyFacade({
-  embedUrl: _embedUrl, // kept in props for type compatibility; not used in marquee (thumbnail-only)
+  embedUrl,
   thumbnailUrl,
+  isActive,
 }: {
   embedUrl: string;
   thumbnailUrl?: string;
+  isActive: boolean;
 }) {
-  // Note: no iframe in the marquee — too many concurrent embeds kills performance.
-  // We show the static thumbnail. The Modal plays the full video on click.
+  // videoReady: true = cross-fade complete, show video; false = show thumbnail
+  const [videoReady, setVideoReady] = useState(false);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!isActive) {
+      // Tab became inactive — reset so next activation starts fresh
+      setVideoReady(false);
+      if (revealTimerRef.current) {
+        clearTimeout(revealTimerRef.current);
+        revealTimerRef.current = null;
+      }
+      return;
+    }
+
+    // Tab became active — start the buffer window then reveal
+    revealTimerRef.current = setTimeout(() => {
+      setVideoReady(true);
+    }, REVEAL_DELAY);
+
+    return () => {
+      if (revealTimerRef.current) {
+        clearTimeout(revealTimerRef.current);
+        revealTimerRef.current = null;
+      }
+    };
+  }, [isActive]);
+
+  const iframeSrc = isActive ? toBunnyEmbedUrl(embedUrl) : null;
 
   return (
-    thumbnailUrl ? (
-      <img
-        src={thumbnailUrl}
-        alt=""
-        draggable={false}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
-    ) : (
-      <div className="w-full h-full bg-[#0C0C12] flex items-center justify-center">
-        <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </div>
-    )
+    <div className="relative w-full h-full bg-[#0C0C12]">
+      {/* ── Iframe: mounted immediately but invisible until videoReady ── */}
+      {iframeSrc && (
+        <iframe
+          src={iframeSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+            zIndex: 1,
+            pointerEvents: "none",
+            opacity: videoReady ? 1 : 0,
+            transition: "opacity 0.6s ease",
+          }}
+        />
+      )}
+
+      {/* ── Dark cover: sits above the iframe at all times while loading,
+           blocks any Bunny player controls/spinners from bleeding through.
+           Fades out together with the thumbnail once videoReady. ── */}
+      {iframeSrc && !videoReady && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "#0C0C12",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* ── Thumbnail: on top of the dark cover, fades out once video is ready ── */}
+      {thumbnailUrl && (
+        <img
+          src={thumbnailUrl}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            zIndex: 4,
+            opacity: videoReady ? 0 : 1,
+            transition: "opacity 0.6s ease",
+            pointerEvents: "none",
+          }}
+          loading="lazy"
+        />
+      )}
+
+      {/* ── Fallback icon when no thumbnail and tab is inactive ── */}
+      {!thumbnailUrl && !iframeSrc && (
+        <div className="w-full h-full flex items-center justify-center">
+          <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -231,6 +321,7 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                   <BunnyFacade
                     embedUrl={video.videoPath}
                     thumbnailUrl={video.thumbnailUrl}
+                    isActive={isActive}
                   />
                 )}
 

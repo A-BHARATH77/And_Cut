@@ -134,6 +134,30 @@ function VideoColumn({
   activeIdx: number;
   activeVideo: VideoData;
 }) {
+  const [useVimeo, setUseVimeo] = useState(false);
+
+  useEffect(() => {
+    setUseVimeo(false);
+  }, [activeIdx]);
+
+  const bunnySrc = (() => {
+    if (!activeVideo.videoPath) return null;
+    const playMatch = activeVideo.videoPath.match(
+      /player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i
+    );
+    let base = activeVideo.videoPath;
+    if (playMatch) {
+      const [, libId, videoId] = playMatch;
+      base = `https://iframe.mediadelivery.net/embed/${libId}/${videoId}`;
+    } else if (activeVideo.videoPath.includes("player.mediadelivery.net")) {
+      base = activeVideo.videoPath.replace("player.mediadelivery.net/play/", "iframe.mediadelivery.net/embed/");
+    }
+
+    const params = new URLSearchParams("autoplay=true&loop=true&muted=true&preload=true&controls=false");
+    params.set("disableRum", "true");
+    return base.includes("?") ? `${base}&${params.toString()}` : `${base}?${params.toString()}`;
+  })();
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -145,20 +169,47 @@ function VideoColumn({
         className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
-          <div className="relative w-full h-full">
+          {(!bunnySrc || useVimeo) && activeVideo.vimeoId ? (
             <VimeoPlayer
               key={`vp-${activeIdx}`}
-              vimeoId={activeVideo.vimeoId!}
+              vimeoId={activeVideo.vimeoId}
               playing={true}
-              muted={false}
+              muted={true}
               loop={true}
-              controls={true}
+              controls={false}
               background={false}
               quality="auto"
               className="w-full h-full"
             />
-          </div>
+          ) : bunnySrc ? (
+            <>
+              {activeVideo.thumbnailUrl && (
+                <img
+                  src={activeVideo.thumbnailUrl}
+                  alt={activeVideo.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ zIndex: 1 }}
+                />
+              )}
+              <iframe
+                key={`microdrama-iframe-${activeIdx}`}
+                src={bunnySrc}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  zIndex: 2,
+                  pointerEvents: "none",
+                }}
+              />
+            </>
+          ) : null}
         </div>
+
+        {/* No player controls — videos play silently like the hero section */}
       </motion.div>
     </AnimatePresence>
   );
