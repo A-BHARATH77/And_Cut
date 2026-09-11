@@ -67,9 +67,9 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "Product Testimonial",    videoPath: "https://iframe.mediadelivery.net/embed/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96", isHorizontal: true, vimeoId: "1216461168", thumbnailUrl: "https://i.vimeocdn.com/video/2187898419-1f381add55c2ce8bf27d777835dab25aa2ea82fe07e6575916907b2b9fd7a451-d_640?region=us" },
   ],
   Horizontal: [
-    { title: "Cinematic Reel", videoPath: "https://iframe.mediadelivery.net/embed/747536/5bece3c3-1d8a-4272-a7cb-ea56eb57a45f", isHorizontal: true, vimeoId: "1216461255" },
-    { title: "Showreel",       videoPath: "https://iframe.mediadelivery.net/embed/747536/1f600eee-2ec1-4377-93ae-23c3c8e7ac96", isHorizontal: true, vimeoId: "1216461168" },
-    { title: "CNBC",           videoPath: "https://iframe.mediadelivery.net/embed/747536/d1281b9b-d4ee-4961-b344-c84e4bbf32d4", isHorizontal: true, vimeoId: "1216461171" },
+    { title: "Cinematic Reel", videoPath: "https://vz-1878a866-25c.b-cdn.net/cf14100a-e968-4963-8fd4-cd2f6d07779c/play_360p.mp4", isHorizontal: true, vimeoId: "1216461255" },
+    { title: "Showreel",       videoPath: "https://vz-1878a866-25c.b-cdn.net/44c24870-b765-4bab-8022-0e1bda7c856a/play_360p.mp4", isHorizontal: true, vimeoId: "1216461168" },
+    { title: "CNBC",           videoPath: "https://vz-1878a866-25c.b-cdn.net/b526a30e-03dc-4321-8f09-757289a6097f/play_360p.mp4", isHorizontal: true, vimeoId: "1216461171" },
   ],
 };
 

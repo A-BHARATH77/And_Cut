@@ -64,23 +64,43 @@ function BunnyCard({
         />
       )}
 
-      {/* Bunny embed — muted autoplay loop, no controls, pure preview */}
-      <iframe
-        src={embedSrc}
-        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-        onLoad={() => setIframeLoaded(true)}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          border: "none",
-          zIndex: 2,
-          opacity: iframeLoaded ? 1 : 0,
-          transition: "opacity 0.8s ease",
-          pointerEvents: "none", // let outer div receive the click
-        }}
-      />
+      {/* Video or Bunny iframe embed */}
+      {video.videoPath.includes(".mp4") ? (
+        <video
+          src={video.videoPath}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+        />
+      ) : (
+        <iframe
+          src={embedSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+          onLoad={() => setIframeLoaded(true)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+            zIndex: 2,
+            opacity: iframeLoaded ? 1 : 0,
+            transition: "opacity 0.8s ease",
+            pointerEvents: "none", // let outer div receive the click
+          }}
+        />
+      )}
 
       {/* Hover overlay — subtle Vimeo cue, no big play button */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-end justify-start p-4 sm:p-6 md:p-10 z-10 opacity-0 group-hover:opacity-100">
