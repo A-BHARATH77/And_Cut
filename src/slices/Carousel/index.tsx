@@ -144,6 +144,46 @@ function BunnyFacade({
 }
 
 /* ──────────────────────────────────────────────────────────────────────────────
+  MpegVideo
+
+  Lightweight native <video> wrapper for Bunny CDN MP4 streaming URLs.
+  Plays when the parent tab is active, pauses when inactive — keeping DOM alive
+  so other tabs' iframes are not destroyed while switching.
+──────────────────────────────────────────────────────────────────────────────── */
+function MpegVideo({ src, isActive }: { src: string; isActive: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    if (isActive) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [isActive]);
+
+  return (
+    <video
+      ref={ref}
+      src={src}
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
   TabMarquee
 
   Self-contained infinite marquee for ONE tab. Always in the DOM so that
@@ -313,11 +353,11 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
+                ) : video.videoPath.includes("b-cdn.net") || video.videoPath.endsWith(".mp4") ? (
+                  /* ── Bunny CDN MP4 streaming — native <video> tag ── */
+                  <MpegVideo src={video.videoPath} isActive={isActive} />
                 ) : (
-                  /* ── Bunny CDN stream thumbnail ────────────────────────────
-                     videoPath is a Bunny stream player URL — CANNOT be used in
-                     a <video> src. BunnyFacade shows the pre-baked thumbnailUrl
-                     as a static preview. Clicking opens the Modal for playback. */
+                  /* ── Bunny embed iframe (legacy fallback) ────────── */
                   <BunnyFacade
                     embedUrl={video.videoPath}
                     thumbnailUrl={video.thumbnailUrl}
