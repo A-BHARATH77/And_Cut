@@ -129,12 +129,12 @@ function BunnyCard({
   );
 }
 
-/* ─── Vimeo in-page lightbox ──────────────────────────────────────────────── */
-function VimeoLightbox({
-  vimeoId,
+/* ─── Bunny in-page lightbox ─────────────────────────────────────────────── */
+function VideoLightbox({
+  videoSrc,
   onClose,
 }: {
-  vimeoId: string;
+  videoSrc: string;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -142,10 +142,6 @@ function VimeoLightbox({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
-
-  const vimeoSrc =
-    `https://player.vimeo.com/video/${vimeoId}` +
-    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0`;
 
   return (
     <motion.div
@@ -171,11 +167,12 @@ function VimeoLightbox({
         className="relative w-full max-w-[95vw] md:max-w-[1100px] aspect-video overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
-        <iframe
-          src={vimeoSrc}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full border-0"
+        <video
+          src={videoSrc}
+          autoPlay
+          controls
+          playsInline
+          className="absolute inset-0 w-full h-full object-contain"
         />
       </motion.div>
     </motion.div>
@@ -219,18 +216,18 @@ export default function BeyondVertical() {
             <div key={`horizontal-${idx}`} className="w-full relative">
               <BunnyCard
                 video={video}
-                onClick={() => video.vimeoId && setActiveVideo(video)}
+                onClick={() => setActiveVideo(video)}
               />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Vimeo in-page lightbox */}
+      {/* Bunny in-page video lightbox */}
       <AnimatePresence>
-        {activeVideo?.vimeoId && (
-          <VimeoLightbox
-            vimeoId={activeVideo.vimeoId}
+        {activeVideo && (
+          <VideoLightbox
+            videoSrc={activeVideo.videoPath}
             onClose={() => setActiveVideo(null)}
           />
         )}

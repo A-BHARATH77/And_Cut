@@ -160,25 +160,25 @@ const VIDEOS = {
   v12: "https://iframe.mediadelivery.net/embed/747536/ce5438f3-2aa0-48ff-b209-440403823070",
 };
 
-/** Vimeo IDs — each key matches a VIDEOS key above */
-const VIMEO_IDS: Record<string, string> = {
-  h1: "1216461255",
-  h2: "1216461171",
-  h3: "1216461167",
-  h4: "1216461174",
-  h5: "1216461168",
-  v1:  "1218018594",
-  v2:  "1223649060",
-  v3:  "1218018596",
-  v4:  "1216461167",
-  v5:  "1216461174",
-  v6:  "1216461243",
-  v7:  "1216461291",
-  v8:  "1216196958",
-  v9:  "1216461284",
-  v10: "1223649066",
-  v11: "1216461255",
-  v12: "1216461266",
+/** Bunny CDN MP4 player URLs — each key matches a VIDEOS key above */
+const PLAYER_SRCS: Record<string, string> = {
+  h1: VIDEOS.h1,
+  h2: VIDEOS.h2,
+  h3: VIDEOS.h3,
+  h4: VIDEOS.h4,
+  h5: VIDEOS.h5,
+  v1:  VIDEOS.v1,
+  v2:  VIDEOS.v2,
+  v3:  VIDEOS.v3,
+  v4:  VIDEOS.v4,
+  v5:  VIDEOS.v5,
+  v6:  VIDEOS.v6,
+  v7:  VIDEOS.v7,
+  v8:  VIDEOS.v8,
+  v9:  VIDEOS.v9,
+  v10: VIDEOS.v10,
+  v11: VIDEOS.v11,
+  v12: VIDEOS.v12,
 };
 
 /* ─── Comments data ───────────────────────────────────────────────────────── */
@@ -233,13 +233,13 @@ const FloatingComment = ({ data }: { data: any }) => (
   </motion.div>
 );
 
-/* ─── Vimeo lightbox modal ────────────────────────────────────────────────── */
-function VimeoLightbox({
-  vimeoId,
+/* ─── Bunny video lightbox modal ───────────────────────────────────────────── */
+function VideoLightbox({
+  videoSrc,
   aspect,
   onClose,
 }: {
-  vimeoId: string;
+  videoSrc: string;
   aspect: "H" | "V";
   onClose: () => void;
 }) {
@@ -249,10 +249,6 @@ function VimeoLightbox({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
-
-  const vimeoSrc =
-    `https://player.vimeo.com/video/${vimeoId}` +
-    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0`;
 
   return (
     <motion.div
@@ -283,27 +279,28 @@ function VimeoLightbox({
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <iframe
-          src={vimeoSrc}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full border-0"
+        <video
+          src={videoSrc}
+          autoPlay
+          controls
+          playsInline
+          className="absolute inset-0 w-full h-full object-contain"
         />
       </motion.div>
     </motion.div>
   );
 }
 
-/* ─── Main BigText component ──────────────────────────────────────────────── */
+/* ─── Main BigText component ───────────────────────────────────────────── */
 const BigText = ({ slice }: BigTextProps): JSX.Element => {
-  const [activeVimeo, setActiveVimeo] = useState<{ id: string; aspect: "H" | "V" } | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ src: string; aspect: "H" | "V" } | null>(null);
 
-  const openVimeo = (key: string, aspect: "H" | "V") => {
-    const vimeoId = VIMEO_IDS[key];
-    if (vimeoId) setActiveVimeo({ id: vimeoId, aspect });
+  const openVideo = (key: string, aspect: "H" | "V") => {
+    const src = PLAYER_SRCS[key];
+    if (src) setActiveVideo({ src, aspect });
   };
 
-  const closeVimeo = () => setActiveVimeo(null);
+  const closeVideo = () => setActiveVideo(null);
 
   return (
     <section
@@ -332,30 +329,30 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
 
         {/* 📱 MOBILE layout (< md) */}
         <div className="flex flex-col gap-3 md:hidden">
-          <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1", "H")} />
+          <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVideo("h1", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1", "V")} />
-            <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2", "V")} />
+            <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVideo("v1", "V")} />
+            <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVideo("v2", "V")} />
           </div>
-          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2", "H")} />
+          <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVideo("h2", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3", "V")} />
-            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4", "V")} />
+            <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVideo("v3", "V")} />
+            <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVideo("v4", "V")} />
           </div>
-          <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3", "H")} />
+          <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVideo("h3", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5", "V")} />
-            <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6", "V")} />
+            <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVideo("v5", "V")} />
+            <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVideo("v6", "V")} />
           </div>
-          <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4", "H")} />
+          <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVideo("h4", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7", "V")} />
-            <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8", "V")} />
+            <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVideo("v7", "V")} />
+            <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVideo("v8", "V")} />
           </div>
-          <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5", "H")} />
+          <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVideo("h5", "H")} />
           <div className="flex gap-3">
-            <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVimeo("v9",  "V")} />
-            <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10", "V")} />
+            <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVideo("v9",  "V")} />
+            <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVideo("v10", "V")} />
           </div>
         </div>
 
@@ -363,41 +360,41 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
         <div className="hidden md:flex gap-6 w-full">
           {/* Left Column */}
           <div className="flex flex-col gap-6 w-1/2">
-            <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVimeo("h1", "H")} />
+            <VideoBlock id="h1" src={VIDEOS.h1} aspect="H" onClick={() => openVideo("h1", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVimeo("v1", "V")} />
-              <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVimeo("v2", "V")} />
+              <VideoBlock id="v1" src={VIDEOS.v1} aspect="V" onClick={() => openVideo("v1", "V")} />
+              <VideoBlock id="v2" src={VIDEOS.v2} aspect="V" onClick={() => openVideo("v2", "V")} />
             </div>
             <div className="flex gap-6">
-              <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVimeo("v3", "V")} />
-              <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVimeo("v4", "V")} />
+              <VideoBlock id="v3" src={VIDEOS.v3} aspect="V" onClick={() => openVideo("v3", "V")} />
+              <VideoBlock id="v4" src={VIDEOS.v4} aspect="V" onClick={() => openVideo("v4", "V")} />
             </div>
-            <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVimeo("h2", "H")} />
+            <VideoBlock id="h2" src={VIDEOS.h2} aspect="H" onClick={() => openVideo("h2", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => openVimeo("v11", "V")} />
-              <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => openVimeo("v12", "V")} />
+              <VideoBlock id="v11" src={VIDEOS.v11} aspect="V" onClick={() => openVideo("v11", "V")} />
+              <VideoBlock id="v12" src={VIDEOS.v12} aspect="V" onClick={() => openVideo("v12", "V")} />
             </div>
             <div className="lg:hidden w-full">
-              <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVimeo("h5", "H")} />
+              <VideoBlock id="h5" src={VIDEOS.h5} aspect="H" onClick={() => openVideo("h5", "H")} />
             </div>
           </div>
 
           {/* Right Column */}
           <div className="flex flex-col gap-6 w-1/2">
             <div className="flex gap-6">
-              <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVimeo("v5", "V")} />
-              <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVimeo("v6", "V")} />
+              <VideoBlock id="v5" src={VIDEOS.v5} aspect="V" onClick={() => openVideo("v5", "V")} />
+              <VideoBlock id="v6" src={VIDEOS.v6} aspect="V" onClick={() => openVideo("v6", "V")} />
             </div>
-            <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVimeo("h3", "H")} />
+            <VideoBlock id="h3" src={VIDEOS.h3} aspect="H" onClick={() => openVideo("h3", "H")} />
             <div className="flex gap-6">
-              <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVimeo("v7", "V")} />
-              <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVimeo("v8", "V")} />
+              <VideoBlock id="v7" src={VIDEOS.v7} aspect="V" onClick={() => openVideo("v7", "V")} />
+              <VideoBlock id="v8" src={VIDEOS.v8} aspect="V" onClick={() => openVideo("v8", "V")} />
             </div>
             <div className="flex gap-6">
-              <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVimeo("v9",  "V")} />
-              <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVimeo("v10", "V")} />
+              <VideoBlock id="v9"  src={VIDEOS.v9}  aspect="V" onClick={() => openVideo("v9",  "V")} />
+              <VideoBlock id="v10" src={VIDEOS.v10} aspect="V" onClick={() => openVideo("v10", "V")} />
             </div>
-            <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVimeo("h4", "H")} />
+            <VideoBlock id="h4" src={VIDEOS.h4} aspect="H" onClick={() => openVideo("h4", "H")} />
           </div>
         </div>
       </div>
@@ -467,13 +464,13 @@ const BigText = ({ slice }: BigTextProps): JSX.Element => {
         </motion.div>
       </div>
 
-      {/* Vimeo Lightbox — renders in-page when a video is clicked */}
+      {/* Video Lightbox — renders in-page when a video is clicked */}
       <AnimatePresence>
-        {activeVimeo && (
-          <VimeoLightbox
-            vimeoId={activeVimeo.id}
-            aspect={activeVimeo.aspect}
-            onClose={closeVimeo}
+        {activeVideo && (
+          <VideoLightbox
+            videoSrc={activeVideo.src}
+            aspect={activeVideo.aspect}
+            onClose={closeVideo}
           />
         )}
       </AnimatePresence>
