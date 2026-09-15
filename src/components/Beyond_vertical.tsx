@@ -129,12 +129,12 @@ function BunnyCard({
   );
 }
 
-/* ─── Vimeo in-page lightbox ──────────────────────────────────────────────── */
-function VimeoLightbox({
-  vimeoId,
+/* ─── Bunny player lightbox ─────────────────────────────────────────────── */
+function VideoLightbox({
+  playerUrl,
   onClose,
 }: {
-  vimeoId: string;
+  playerUrl: string;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -143,9 +143,12 @@ function VimeoLightbox({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const vimeoSrc =
-    `https://player.vimeo.com/video/${vimeoId}` +
-    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0`;
+  // Convert player.mediadelivery.net/play/LIB/ID → iframe embed with controls
+  const embedSrc = (() => {
+    const m = playerUrl.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+    if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?autoplay=true&controls=true&loop=false&disableRum=true`;
+    return playerUrl;
+  })();
 
   return (
     <motion.div
@@ -172,8 +175,8 @@ function VimeoLightbox({
         onClick={(e) => e.stopPropagation()}
       >
         <iframe
-          src={vimeoSrc}
-          allow="autoplay; fullscreen; picture-in-picture"
+          src={embedSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
           allowFullScreen
           className="absolute inset-0 w-full h-full border-0"
         />
@@ -184,7 +187,7 @@ function VimeoLightbox({
 
 /* ─── Main component ──────────────────────────────────────────────────────── */
 export default function BeyondVertical() {
-  const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
+  const [activePlayer, setActivePlayer] = useState<string | null>(null);
 
   return (
     <>
@@ -219,19 +222,19 @@ export default function BeyondVertical() {
             <div key={`horizontal-${idx}`} className="w-full relative">
               <BunnyCard
                 video={video}
-                onClick={() => video.vimeoId && setActiveVideo(video)}
+                onClick={() => video.bunnyPlayerUrl && setActivePlayer(video.bunnyPlayerUrl)}
               />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Vimeo in-page lightbox */}
+      {/* Bunny player lightbox */}
       <AnimatePresence>
-        {activeVideo?.vimeoId && (
-          <VimeoLightbox
-            vimeoId={activeVideo.vimeoId}
-            onClose={() => setActiveVideo(null)}
+        {activePlayer && (
+          <VideoLightbox
+            playerUrl={activePlayer}
+            onClose={() => setActivePlayer(null)}
           />
         )}
       </AnimatePresence>

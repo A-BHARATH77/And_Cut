@@ -35,7 +35,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           }}
         >
           <video
-            src="https://vz-1878a866-25c.b-cdn.net/7b536505-f9f6-4948-85e2-be488b4e5c60/play_360p.mp4"
+            src="https://vz-4a9f7a4f-4d6.b-cdn.net/bbd202e5-bd5e-4663-89d2-5c5859dd612d/play_480p.mp4"
             autoPlay
             loop
             muted
@@ -59,21 +59,19 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
             backgroundPosition: "center",
           }}
         >
-          <iframe
-            src="https://iframe.mediadelivery.net/embed/747536/ab6863db-823c-4023-aeb4-dd91613c24e1?autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true"
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-            loading="eager"
-            title="Hero mobile background video"
+          <video
+            src="https://vz-4a9f7a4f-4d6.b-cdn.net/f777ec40-5875-492c-9c9d-5d5f118fb936/play_480p.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
             style={{
               position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: "177.78vh",
-              height: "56.25vw",
-              minWidth: "100%",
-              minHeight: "100%",
-              transform: "translate(-50%, -50%)",
-              border: "none",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
               pointerEvents: "none",
             }}
           />
