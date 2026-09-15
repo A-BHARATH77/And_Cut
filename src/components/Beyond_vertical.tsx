@@ -129,12 +129,12 @@ function BunnyCard({
   );
 }
 
-/* ─── Bunny in-page lightbox ─────────────────────────────────────────────── */
+/* ─── Bunny player lightbox ─────────────────────────────────────────────── */
 function VideoLightbox({
-  videoSrc,
+  playerUrl,
   onClose,
 }: {
-  videoSrc: string;
+  playerUrl: string;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -142,6 +142,13 @@ function VideoLightbox({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
+
+  // Convert player.mediadelivery.net/play/LIB/ID → iframe embed with controls
+  const embedSrc = (() => {
+    const m = playerUrl.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
+    if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?autoplay=true&controls=true&loop=false&disableRum=true`;
+    return playerUrl;
+  })();
 
   return (
     <motion.div
@@ -167,12 +174,11 @@ function VideoLightbox({
         className="relative w-full max-w-[95vw] md:max-w-[1100px] aspect-video overflow-hidden rounded-xl md:rounded-[2rem] shadow-2xl bg-black cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
-        <video
-          src={videoSrc}
-          autoPlay
-          controls
-          playsInline
-          className="absolute inset-0 w-full h-full object-contain"
+        <iframe
+          src={embedSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full border-0"
         />
       </motion.div>
     </motion.div>
@@ -181,7 +187,7 @@ function VideoLightbox({
 
 /* ─── Main component ──────────────────────────────────────────────────────── */
 export default function BeyondVertical() {
-  const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
+  const [activePlayer, setActivePlayer] = useState<string | null>(null);
 
   return (
     <>
@@ -216,19 +222,19 @@ export default function BeyondVertical() {
             <div key={`horizontal-${idx}`} className="w-full relative">
               <BunnyCard
                 video={video}
-                onClick={() => setActiveVideo(video)}
+                onClick={() => video.bunnyPlayerUrl && setActivePlayer(video.bunnyPlayerUrl)}
               />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Bunny in-page video lightbox */}
+      {/* Bunny player lightbox */}
       <AnimatePresence>
-        {activeVideo && (
+        {activePlayer && (
           <VideoLightbox
-            videoSrc={activeVideo.videoPath}
-            onClose={() => setActiveVideo(null)}
+            playerUrl={activePlayer}
+            onClose={() => setActivePlayer(null)}
           />
         )}
       </AnimatePresence>

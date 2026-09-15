@@ -70,9 +70,9 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
   ],
   Horizontal: [
     // Beyond Vertical section — awaiting new links from client
-    { title: "Cinematic Reel", videoPath: "https://vz-1878a866-25c.b-cdn.net/cf14100a-e968-4963-8fd4-cd2f6d07779c/play_360p.mp4", isHorizontal: true, vimeoId: "1216461255" },
-    { title: "Showreel",       videoPath: "https://vz-1878a866-25c.b-cdn.net/44c24870-b765-4bab-8022-0e1bda7c856a/play_360p.mp4", isHorizontal: true, vimeoId: "1216461168" },
-    { title: "CNBC",           videoPath: "https://vz-1878a866-25c.b-cdn.net/b526a30e-03dc-4321-8f09-757289a6097f/play_360p.mp4", isHorizontal: true, vimeoId: "1216461171" },
+    { title: "Cinematic Reel", videoPath: "https://vz-1878a866-25c.b-cdn.net/cf14100a-e968-4963-8fd4-cd2f6d07779c/play_360p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/753159/38ddffbb-502c-456e-964f-af2d8e2c373f" },
+    { title: "Showreel",       videoPath: "https://vz-1878a866-25c.b-cdn.net/44c24870-b765-4bab-8022-0e1bda7c856a/play_360p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/753159/20dd0407-524e-42d3-b380-dc6807f4174c" },
+    { title: "CNBC",           videoPath: "https://vz-1878a866-25c.b-cdn.net/b526a30e-03dc-4321-8f09-757289a6097f/play_360p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/753159/0a84b805-dca1-46dc-98bb-808314c0877f" },
   ],
 };
 
