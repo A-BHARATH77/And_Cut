@@ -115,6 +115,7 @@ export default function ServiceGalleryClient({ formatName, activeVideos }: Props
   const [vimeoOpen, setVimeoOpen] = useState<{ id: string; isVertical: boolean } | null>(null);
 
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const mobileSidebarRef = useRef<HTMLDivElement>(null);
 
   const scrollUp = () => sidebarRef.current?.scrollBy({ top: -200, behavior: "smooth" });
   const scrollDown = () => sidebarRef.current?.scrollBy({ top: 200, behavior: "smooth" });
@@ -172,28 +173,82 @@ export default function ServiceGalleryClient({ formatName, activeVideos }: Props
           </h1>
         </div>
 
-        {/* ── MOBILE layout: stacked ── */}
+        {/* ── MOBILE layout: sidebar (left) + video (right), side-by-side ── */}
         <div className="flex flex-col gap-4 lg:hidden">
-          {/* Active video */}
-          <div className="w-full">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`main-${activeVideoIdx}`}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35 }}
-                className="w-full"
+          {/* Row: sidebar (left) + active video (right) */}
+          <div className="flex flex-row gap-2 items-start">
+            {/* Mobile sidebar — vertical scrollable thumbnails with arrows */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              {/* Up arrow */}
+              <button
+                onClick={() => mobileSidebarRef.current?.scrollBy({ top: -160, behavior: "smooth" })}
+                className="w-7 h-7 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center active:scale-95 shadow-md"
+                aria-label="Scroll Up"
               >
-                <VideoCard
-                  video={activeVideo}
-                  isActive
-                  onVimeoClick={() => openVimeo(activeVideo)}
-                />
-              </motion.div>
-            </AnimatePresence>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+
+              {/* Thumbnail list */}
+              <div
+                ref={mobileSidebarRef}
+                className="flex flex-col gap-2 overflow-y-auto hide-scrollbar overscroll-contain scroll-smooth"
+                style={{ maxHeight: "65vh" }}
+                data-lenis-prevent="true"
+              >
+                {activeVideos.map((video, idx) => {
+                  if (idx === activeVideoIdx) return null;
+                  return (
+                    <motion.div
+                      key={`mthumb-${idx}`}
+                      onClick={() => setActiveVideoIdx(idx)}
+                      whileTap={{ scale: 0.95 }}
+                      className={clsx(
+                        "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300",
+                        "border-white/20 hover:border-white/50",
+                        video.isHorizontal ? "w-[68px]" : "w-[56px]"
+                      )}
+                    >
+                      <VideoCard video={video} isThumbnail />
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Down arrow */}
+              <button
+                onClick={() => mobileSidebarRef.current?.scrollBy({ top: 160, behavior: "smooth" })}
+                className="w-7 h-7 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center active:scale-95 shadow-md"
+                aria-label="Scroll Down"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Active video — takes remaining width */}
+            <div className="flex-1 min-w-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`main-${activeVideoIdx}`}
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.35 }}
+                  className="w-full"
+                >
+                  <VideoCard
+                    video={activeVideo}
+                    isActive
+                    onVimeoClick={() => openVimeo(activeVideo)}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
-          {/* Info card */}
+          {/* Info card — below the video row */}
           <div className="w-full rounded-2xl bg-[#0A0A0F] border border-white/10 p-5 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#6EE7FF]/10 blur-[60px] rounded-full pointer-events-none" />
             <div className="relative z-10 flex flex-col gap-4">
@@ -227,32 +282,6 @@ export default function ServiceGalleryClient({ formatName, activeVideos }: Props
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </a>
-            </div>
-          </div>
-
-          {/* Thumbnails — horizontal scroll */}
-          <div>
-            <p className="text-white/30 text-[10px] uppercase tracking-widest mb-2">More in this series</p>
-            <div
-              className="flex gap-3 overflow-x-auto hide-scrollbar overscroll-contain pb-2"
-              data-lenis-prevent="true"
-            >
-              {activeVideos.map((video, idx) => {
-                if (idx === activeVideoIdx) return null;
-                return (
-                  <motion.div
-                    key={`thumb-${idx}`}
-                    onClick={() => setActiveVideoIdx(idx)}
-                    whileTap={{ scale: 0.95 }}
-                    className={clsx(
-                      "shrink-0 cursor-pointer rounded-xl overflow-hidden border border-white/10",
-                      video.isHorizontal ? "w-[130px]" : "w-[72px]"
-                    )}
-                  >
-                    <VideoCard video={video} isThumbnail />
-                  </motion.div>
-                );
-              })}
             </div>
           </div>
         </div>

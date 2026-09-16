@@ -43,24 +43,24 @@ function SidebarColumn({
   }, [activeIdx]);
 
   return (
-    <div className="hidden md:flex items-start gap-2 xl:gap-4 h-full order-1 min-h-0">
+    <div className="flex flex-row items-start gap-1.5 md:gap-4 h-auto md:h-full order-1 min-h-0 shrink-0">
       {/* Arrow buttons */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2 md:gap-4">
         <button
           onClick={() => scroll("up")}
-          className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+          className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg shrink-0"
           aria-label="Scroll Up"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
           </svg>
         </button>
         <button
           onClick={() => scroll("down")}
-          className="w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg"
+          className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg shrink-0"
           aria-label="Scroll Down"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -69,7 +69,7 @@ function SidebarColumn({
       {/* Thumbnail list */}
       <div
         ref={sidebarRef}
-        className="w-[150px] px-2 shrink-0 flex flex-col gap-6 overflow-y-auto hide-scrollbar overscroll-contain h-full justify-start pb-4 pointer-events-auto scroll-smooth"
+        className="w-[56px] sm:w-[70px] md:w-[150px] px-0.5 md:px-2 shrink-0 flex flex-col gap-2 md:gap-6 overflow-y-auto hide-scrollbar overscroll-contain max-h-[35vh] sm:max-h-[50vh] md:max-h-none md:h-full justify-start pb-2 md:pb-4 pointer-events-auto scroll-smooth"
         data-lenis-prevent="true"
       >
         {videos.map((v, idx) => (
@@ -77,7 +77,7 @@ function SidebarColumn({
             key={idx}
             onClick={() => onSelect(idx)}
             className={clsx(
-              "shrink-0 cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[120px] h-[120px] aspect-square relative",
+              "shrink-0 cursor-pointer rounded-lg md:rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[50px] h-[50px] sm:w-[60px] sm:h-[60px] md:w-[120px] md:h-[120px] aspect-square relative",
               idx === activeIdx
                 ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105"
                 : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
@@ -322,18 +322,21 @@ export default function AdFilmsModal({ videos, initialIndex, onClose }: AdFilmsM
           className="w-full max-w-[1600px] h-full md:h-[90vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* A: Sidebar */}
-          <SidebarColumn
-            videos={videos}
-            activeIdx={activeIdx}
-            onSelect={setActiveIdx}
-          />
+          {/* Row wrapper for mobile (Sidebar + Video), contents on md+ */}
+          <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 md:contents w-full">
+            {/* A: Sidebar */}
+            <SidebarColumn
+              videos={videos}
+              activeIdx={activeIdx}
+              onSelect={setActiveIdx}
+            />
 
-          {/* B: Video player */}
-          <VideoColumn
-            activeIdx={activeIdx}
-            activeVideo={activeVideo}
-          />
+            {/* B: Video player */}
+            <VideoColumn
+              activeIdx={activeIdx}
+              activeVideo={activeVideo}
+            />
+          </div>
 
           {/* C: Info panel */}
           <InfoPanelCard />
