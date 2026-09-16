@@ -146,7 +146,7 @@ function VideoLightbox({
   // Convert player.mediadelivery.net/play/LIB/ID → iframe embed with controls
   const embedSrc = (() => {
     const m = playerUrl.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
-    if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?autoplay=true&controls=true&loop=false&disableRum=true`;
+    if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?autoplay=true&controls=true&loop=false&disableRum=true&playsinline=true`;
     return playerUrl;
   })();
 

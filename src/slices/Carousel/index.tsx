@@ -16,7 +16,7 @@ import PhotoshootModal from "@/components/PhotoshootModal";
 
 /* ─── Bunny embed URL builder (same logic as BigText/works section) ─────── */
 function toBunnyEmbedUrl(url: string): string {
-  const params = "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true";
+  const params = "autoplay=true&loop=true&muted=true&preload=true&controls=false&disableRum=true&playsinline=true";
   const m = url.match(/player\.mediadelivery\.net\/play\/(\d+)\/([a-f0-9-]+)/i);
   if (m) return `https://iframe.mediadelivery.net/embed/${m[1]}/${m[2]}?${params}`;
   if (url.includes("mediadelivery.net")) {

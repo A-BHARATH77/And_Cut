@@ -52,7 +52,7 @@ function VimeoLightbox({
 
   const vimeoSrc =
     `https://player.vimeo.com/video/${vimeoId}` +
-    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0`;
+    `?autoplay=1&controls=1&loop=0&dnt=1&title=0&byline=0&portrait=0&playsinline=1`;
 
   return (
     <motion.div
@@ -509,8 +509,17 @@ function VideoCard({
           muted
           playsInline
           preload={isThumbnail ? "metadata" : "auto"}
+          onClick={() => {
+            if (videoRef.current) {
+              if (videoRef.current.paused) {
+                videoRef.current.play().catch(() => {});
+              } else {
+                videoRef.current.pause();
+              }
+            }
+          }}
           className={clsx(
-            "w-full h-full object-cover transition-transform duration-700",
+            "w-full h-full object-cover transition-transform duration-700 cursor-pointer",
             !isActive && "group-hover:scale-105",
             isThumbnail && "opacity-70 group-hover:opacity-100"
           )}
