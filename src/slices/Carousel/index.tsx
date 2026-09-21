@@ -222,11 +222,13 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
   };
   const halfWidth = baseItems.reduce((acc, v) => acc + getItemWidth(v), 0);
 
-  const xRef             = useRef(0);
-  const isAutoScrollRef  = useRef(true);
-  const activeTweenRef   = useRef<gsap.core.Tween | null>(null);
-  const trackRef         = useRef<HTMLDivElement>(null);
-  const isActiveRef      = useRef(isActive);
+  const xRef              = useRef(0);
+  const isAutoScrollRef   = useRef(true);
+  const activeTweenRef    = useRef<gsap.core.Tween | null>(null);
+  const trackRef          = useRef<HTMLDivElement>(null);
+  const isActiveRef       = useRef(isActive);
+  const touchStartXRef    = useRef(0);
+  const touchStartScrollX = useRef(0);
 
   useEffect(() => { isActiveRef.current = isActive; }, [isActive]);
 
@@ -294,6 +296,29 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
     });
   };
 
+  /* ── Touch drag: pause auto-scroll, track finger, resume on lift ── */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current    = e.touches[0].clientX;
+    touchStartScrollX.current = xRef.current;
+    isAutoScrollRef.current   = false;
+    activeTweenRef.current?.kill();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!trackRef.current || halfWidth <= 0) return;
+    const deltaX = e.touches[0].clientX - touchStartXRef.current;
+    let x = touchStartScrollX.current + deltaX;
+    // Infinite-loop wrap
+    while (x <= -halfWidth) x += halfWidth;
+    while (x > 0)           x -= halfWidth;
+    xRef.current = x;
+    trackRef.current.style.transform = `translateX(${x}px)`;
+  };
+
+  const handleTouchEnd = () => {
+    isAutoScrollRef.current = true;
+  };
+
   return (
     <div
       style={{ display: isActive ? "block" : "none" }}
@@ -321,7 +346,12 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
         </svg>
       </button>
 
-      <div className="w-full overflow-hidden">
+      <div
+        className="w-full overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div
           ref={trackRef}
           className="flex flex-row gap-3 sm:gap-4 md:gap-5 will-change-transform"
@@ -394,7 +424,7 @@ const TABS = ["UGC", "DVC", "Micro Drama", "Ad films & others", "Photoshoot"];
 const DISPLAY_LABELS: Record<string, string> = {
   "UGC":              "UGC",
   "DVC":              "DVC",
-  "Micro Drama":      "Micro drama",
+  "Micro Drama":      "Micro-Drama",
   "Ad films & others":"Ad films & others",
   "Photoshoot":       "Photoshoot",
 };

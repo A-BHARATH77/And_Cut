@@ -96,9 +96,9 @@ function SidebarColumn({
                   className="w-full h-full object-cover pointer-events-none"
                 />
               ) : (
-                /* Bunny CDN MP4 — show a static first frame */
+                /* Bunny CDN MP4 — show a static first frame at 240p to save bandwidth */
                 <video
-                  src={v.videoPath}
+                  src={v.videoPath.replace("play_480p.mp4", "play_240p.mp4")}
                   muted
                   playsInline
                   preload="metadata"
@@ -141,7 +141,7 @@ function VideoColumn({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
-        className="h-[40vh] sm:h-[60vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
+        className="h-[40vh] sm:h-[60vh] md:h-full w-[22.5vh] sm:w-[33.75vh] md:w-auto flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 aspect-[9/16] mx-auto md:mx-0"
       >
         <div className="absolute inset-0 w-full h-full bg-black">
           {bunnyPlayerSrc ? (

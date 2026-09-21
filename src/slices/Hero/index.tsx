@@ -21,6 +21,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
     <>
       <section
         ref={container}
+        id="home"
         className="relative min-h-[100svh] w-full bg-black overflow-hidden"
         data-slice-type={slice.slice_type}
         data-slice-variation={slice.variation}
