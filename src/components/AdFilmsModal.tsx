@@ -91,12 +91,14 @@ function SidebarColumn({
                   className="w-full h-full object-cover pointer-events-none"
                 />
               ) : (
-                /* Bunny CDN MP4 — show a static first frame at 240p to save bandwidth */
+                /* Bunny CDN MP4 — autoplay looping preview at 240p */
                 <video
                   src={v.videoPath.replace("play_480p.mp4", "play_240p.mp4")}
                   muted
+                  autoPlay
+                  loop
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   className="w-full h-full object-cover pointer-events-none"
                 />
               )}
