@@ -29,47 +29,65 @@ function SidebarColumn({
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (dir: "up" | "down") =>
-    sidebarRef.current?.scrollBy({ top: dir === "up" ? -160 : 160, behavior: "smooth" });
+  // On mobile: scroll horizontally; on desktop: scroll vertically
+  const scroll = (dir: "prev" | "next") => {
+    const el = sidebarRef.current;
+    if (!el) return;
+    const ITEM_SIZE = 64;
+    const delta = dir === "prev" ? -ITEM_SIZE * 2 : ITEM_SIZE * 2;
+    // Scroll both axes — only the overflowing axis will actually move
+    el.scrollBy({ left: delta, top: delta, behavior: "smooth" });
+  };
 
   useEffect(() => {
     const el = sidebarRef.current;
     if (!el) return;
-    const ITEM_H = 144;
+    const ITEM_SIZE = 144;
+    // Try both axes — whichever is scrollable will respond
     el.scrollTo({
-      top: activeIdx * ITEM_H - el.clientHeight / 2 + ITEM_H / 2,
+      left: activeIdx * ITEM_SIZE - el.clientWidth / 2 + ITEM_SIZE / 2,
+      top: activeIdx * ITEM_SIZE - el.clientHeight / 2 + ITEM_SIZE / 2,
       behavior: "smooth",
     });
   }, [activeIdx]);
 
   return (
-    <div className="flex flex-row items-start gap-1.5 md:gap-4 h-auto md:h-full order-1 min-h-0 shrink-0">
-      {/* Arrow buttons */}
-      <div className="flex flex-col gap-2 md:gap-4">
+    // Mobile: column (arrows+strip as a row), Desktop: row (arrows above/below, strip vertical)
+    <div className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 w-full md:w-auto md:h-full order-2 md:order-1 min-h-0 shrink-0">
+      {/* Arrow buttons — row on mobile (prev/next), column on desktop (up/down) */}
+      <div className="flex flex-row md:flex-col gap-2 md:gap-4 shrink-0">
         <button
-          onClick={() => scroll("up")}
+          onClick={() => scroll("prev")}
           className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg shrink-0"
-          aria-label="Scroll Up"
+          aria-label="Previous"
         >
-          <svg className="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/* Left arrow on mobile, Up arrow on desktop */}
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5 block md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+          </svg>
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
           </svg>
         </button>
         <button
-          onClick={() => scroll("down")}
+          onClick={() => scroll("next")}
           className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center transition-all hover:bg-black/90 hover:scale-110 active:scale-95 shadow-lg shrink-0"
-          aria-label="Scroll Down"
+          aria-label="Next"
         >
-          <svg className="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/* Right arrow on mobile, Down arrow on desktop */}
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5 block md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
+          <svg className="w-3.5 h-3.5 md:w-5 md:h-5 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
       </div>
 
-      {/* Thumbnail list */}
+      {/* Thumbnail list — horizontal scrollable strip on mobile, vertical on desktop */}
       <div
         ref={sidebarRef}
-        className="w-[56px] sm:w-[70px] md:w-[150px] px-0.5 md:px-2 shrink-0 flex flex-col gap-2 md:gap-6 overflow-y-auto hide-scrollbar overscroll-contain max-h-[35vh] sm:max-h-[50vh] md:max-h-none md:h-full justify-start pb-2 md:pb-4 pointer-events-auto scroll-smooth"
+        className="flex flex-row md:flex-col gap-2 md:gap-6 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar overscroll-contain w-full md:w-[150px] md:px-2 md:max-h-none md:h-full pointer-events-auto scroll-smooth pb-1 md:pb-4"
         data-lenis-prevent="true"
       >
         {videos.map((v, idx) => (
@@ -77,7 +95,7 @@ function SidebarColumn({
             key={idx}
             onClick={() => onSelect(idx)}
             className={clsx(
-              "shrink-0 cursor-pointer rounded-lg md:rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[50px] h-[50px] sm:w-[60px] sm:h-[60px] md:w-[120px] md:h-[120px] aspect-square relative",
+              "shrink-0 cursor-pointer rounded-lg md:rounded-xl overflow-hidden border transition-all duration-300 bg-black w-[58px] h-[58px] md:w-[120px] md:h-[120px] aspect-square relative",
               idx === activeIdx
                 ? "border-[#6EE7FF] ring-2 ring-[#6EE7FF]/50 scale-105"
                 : "border-white/20 hover:border-white/50 opacity-60 hover:opacity-100"
@@ -139,8 +157,10 @@ function VideoColumn({
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          "h-[32vh] sm:h-[50vh] md:h-full flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 mx-auto md:mx-0",
-          activeVideo.isHorizontal ? "aspect-video md:w-[42%]" : "aspect-[9/16]"
+          "flex items-center justify-center order-1 md:order-2 bg-black/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl shrink-0 mx-auto md:mx-0",
+          activeVideo.isHorizontal
+            ? "w-full aspect-video md:h-full md:w-[42%] md:aspect-auto"
+            : "h-[40vh] sm:h-[60vh] md:h-full aspect-[9/16]"
         )}
       >
         <div className="absolute inset-0 w-full h-full bg-black">
@@ -324,19 +344,19 @@ export default function AdFilmsModal({ videos, initialIndex, onClose }: AdFilmsM
           className="w-full max-w-[1600px] h-full md:h-[90vh] flex flex-col md:flex-row items-center gap-4 md:gap-6 relative pt-10 md:pt-0"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Row wrapper for mobile (Sidebar + Video), contents on md+ */}
-          <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 md:contents w-full">
-            {/* A: Sidebar */}
+          {/* Mobile: video on top, sidebar strip below. Desktop: contents (sidebar left, video centre) */}
+          <div className="flex flex-col md:contents w-full gap-3 md:gap-0">
+            {/* B: Video player — order-1 so it renders first on mobile */}
+            <VideoColumn
+              activeIdx={activeIdx}
+              activeVideo={activeVideo}
+            />
+
+            {/* A: Sidebar — order-2 on mobile (below video), order-1 on desktop (left column) */}
             <SidebarColumn
               videos={videos}
               activeIdx={activeIdx}
               onSelect={setActiveIdx}
-            />
-
-            {/* B: Video player */}
-            <VideoColumn
-              activeIdx={activeIdx}
-              activeVideo={activeVideo}
             />
           </div>
 
