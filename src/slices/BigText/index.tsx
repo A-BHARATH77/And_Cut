@@ -155,10 +155,10 @@ const VIDEOS = {
   v6:  "https://vz-4a9f7a4f-4d6.b-cdn.net/5ee4f7f2-ba8a-4af1-8485-c71de974041b/play_480p.mp4",
   v7:  "https://vz-4a9f7a4f-4d6.b-cdn.net/87bf6b34-4b0e-43e1-9fb5-b83ee2874eb4/play_480p.mp4",
   v8:  "https://vz-4a9f7a4f-4d6.b-cdn.net/c3507f10-18af-4aca-9a4e-41f3cc0f6b78/play_480p.mp4",
-  v9:  "https://vz-4a9f7a4f-4d6.b-cdn.net/749819dd-08c9-4e92-8ff2-5d5f45f92ac7/play_480p.mp4",
+  v9: "https://vz-4a9f7a4f-4d6.b-cdn.net/edcf35fc-86dc-4d51-913e-12eddf1e88da/play_480p.mp4",
   v10: "https://vz-4a9f7a4f-4d6.b-cdn.net/112f18bf-9a51-43fb-900a-6b153fb37aa3/play_480p.mp4",
   v11: "https://vz-4a9f7a4f-4d6.b-cdn.net/f55890ca-992f-4d20-b881-a5ff02b09cac/play_480p.mp4",
-  v12: "https://vz-4a9f7a4f-4d6.b-cdn.net/edcf35fc-86dc-4d51-913e-12eddf1e88da/play_480p.mp4",
+  v12:  "https://vz-4a9f7a4f-4d6.b-cdn.net/749819dd-08c9-4e92-8ff2-5d5f45f92ac7/play_480p.mp4",
 };
 
 /** Bunny player URLs — used in the on-click lightbox <iframe> */
