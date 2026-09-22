@@ -93,12 +93,6 @@ export default function Footer() {
                       <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
                     </a>
                   </li>
-                  <li>
-                    <a href="https://www.linkedin.com/company/andcut-content-studio/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm md:text-lg">
-                      LinkedIn
-                      <span className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0">↗</span>
-                    </a>
-                  </li>
                 </ul>
               </div>
             </div>
