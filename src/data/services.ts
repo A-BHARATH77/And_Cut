@@ -62,17 +62,17 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "Product Shoot", videoPath: "/Photoshoot/Towel%209.webp",       isHorizontal: true },
   ],
   "Ad films & others": [
-    { title: "Seven Ring Air Music Video", videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "CNBC",                       videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "0730(6)",                    videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "CDD Testimonial",            videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "0730(5)",                    videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
+    { title: "Seven Ring Air Music Video", videoPath: "https://vz-c90a1bec-fec.b-cdn.net/05816a15-5663-42e4-8000-0be36b14aea9/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/05816a15-5663-42e4-8000-0be36b14aea9" },
+    { title: "CNBC",                       videoPath: "https://vz-c90a1bec-fec.b-cdn.net/5025a6f5-f287-411b-9243-6fcab2682651/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/5025a6f5-f287-411b-9243-6fcab2682651" },
+    { title: "0730(6)",                    videoPath: "https://vz-c90a1bec-fec.b-cdn.net/7a356dbe-359b-4e1a-849e-efb0f209ee6b/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/7a356dbe-359b-4e1a-849e-efb0f209ee6b" },
+    { title: "CDD Testimonial",            videoPath: "https://vz-c90a1bec-fec.b-cdn.net/0b0b74dc-9743-42bd-bf58-6444a3b8c547/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/0b0b74dc-9743-42bd-bf58-6444a3b8c547" },
+    { title: "0730(5)",                    videoPath: "https://vz-c90a1bec-fec.b-cdn.net/69a184eb-c44e-4eef-a50b-a46d96adf226/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/69a184eb-c44e-4eef-a50b-a46d96adf226" },
   ],
   Horizontal: [
     // Beyond Vertical section — awaiting new links from client
-    { title: "Cinematic Reel", videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "Showreel",       videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
-    { title: "CNBC",           videoPath: "", isHorizontal: true, bunnyPlayerUrl: "" },
+    { title: "Cinematic Reel", videoPath: "https://vz-c90a1bec-fec.b-cdn.net/05816a15-5663-42e4-8000-0be36b14aea9/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/05816a15-5663-42e4-8000-0be36b14aea9" },
+    { title: "Showreel",       videoPath: "https://vz-c90a1bec-fec.b-cdn.net/7a356dbe-359b-4e1a-849e-efb0f209ee6b/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/7a356dbe-359b-4e1a-849e-efb0f209ee6b" },
+    { title: "CNBC",           videoPath: "https://vz-c90a1bec-fec.b-cdn.net/5025a6f5-f287-411b-9243-6fcab2682651/play_480p.mp4", isHorizontal: true, bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/5025a6f5-f287-411b-9243-6fcab2682651" },
   ],
 };
 
