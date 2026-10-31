@@ -36,7 +36,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           }}
         >
           <video
-            src="https://vz-4a9f7a4f-4d6.b-cdn.net/bbd202e5-bd5e-4663-89d2-5c5859dd612d/play_480p.mp4"
+            src="https://vz-c90a1bec-fec.b-cdn.net/f12fd151-f946-4808-9827-08d44a8943c3/play_480p.mp4"
             autoPlay
             loop
             muted
@@ -61,7 +61,7 @@ const Hero = ({ slice }: HeroProps): JSX.Element => {
           }}
         >
           <video
-            src="https://vz-4a9f7a4f-4d6.b-cdn.net/f777ec40-5875-492c-9c9d-5d5f118fb936/play_480p.mp4"
+            src="https://vz-c90a1bec-fec.b-cdn.net/316cdbf2-02c9-4a80-b3dc-82b22b4a2523/play_480p.mp4"
             autoPlay
             loop
             muted
