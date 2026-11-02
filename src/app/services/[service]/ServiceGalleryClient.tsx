@@ -536,11 +536,12 @@ function VideoCard({
           muted
           playsInline
           preload="auto"
+          onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
           onClick={() => {
             if (videoRef.current) {
               if (videoRef.current.paused) {
                 videoRef.current.play().catch(() => {});
-              } else {
+              } else if (!isThumbnail) {
                 videoRef.current.pause();
               }
             }
