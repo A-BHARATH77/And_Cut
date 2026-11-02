@@ -428,16 +428,14 @@ function VideoCard({
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Local video: play when active, pause when thumbnail
+  // Local video: play when active or thumbnail
   useEffect(() => {
-    if (isActive && videoRef.current) {
+    if (videoRef.current) {
       videoRef.current.muted = true;
-      videoRef.current.load();
+      if (isActive) {
+        videoRef.current.load();
+      }
       videoRef.current.play().catch(() => {});
-    }
-    if (isThumbnail && videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.pause();
     }
   }, [isActive, isThumbnail]);
 
@@ -537,7 +535,7 @@ function VideoCard({
           loop
           muted
           playsInline
-          preload={isThumbnail ? "metadata" : "auto"}
+          preload="auto"
           onClick={() => {
             if (videoRef.current) {
               if (videoRef.current.paused) {
