@@ -22,6 +22,11 @@ export const FORMATS_DATA: Record<string, VideoData[]> = {
     { title: "BT1",              videoPath: "https://vz-c90a1bec-fec.b-cdn.net/861c8d56-f2ce-4657-ba43-ca4a7285c3e7/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/861c8d56-f2ce-4657-ba43-ca4a7285c3e7" },
     { title: "Blue Tea 4",       videoPath: "https://vz-c90a1bec-fec.b-cdn.net/9ec4c187-b44e-47b5-bd9d-b2080c416069/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/9ec4c187-b44e-47b5-bd9d-b2080c416069" },
     { title: "0730(4)",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/44d97c80-6f61-4310-9bf1-c30dc9fcef8a/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/44d97c80-6f61-4310-9bf1-c30dc9fcef8a" },
+    { title: "BB",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/76356db7-75a6-4ef6-83bf-74f7f199a2b9/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/76356db7-75a6-4ef6-83bf-74f7f199a2b9" },
+    { title: "MDB",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/a39c5223-ecdb-46a7-9354-3a8ffc30d9d8/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/a39c5223-ecdb-46a7-9354-3a8ffc30d9d8" },
+    { title: "K1",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/72018192-645f-4f83-8a53-379f01e0dac7/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/72018192-645f-4f83-8a53-379f01e0dac7" },
+    { title: "K2",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/fa1cadc9-0256-44c1-84ad-98c6d541dbec/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/fa1cadc9-0256-44c1-84ad-98c6d541dbec" },
+    { title: "BeautyWise",          videoPath: "https://vz-c90a1bec-fec.b-cdn.net/a5efcc83-1760-4199-84be-a896a447778b/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/a5efcc83-1760-4199-84be-a896a447778b" },
   ],
   DVC: [
     { title: "0730",     videoPath: "https://vz-c90a1bec-fec.b-cdn.net/578ca5bb-2d7f-47c7-8dc7-829e34fc9a57/play_480p.mp4", bunnyPlayerUrl: "https://player.mediadelivery.net/play/793795/578ca5bb-2d7f-47c7-8dc7-829e34fc9a57" },
