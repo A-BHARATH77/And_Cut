@@ -109,9 +109,9 @@ function SidebarColumn({
                   className="w-full h-full object-cover pointer-events-none"
                 />
               ) : (
-                /* Bunny CDN MP4 — autoplay looping preview at 240p */
+                /* Bunny CDN MP4 — autoplay looping preview */
                 <video
-                  src={v.videoPath.replace("play_480p.mp4", "play_240p.mp4")}
+                  src={v.videoPath}
                   muted
                   autoPlay
                   loop
