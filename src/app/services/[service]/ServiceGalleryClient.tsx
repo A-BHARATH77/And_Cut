@@ -426,27 +426,18 @@ function VideoCard({
   onVimeoClick?: () => void;
 }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.load();
-      videoRef.current.play().catch(() => {});
-    }
-  }, []);
 
   if (!video) return null;
 
-  // Build a Bunny silent-autoplay embed src from bunnyPlayerUrl when available
-  const bunnyThumbSrc = video.bunnyPlayerUrl
-    ? toBunnyEmbedUrl(video.bunnyPlayerUrl, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
-    : null;
+  const isDirectMp4 = isLocalVideo(video.videoPath);
+  const isBunnyEmbedPath = isBunnyEmbed(video.videoPath);
 
-  // Bunny silent-autoplay src (muted, no controls) — for videoPath-based embeds
-  const bunnyIframeSrc = isBunnyEmbed(video.videoPath)
-    ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
-    : bunnyThumbSrc;
+  // Bunny embed URL for the ACTIVE card (large player)
+  const activeBunnySrc = video.bunnyPlayerUrl
+    ? toBunnyEmbedUrl(video.bunnyPlayerUrl, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
+    : isBunnyEmbedPath
+      ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
+      : null;
 
   return (
     <div
@@ -458,68 +449,84 @@ function VideoCard({
               video.isHorizontal ? "aspect-video" : "aspect-[9/16] max-h-[75vh]"
             )
           : isThumbnail
-          ? clsx("w-full bg-black/40 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
+          ? clsx("w-full bg-black rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
           : clsx("w-full bg-black/20 rounded-xl", video.isHorizontal ? "aspect-video" : "aspect-[9/16]")
       )}
     >
-      {isBunnyEmbed(video.videoPath) ? (
-        <div className="relative w-full h-full" style={{ backgroundColor: "#0C0C12" }}>
-          {/* Thumbnail facade — fades out once iframe loads */}
-          {video.thumbnailUrl ? (
-            <img
-              src={video.thumbnailUrl}
-              alt={video.title}
-              draggable={false}
-              className={clsx(
-                "absolute inset-0 w-full h-full object-cover transition-all duration-700",
-                isThumbnail && "opacity-70 group-hover:opacity-100"
-              )}
-              style={{
-                zIndex: 1,
-                opacity: isActive && iframeLoaded ? 0 : undefined,
-                transition: isActive ? "opacity 0.8s ease" : undefined,
-                pointerEvents: "none",
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-[#0C0C12] flex items-center justify-center" style={{ zIndex: 1 }}>
-              <svg className="w-8 h-8 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          )}
+      {/* ── THUMBNAIL: direct <video> tag — muted autoplay always works ── */}
+      {isThumbnail && isDirectMp4 && (
+        <video
+          src={video.videoPath}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
+          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+        />
+      )}
 
-      {/* Bunny silent autoplay — active card AND thumbnails with a bunny URL */}
-          {(isActive || isThumbnail) && bunnyIframeSrc && (
-            <iframe
-              src={bunnyIframeSrc}
-              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-              onLoad={() => setIframeLoaded(true)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                border: "none",
-                zIndex: 2,
-                opacity: isThumbnail ? 1 : (iframeLoaded ? 1 : 0),
-                transition: "opacity 0.8s ease",
-                pointerEvents: "none",
-              }}
-            />
-          )}
+      {/* ── THUMBNAIL: image fallback (Photoshoot) ── */}
+      {isThumbnail && !isDirectMp4 && !isBunnyEmbedPath && (
+        <img
+          src={video.videoPath}
+          alt={video.title}
+          className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+        />
+      )}
 
-          {/* Clickable Vimeo overlay — sits above the iframe, intercepts clicks */}
-          {isActive && video.vimeoId && (
+      {/* ── ACTIVE CARD ── */}
+      {isActive && (
+        <>
+          {/* Bunny iframe for active card with bunnyPlayerUrl or embed path */}
+          {activeBunnySrc ? (
+            <>
+              {/* Placeholder while iframe loads */}
+              <div
+                className="absolute inset-0 bg-[#0C0C12] flex items-center justify-center z-[1] transition-opacity duration-700"
+                style={{ opacity: iframeLoaded ? 0 : 1, pointerEvents: "none" }}
+              >
+                {video.thumbnailUrl ? (
+                  <img src={video.thumbnailUrl} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </div>
+              <iframe
+                src={activeBunnySrc}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+                onLoad={() => setIframeLoaded(true)}
+                className="absolute inset-0 w-full h-full border-0 z-[2]"
+                style={{ opacity: iframeLoaded ? 1 : 0, transition: "opacity 0.8s ease", pointerEvents: "none" }}
+              />
+            </>
+          ) : isDirectMp4 ? (
+            /* Direct MP4 — <video> for active card with no bunnyPlayerUrl */
+            <video
+              src={video.videoPath}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : !isBunnyEmbedPath ? (
+            /* Image (Photoshoot) */
+            <img src={video.videoPath} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : null}
+
+          {/* Clickable Vimeo overlay */}
+          {video.vimeoId && (
             <div
-              className="absolute inset-0 cursor-pointer group/vimeo flex items-end justify-start p-4 z-20"
+              className="absolute inset-0 cursor-pointer group/vimeo flex items-end justify-start p-4 z-[20]"
               style={{ background: "transparent" }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onVimeoClick?.();
-              }}
+              onClick={(e) => { e.stopPropagation(); onVimeoClick?.(); }}
             >
-              {/* Hover cue — bottom-left badge */}
               <div className="opacity-0 group-hover/vimeo:opacity-100 transition-all duration-300 translate-y-2 group-hover/vimeo:translate-y-0 flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/80 border border-white/20 text-white text-xs font-semibold backdrop-blur-md shadow-lg">
                 <svg className="w-3.5 h-3.5 text-[#6EE7FF]" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22.396 7.164c-.093 2.026-1.507 4.8-4.245 8.32-2.817 3.643-5.2 5.465-7.149 5.465-1.206 0-2.227-.887-3.064-2.66-.558-2.046-1.116-4.093-1.674-6.14-.62-2.261-1.286-3.393-2.001-3.393-.155 0-.698.326-1.629.977L1.4 8.242c1.272-1.116 2.528-2.233 3.768-3.35 1.69-1.458 2.962-2.233 3.815-2.326 2.016-.186 3.256.961 3.722 3.44.527 2.822.884 4.575 1.07 5.257.559 2.294 1.163 3.441 1.815 3.441.527 0 1.256-.822 2.186-2.465.93-1.644 1.442-2.885 1.535-3.723.186-1.488-.418-2.233-1.814-2.233-.652 0-1.334.14-2.047.419 1.349-4.416 3.907-6.527 7.675-6.333 2.76.14 4.047 1.845 3.86 5.114z"/>
@@ -528,65 +535,14 @@ function VideoCard({
               </div>
             </div>
           )}
-        </div>
-      ) : isLocalVideo(video.videoPath) && bunnyThumbSrc ? (
-        /* Bunny MP4 — use iframe embed so autoplay works reliably in all browsers */
-        <iframe
-          src={bunnyThumbSrc}
-          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            border: "none",
-            pointerEvents: "none",
-          }}
-        />
-      ) : isLocalVideo(video.videoPath) ? (
-        <video
-          ref={videoRef}
-          src={video.videoPath}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
-          onClick={() => {
-            if (videoRef.current) {
-              if (videoRef.current.paused) {
-                videoRef.current.play().catch(() => {});
-              } else if (!isThumbnail) {
-                videoRef.current.pause();
-              }
-            }
-          }}
-          className={clsx(
-            "w-full h-full object-cover transition-transform duration-700 cursor-pointer",
-            !isActive && "group-hover:scale-105",
-            isThumbnail && "opacity-70 group-hover:opacity-100"
-          )}
-        />
-      ) : (
-        <img
-          src={video.videoPath}
-          alt={video.title}
-          className={clsx(
-            "w-full h-full object-cover transition-transform duration-700",
-            !isActive && "group-hover:scale-105",
-            isThumbnail && "opacity-70 group-hover:opacity-100"
-          )}
-        />
-      )}
 
-      {/* No mute/unmute controls — videos play silently like the hero section */}
-
-      {/* Title overlay for non-thumbnail cards */}
-      {!isThumbnail && !video.videoPath.includes("/UGC/") && (
-        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10">
-          <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">{video.title}</h3>
-        </div>
+          {/* Title overlay */}
+          {!video.videoPath.includes("/UGC/") && (
+            <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10">
+              <h3 className="text-white text-sm md:text-lg font-bold capitalize select-none truncate">{video.title}</h3>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
