@@ -428,23 +428,25 @@ function VideoCard({
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Local video: play when active or thumbnail
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = true;
-      if (isActive) {
-        videoRef.current.load();
-      }
+      videoRef.current.load();
       videoRef.current.play().catch(() => {});
     }
-  }, [isActive, isThumbnail]);
+  }, []);
 
   if (!video) return null;
 
-  // Bunny silent-autoplay src (muted, no controls)
+  // Build a Bunny silent-autoplay embed src from bunnyPlayerUrl when available
+  const bunnyThumbSrc = video.bunnyPlayerUrl
+    ? toBunnyEmbedUrl(video.bunnyPlayerUrl, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
+    : null;
+
+  // Bunny silent-autoplay src (muted, no controls) — for videoPath-based embeds
   const bunnyIframeSrc = isBunnyEmbed(video.videoPath)
     ? toBunnyEmbedUrl(video.videoPath, "autoplay=true&loop=true&muted=true&preload=true&controls=false")
-    : null;
+    : bunnyThumbSrc;
 
   return (
     <div
@@ -487,8 +489,8 @@ function VideoCard({
             </div>
           )}
 
-          {/* Bunny silent autoplay — only for the active (main) card */}
-          {isActive && bunnyIframeSrc && (
+      {/* Bunny silent autoplay — active card AND thumbnails with a bunny URL */}
+          {(isActive || isThumbnail) && bunnyIframeSrc && (
             <iframe
               src={bunnyIframeSrc}
               allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
@@ -500,9 +502,9 @@ function VideoCard({
                 height: "100%",
                 border: "none",
                 zIndex: 2,
-                opacity: iframeLoaded ? 1 : 0,
+                opacity: isThumbnail ? 1 : (iframeLoaded ? 1 : 0),
                 transition: "opacity 0.8s ease",
-                pointerEvents: "none", // clicks pass to the overlay below
+                pointerEvents: "none",
               }}
             />
           )}
@@ -527,6 +529,20 @@ function VideoCard({
             </div>
           )}
         </div>
+      ) : isLocalVideo(video.videoPath) && bunnyThumbSrc ? (
+        /* Bunny MP4 — use iframe embed so autoplay works reliably in all browsers */
+        <iframe
+          src={bunnyThumbSrc}
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen;"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+            pointerEvents: "none",
+          }}
+        />
       ) : isLocalVideo(video.videoPath) ? (
         <video
           ref={videoRef}
