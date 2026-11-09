@@ -230,6 +230,46 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
   const touchStartXRef    = useRef(0);
   const touchStartScrollX = useRef(0);
 
+  /* ── Mouse drag (desktop click-and-hold to scroll) ── */
+  const isDraggingRef      = useRef(false);
+  const dragStartXRef      = useRef(0);
+  const dragStartScrollX   = useRef(0);
+  const hasDraggedRef      = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current    = true;
+    hasDraggedRef.current    = false;
+    dragStartXRef.current    = e.clientX;
+    dragStartScrollX.current = xRef.current;
+    isAutoScrollRef.current  = false;
+    activeTweenRef.current?.kill();
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || !trackRef.current || halfWidth <= 0) return;
+    const deltaX = e.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 4) hasDraggedRef.current = true;
+    let x = dragStartScrollX.current + deltaX;
+    while (x <= -halfWidth) x += halfWidth;
+    while (x > 0)           x -= halfWidth;
+    xRef.current = x;
+    trackRef.current.style.transform = `translateX(${x}px)`;
+  };
+
+  const handleMouseUp = () => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current   = false;
+    isAutoScrollRef.current = true;
+  };
+
+  const handleMouseLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current   = false;
+      isAutoScrollRef.current = true;
+    }
+  };
+
   useEffect(() => { isActiveRef.current = isActive; }, [isActive]);
 
   // Reset scroll position when this tab becomes active
@@ -351,6 +391,11 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        style={{ cursor: "grab", userSelect: "none" }}
       >
         <div
           ref={trackRef}
@@ -364,7 +409,10 @@ function TabMarquee({ tabKey, isActive, onCardClick }: TabMarqueeProps) {
             return (
               <div
                 key={`${tabKey}-card-${idx}`}
-                onClick={() => isClickable && onCardClick(realIndex)}
+                onClick={() => {
+                  if (hasDraggedRef.current) return;
+                  isClickable && onCardClick(realIndex);
+                }}
                 className={clsx(
                   "shrink-0 rounded-xl sm:rounded-2xl overflow-hidden bg-[#0C0C12] border border-white/5 relative shadow-md hover:border-[#6EE7FF]/30 transition-colors duration-300",
                   video.isHorizontal === false
